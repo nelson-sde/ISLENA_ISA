@@ -28,7 +28,7 @@ export class ClientesPage {
     } else {                                     // Se recorre el arreglo para buscar coincidencias
       this.busquedaClientes = [];
       for (let i = 0; i < this.clientes.length; i++) {
-        if (this.clientes[i].nombre.indexOf( this.texto, 0 ) >= 0) {
+        if (this.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
           this.busquedaClientes.push(this.clientes[i]);
         }
       }

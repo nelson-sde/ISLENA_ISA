@@ -13,6 +13,10 @@ const routes: Routes = [
   {
     path: 'clientes/:value',
     loadChildren: () => import('./rutero/clientes/clientes.module').then( m => m.ClientesPageModule)
+  },
+  {
+    path: 'pedidos',
+    loadChildren: () => import('./rutero/pedidos/pedidos.module').then( m => m.PedidosPageModule)
   }
 ];
 @NgModule({

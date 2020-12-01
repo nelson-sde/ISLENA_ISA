@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AlertController, ModalController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
 import { DataClientes } from 'src/app/models/data-clientes';
@@ -16,21 +17,22 @@ export class RuteroPage {
   dir: boolean = false;                      // Hay direccion = true
   clientes: Cliente[] = [];                 // Arreglo de los clientes de la ruta
   busquedaClientes: Cliente[] = [];        // Arreglo de los clientes a seleccionar
-  codigoCliente: number;
+  codigoCliente: number = 0;
 
   constructor( private alertController: AlertController,
-               public modalCtrl: ModalController ) {
+               public modalCtrl: ModalController,
+               private router: Router ) {
     this.clientes = DataClientes.slice(0);
-    console.log(this.clientes);
   }
 
   buscarCliente(){
+
     if (this.texto.length == 0) {                  // Se busca en todos los cliente
       this.busquedaClientes = this.clientes;      // El modal se abrira con el arreglo completo de clientes
     } else {                                     // Se recorre el arreglo para buscar coincidencias
       this.busquedaClientes = [];
       for (let i = 0; i < this.clientes.length; i++) {
-        if (this.clientes[i].nombre.indexOf( this.texto, 0 ) >= 0) {
+        if (this.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
           this.busquedaClientes.push(this.clientes[i]);
         }
       }
@@ -78,6 +80,16 @@ export class RuteroPage {
       this.texto = '';
       this.direccion = '';
       this.dir = false;
+    }
+  }
+
+  abrirPedidos(){
+    if (this.codigoCliente !== 0){
+      this.router.navigate(['/pedidos', {
+                            codCliente: this.codigoCliente,
+                            nombreCliente: this.texto,
+                            dirCliente: this.direccion
+      }]);
     }
   }
 

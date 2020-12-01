@@ -1,0 +1,122 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-back-button slot="start"></ion-back-button>
+    <ion-title>Pedidos</ion-title>
+    <ion-button (click)="carrito()" fill="clear" slot="end" size="medium">
+      <ion-icon name="cart-outline" color="danger" size="large"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-start ion-padding-end">
+  <ion-list color="light">
+    <ion-item>
+      <ion-label>{{cliente.nombre}}</ion-label>
+    </ion-item>
+  </ion-list>
+  <ion-item>
+    <ion-label position="floating">Producto</ion-label>
+    <ion-input [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarProducto()"></ion-input>
+    <ion-button (click)="buscarProducto()" slot="end" size="medium" color="light">
+      <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <ion-list *ngIf="mostrarListaProd">
+    <ion-item *ngFor="let item of busquedaProd; let i = index" (click)="productoSelect(i)">
+      <ion-label>{{item.nombre}}</ion-label>
+      <ion-icon color="dark" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
+    </ion-item>
+  </ion-list>
+
+  <ion-grid *ngIf="mostrarProducto" fixed>
+    <ion-row>
+      <ion-col size="3" class="ion-align-self-center">
+        <ion-img src="../../assets/img/menos.png" (click)="menosFunction()"></ion-img>
+      </ion-col>
+      <ion-col size="6">
+        <ion-card >
+          <ion-img src="../../assets/img/4603.png"></ion-img>
+          <ion-card-content text-center>
+            <ion-label>Can: {{cantidad}}  Des: {{descuento}}%</ion-label>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="3" class="ion-align-self-center">
+        <ion-img src="../../assets/img/mas.png" (click)="masFunction()"></ion-img>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="9">
+        <ion-segment (ionChange)="accionPedido($event)" value="cant" color="dark">
+          <ion-segment-button value="cant">
+            <ion-label>Cantidad</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="desc">
+            <ion-label>Descuento</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-col>
+      <ion-col size="3" class="ion-align-self-center">
+        <ion-button color="light" (click)="calculaLineaPedido()">
+          <ion-icon slot="icon-only" name="checkmark-done-outline"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-list *ngIf="pedidoSinSalvar">
+    <ion-list-header color="light" lines="full">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <div>Cod</div>
+          </ion-col>
+          <ion-col >
+            <div>Q</div>
+          </ion-col>
+          <ion-col>
+            <div>Sub</div>
+          </ion-col>
+          <ion-col>
+            <div>IVA</div>
+          </ion-col>
+          <ion-col>
+            <div>Des</div>
+          </ion-col>
+          <ion-col>
+            <div>Total</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list-header>
+    <ion-item *ngFor="let item of detallePedido">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <div>{{ item.codProducto }}</div>
+          </ion-col>
+          <ion-col >
+            <div>{{ item.cantidad }}</div>
+          </ion-col>
+          <ion-col>
+            <div>{{ item.subTotal }}</div>
+          </ion-col>
+          <ion-col>
+            <div>{{ item.iva }}</div>
+          </ion-col>
+          <ion-col>
+            <div>{{ item.descuento }}</div>
+          </ion-col>
+          <ion-col>
+            <div>{{ item.total }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+</ion-content>
+<ion-footer>
+  <ion-toolbar color="dark">
+    <ion-title>Sub {{ pedido.subTotal }} IV {{ pedido.iva }} Des -{{ pedido.descuento }} [{{ pedido.total }}]</ion-title>
+  </ion-toolbar>
+</ion-footer>
