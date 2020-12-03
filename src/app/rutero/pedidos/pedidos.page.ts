@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+
 import { ActivatedRoute } from '@angular/router';
 import { Productos } from 'src/app/models/productos';
 import { DataProductos } from 'src/app/models/data-productos';
@@ -6,7 +7,7 @@ import { Cliente } from 'src/app/models/cliente';
 import { Pedido } from 'src/app/models/pedido';
 import { DetallePedido } from 'src/app/models/detallePedido';
 import { IsaService } from 'src/app/services/isa.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, NavController} from '@ionic/angular';
 
 @Component({
   selector: 'app-pedidos',
@@ -15,32 +16,31 @@ import { AlertController } from '@ionic/angular';
 })
 export class PedidosPage {
 
-  cliente: Cliente;
-  productos: Productos[] = [];
-  busquedaProd: Productos[] = [];
-  producto: Productos;
-  texto: string = '';
-  mostrarListaProd: boolean = false;
-  mostrarProducto: boolean = false;
-  cantidad: number = 6;
-  descuento: number = 0;
-  montoIVA: number;
-  montoDescuento: number;
-  montoSub: number;
-  montoTotal: number;
-  defaultCant: boolean = true;
-  pedido: Pedido;
-  detallePedido: DetallePedido[] = [];
-  nuevoDetalle: DetallePedido;
-  pedidoSinSalvar: boolean = false;
+  cliente: Cliente;                           // Cliente del rutero seleccionado
+  productos: Productos[] = [];               // Arreglo que contiene la lista de productos
+  busquedaProd: Productos[] = [];           // Arreglo que contiene la sublista de productos seleccionados
+  producto: Productos;                     // Producto seleccionado de la busqueda     
+  texto: string = '';                             // campo de busqueda de productos
+  mostrarListaProd: boolean = false;             // La seleccion de productos respondio multiples lineas
+  mostrarProducto: boolean = false;             // True: Se ha seleccionado un producto para agregar al pedido
+  cantidad: number = 6;                        // variable temporal con la cantidad de Items a agregar en el pedido
+  descuento: number = 0;                      // variable temporal con el % del descuento
+  montoIVA: number;                          // variable temporal con el monto del IVA
+  montoDescuento: number;                   // variable temporal con el monto del descuento del pedido
+  montoSub: number;                        // variable temporal con el monto bruto del pedido
+  montoTotal: number;                     // Variable temporal con el monto del pedido
+  defaultCant: boolean = true;                // Boolean que nos indica si estamos agregando cantidades o descuentos
+  pedido: Pedido;                            // Pedido del cliente
+  nuevoDetalle: DetallePedido;              // Variable temporal con la nueva linea de pedido 
+  pedidoSinSalvar: boolean = false;        // nos indica si hemos iniciado con un pedido
 
 
   constructor( private activateRoute: ActivatedRoute,
                private isaService: IsaService,
-               private alertController: AlertController ) {
+               private alertController: AlertController,
+               private navController: NavController ) {
 
-    this.activateRoute.params.subscribe((data: any) => {
-      console.log(data);
+    this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
       this.productos = DataProductos.slice(0);
       this.pedido = new Pedido( '1', this.cliente.id, 0, 0, 0, 0);
@@ -76,14 +76,14 @@ export class PedidosPage {
     } 
   }
 
-  productoSelect( i: number ){
-    this.mostrarListaProd = false;
+  productoSelect( i: number ){                  // Cuando se seleciona un producto, se quita la lista de seleccion
+    this.mostrarListaProd = false;             // Y se activa el flag de mostrar producto
     this.producto = this.busquedaProd[i];
     this.texto = this.busquedaProd[i].nombre;
     this.mostrarProducto = true;
   }
 
-  accionPedido( event: any ){
+  accionPedido( event: any ){          // Segmento de IONIC que determina si la cantidad a ingresar es Q o Descuentos
     const a = event.detail;
     if(a.value.toString() == 'desc'){
       this.defaultCant = false;
@@ -92,7 +92,7 @@ export class PedidosPage {
     } 
   }
 
-  calculaLineaPedido(){
+  calculaLineaPedido(){           // Boton de aceptar la linea de pedido
     this.montoSub = this.cantidad * this.producto.precio;
     this.montoIVA = this.montoSub * 0.13;
     this.montoDescuento = this.montoSub * this.descuento / 100;
@@ -122,7 +122,6 @@ export class PedidosPage {
           text: 'Ok',
           handler: () => {
             this.pedido.detalle.push( this.nuevoDetalle );
-            this.detallePedido.push(this.nuevoDetalle);
             this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
             this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
             this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
@@ -139,7 +138,6 @@ export class PedidosPage {
             this.montoSub = 0;
             this.montoTotal = 0;
             this.defaultCant = true;
-            console.log('Confirm Okay');
           }
         }
       ]
@@ -169,5 +167,63 @@ export class PedidosPage {
     return 5;
   }
 
+  regresar(){
+    if (this.pedidoSinSalvar){
+      this.presentAlertSalir();
+    } else {
+      this.navController.back();
+    }
+  }
+
+  borrarDetalle( i: number ){
+    let data: DetallePedido[] = [];
+
+    this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
+    this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
+    this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
+    this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
+
+    if (i > 0){
+      data = this.pedido.detalle.slice(0, i);
+    } 
+    if (i+1 < this.pedido.detalle.length){
+      data = data.concat(this.pedido.detalle.slice(i+1, this.pedido.detalle.length));
+    }
+    this.pedido.detalle = data;
+    console.log(this.pedido);
+  }
+
+  editarDetalle( i: number ){
+    const codigo = this.pedido.detalle[i].codProducto;
+    this.borrarDetalle(i);
+    this.producto = this.productos.find(data => data.id == codigo);  // Funcion que retorna el producto a editar
+    this.texto = this.producto.nombre;
+    this.mostrarListaProd = false;
+    this.mostrarProducto = true;
+  }
+
+  async presentAlertSalir() {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Cuidado!!!',
+      message: 'Desea salir del pedido.  Se perdera la informacion no salvada.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Si',
+          handler: () => {
+            this.navController.back();
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
 
 }

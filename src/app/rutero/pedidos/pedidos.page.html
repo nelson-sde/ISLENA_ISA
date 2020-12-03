@@ -1,22 +1,27 @@
 <ion-header>
   <ion-toolbar color="dark">
-    <ion-back-button slot="start"></ion-back-button>
-    <ion-title>Pedidos</ion-title>
-    <ion-button (click)="carrito()" fill="clear" slot="end" size="medium">
-      <ion-icon name="cart-outline" color="danger" size="large"></ion-icon>
-    </ion-button>
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        Back
+      </ion-button>
+      <ion-title align-text-center>Pedidos</ion-title>
+      <ion-button (click)="carrito()" fill="clear" slot="end" size="medium">
+        <ion-icon name="cart-outline" color="danger" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding-start ion-padding-end">
-  <ion-list color="light">
-    <ion-item>
+  <ion-list>
+    <ion-item color="light">
       <ion-label>{{cliente.nombre}}</ion-label>
     </ion-item>
   </ion-list>
   <ion-item>
     <ion-label position="floating">Producto</ion-label>
-    <ion-input [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarProducto()"></ion-input>
+    <ion-input #input [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarProducto()"></ion-input>
     <ion-button (click)="buscarProducto()" slot="end" size="medium" color="light">
       <ion-icon slot="icon-only" name="search-outline"></ion-icon>
     </ion-button>
@@ -38,7 +43,7 @@
         <ion-card >
           <ion-img src="../../assets/img/4603.png"></ion-img>
           <ion-card-content text-center>
-            <ion-label>Can: {{cantidad}}  Des: {{descuento}}%</ion-label>
+            <ion-label>Can: <strong>{{cantidad}}</strong>  Des: <strong>{{descuento}}%</strong></ion-label>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -89,30 +94,39 @@
         </ion-row>
       </ion-grid>
     </ion-list-header>
-    <ion-item *ngFor="let item of detallePedido">
-      <ion-grid>
-        <ion-row>
-          <ion-col>
-            <div>{{ item.codProducto }}</div>
-          </ion-col>
-          <ion-col >
-            <div>{{ item.cantidad }}</div>
-          </ion-col>
-          <ion-col>
-            <div>{{ item.subTotal }}</div>
-          </ion-col>
-          <ion-col>
-            <div>{{ item.iva }}</div>
-          </ion-col>
-          <ion-col>
-            <div>{{ item.descuento }}</div>
-          </ion-col>
-          <ion-col>
-            <div>{{ item.total }}</div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-item>
+
+    <ion-item-sliding *ngFor="let item of pedido.detalle; let i = index">
+      <ion-item-options side="start">
+        <ion-item-option color="warning" (click)="editarDetalle(i)">Editar</ion-item-option>
+      </ion-item-options>
+      <ion-item>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <div>{{ item.codProducto }}</div>
+            </ion-col>
+            <ion-col >
+              <div>{{ item.cantidad }}</div>
+            </ion-col>
+            <ion-col>
+              <div>{{ item.subTotal }}</div>
+            </ion-col>
+            <ion-col>
+              <div>{{ item.iva }}</div>
+            </ion-col>
+            <ion-col>
+              <div>{{ item.descuento }}</div>
+            </ion-col>
+            <ion-col>
+              <div>{{ item.total }}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="borrarDetalle(i)">Borrar</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
 </ion-content>
 <ion-footer>

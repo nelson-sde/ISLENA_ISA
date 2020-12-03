@@ -84,12 +84,14 @@ export class RuteroPage {
   }
 
   abrirPedidos(){
-    if (this.codigoCliente !== 0){
+    if (this.codigoCliente !== 0 && this.texto.length !== 0){
       this.router.navigate(['/pedidos', {
                             codCliente: this.codigoCliente,
                             nombreCliente: this.texto,
                             dirCliente: this.direccion
       }]);
+    } else {
+      this.presentAlert('Pedidos', 'Debe seleccionar un cliente para ingresar un pedido.')
     }
   }
 
