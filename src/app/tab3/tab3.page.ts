@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { IsaService } from '../services/isa.service';
 
 @Component({
   selector: 'app-tab3',
@@ -7,6 +9,22 @@ import { Component } from '@angular/core';
 })
 export class Tab3Page {
 
-  constructor() {}
+  numRuta: string;
+
+  constructor( public isa: IsaService,
+               private router: Router ) {
+    this.numRuta = isa.varConfig.numRuta;
+    console.log(isa.varConfig);
+  }
+
+  configRuta(){
+    if (this.isa.varConfig.usuario !== 'Admin'){
+      // abre el modal de logeo
+    }
+    if (this.isa.varConfig.usuario == 'Admin'){
+      console.log('Abrir Config');
+      this.router.navigate(['tab3-config']);
+    }
+  }
 
 }

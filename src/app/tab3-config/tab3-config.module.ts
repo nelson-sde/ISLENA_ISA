@@ -4,18 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { RuteroPageRoutingModule } from './rutero-routing.module';
+import { Tab3ConfigPageRoutingModule } from './tab3-config-routing.module';
 
-import { RuteroPage } from './rutero.page';
-import { IsaService } from 'src/app/services/isa.service';
+import { Tab3ConfigPage } from './tab3-config.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    RuteroPageRoutingModule,
+    Tab3ConfigPageRoutingModule
   ],
-  declarations: [RuteroPage]
+  declarations: [Tab3ConfigPage]
 })
-export class RuteroPageModule {}
+export class Tab3ConfigPageModule {}

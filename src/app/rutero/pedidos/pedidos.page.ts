@@ -8,6 +8,7 @@ import { Pedido } from 'src/app/models/pedido';
 import { DetallePedido } from 'src/app/models/detallePedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { AlertController, NavController} from '@ionic/angular';
+import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
 
 @Component({
   selector: 'app-pedidos',
@@ -36,14 +37,15 @@ export class PedidosPage {
 
 
   constructor( private activateRoute: ActivatedRoute,
-               private isaService: IsaService,
+               private isaConfig: IsaService,
+               private isaPedido: IsaPedidoService,
                private alertController: AlertController,
                private navController: NavController ) {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
       this.productos = DataProductos.slice(0);
-      this.pedido = new Pedido( '1', this.cliente.id, 0, 0, 0, 0);
+      this.pedido = new Pedido( isaConfig.varConfig.consecutivoPedidos.toString(), this.cliente.id, 0, 0, 0, 0);
     });
   }
 
@@ -62,7 +64,7 @@ export class PedidosPage {
     }
 
     if (this.busquedaProd.length == 0){                               // no hay coincidencias
-      this.isaService.presentAlertW( this.texto, 'No hay coincidencias' );
+      this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
       this.texto = '';
       this.mostrarListaProd = false;
       this.mostrarProducto = false;
@@ -127,22 +129,25 @@ export class PedidosPage {
             this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
             this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
             this.pedidoSinSalvar = true;
-            console.log(this.pedido);
-            this.texto = '';
-            this.mostrarListaProd = false;
-            this.mostrarProducto = false;
-            this.cantidad = 6;
-            this.descuento = 0;
-            this.montoIVA = 0;
-            this.montoDescuento = 0;
-            this.montoSub = 0;
-            this.montoTotal = 0;
-            this.defaultCant = true;
+            this.inicializaVariables();
           }
         }
       ]
     });
     await alert.present();
+  }
+
+  inicializaVariables(){
+    this.texto = '';
+    this.mostrarListaProd = false;
+    this.mostrarProducto = false;
+    this.cantidad = 6;
+    this.descuento = 0;
+    this.montoIVA = 0;
+    this.montoDescuento = 0;
+    this.montoSub = 0;
+    this.montoTotal = 0;
+    this.defaultCant = true;
   }
 
   masFunction(){
@@ -161,7 +166,21 @@ export class PedidosPage {
     }
   }
 
-  carrito(){}
+  carrito(){
+    if (this.pedidoSinSalvar){
+      this.isaPedido.agregarPedido( this.pedido );
+      this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.varConfig.consecutivoPedidos + 1;
+      this.isaConfig.guardarVarConfig();
+      this.pedidoSinSalvar = false;
+      this.inicializaVariables();
+      this.pedido.numPedido = this.isaConfig.varConfig.consecutivoPedidos.toString();
+      this.pedido.subTotal = 0;
+      this.pedido.iva = 0;
+      this.pedido.descuento = 0;
+      this.pedido.total = 0;
+      this.pedido.detalle = [];
+    }
+  }
 
   descuentoPermitido( codCliente: number, codProducto: number ){
     return 5;

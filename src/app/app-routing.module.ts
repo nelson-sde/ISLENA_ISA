@@ -17,6 +17,10 @@ const routes: Routes = [
   {
     path: 'pedidos',
     loadChildren: () => import('./rutero/pedidos/pedidos.module').then( m => m.PedidosPageModule)
+  },
+  {
+    path: 'tab3-config',
+    loadChildren: () => import('./tab3-config/tab3-config.module').then( m => m.Tab3ConfigPageModule)
   }
 ];
 @NgModule({

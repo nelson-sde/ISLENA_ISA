@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AlertController, ModalController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
 import { DataClientes } from 'src/app/models/data-clientes';
+import { IsaService } from 'src/app/services/isa.service';
 import { ClientesPage } from '../clientes/clientes.page';
 
 @Component({
@@ -21,7 +22,8 @@ export class RuteroPage {
 
   constructor( private alertController: AlertController,
                public modalCtrl: ModalController,
-               private router: Router ) {
+               private router: Router,
+               public isa: IsaService ) {
     this.clientes = DataClientes.slice(0);
   }
 

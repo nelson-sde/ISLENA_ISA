@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title>
+      Carga Configuracion - {{numRuta}}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label position="floating">Numero de Ruta</ion-label>
+    <ion-input [(ngModel)]="texto" (keyup.enter)="cargaConfig()"></ion-input>
+    <ion-button (click)="cargaConfig()" slot="end" size="medium" color="light"></ion-button>
+    <ion-icon slot="icon-only" name="cloud-download-outline"></ion-icon>
+  </ion-item>
+</ion-content>

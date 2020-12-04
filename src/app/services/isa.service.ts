@@ -1,12 +1,50 @@
 import { Injectable } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 
+interface variablesConfig {
+  numRuta: string;
+  nombreVendedor: string;
+  consecutivoPedidos: number;
+  consecutivoRecibos: number;
+  usuario: string;
+  clave: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class IsaService {
 
-  constructor(public alertController: AlertController) { }
+  varConfig: variablesConfig = {
+    numRuta: 'R001',
+    nombreVendedor: 'No definido',
+    consecutivoPedidos: 0,
+    consecutivoRecibos: 0,
+    usuario: 'Admin',
+    clave: 'Admin'
+  };
+
+  constructor(public alertController: AlertController) { 
+    this.cargaVarConfig();
+  }
+
+  cargaVarConfig(){
+    if (localStorage.getItem('config')){
+      this.varConfig = JSON.parse( localStorage.getItem('config'));
+    } 
+  }
+
+  guardarVarConfig(){
+    localStorage.setItem('config', JSON.stringify(this.varConfig));
+  }
+
+  getConfig( id: string ){
+    if (id == 'ruta'){
+      return this.varConfig.numRuta;
+    } else if (id == 'pedidos') {
+      return this.varConfig.consecutivoPedidos;
+    }
+  }
 
   async presentAlertW( subtitulo: string, mensaje: string ) {
     const alert = await this.alertController.create({
@@ -19,27 +57,5 @@ export class IsaService {
     await alert.present();
   }
 
-  async presentAlertConfirm( sub: number, iva: number, desc: number, total: number ) {
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Confirm!',
-      message: 'Sub: ' + sub.toString() + ' IVA: ' + iva.toString() + ' Des: ' + desc.toString() + ' Total: ' + total.toString(),    // <strong>text</strong>
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('Confirm Cancel');
-          }
-        }, {
-          text: 'Okay',
-          handler: () => {
-            console.log('Confirm Okay');
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
+  
 }
