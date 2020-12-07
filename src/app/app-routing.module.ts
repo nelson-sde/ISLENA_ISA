@@ -21,6 +21,14 @@ const routes: Routes = [
   {
     path: 'tab3-config',
     loadChildren: () => import('./tab3-config/tab3-config.module').then( m => m.Tab3ConfigPageModule)
+  },
+  {
+    path: 'inventario',
+    loadChildren: () => import('./rutero/inventario/inventario.module').then( m => m.InventarioPageModule)
+  },
+  {
+    path: 'cardex',
+    loadChildren: () => import('./rutero/cardex/cardex.module').then( m => m.CardexPageModule)
   }
 ];
 @NgModule({

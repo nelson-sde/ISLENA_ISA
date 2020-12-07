@@ -27,6 +27,26 @@ export class RuteroPage {
     this.clientes = DataClientes.slice(0);
   }
 
+  abrirPedidos(){
+    if (this.codigoCliente !== 0 && this.texto.length !== 0){
+      this.router.navigate(['/pedidos', {
+                            codCliente: this.codigoCliente,
+                            nombreCliente: this.texto,
+                            dirCliente: this.direccion
+      }]);
+    } else {
+      this.presentAlert('Pedidos', 'Debe seleccionar un cliente para ingresar un pedido.')
+    }
+  }
+
+  abrirInventario(){
+    if (this.codigoCliente !== 0 && this.texto.length !== 0){
+      this.router.navigate(['/inventario']);
+    } else {
+      this.presentAlert('Inventarios', 'Debe seleccionar un cliente para realizar un inventario.');
+    }
+  }
+
   buscarCliente(){
 
     if (this.texto.length == 0) {                  // Se busca en todos los cliente
@@ -51,6 +71,7 @@ export class RuteroPage {
       this.direccion = this.busquedaClientes[0].direccion;
       this.codigoCliente = this.busquedaClientes[0].id;
       this.dir = true;
+      this.isa.actualizaClienteAct(this.codigoCliente, this.texto, this.direccion);
     } else {                                                           // Se debe abrir el modal para busqueda de clientes
       this.modalClientes();
     }
@@ -71,9 +92,11 @@ export class RuteroPage {
     if (codigo !== 0){
       for (let i = 0; i < this.clientes.length; i++) {
         if (this.clientes[i].id == codigo ){
+          this.codigoCliente = this.clientes[i].id
           this.texto = this.clientes[i].nombre;
           this.direccion = this.clientes[i].direccion;
           this.dir = true;
+          this.isa.actualizaClienteAct(this.codigoCliente, this.texto, this.direccion);
           return;
         }
       }
@@ -82,18 +105,6 @@ export class RuteroPage {
       this.texto = '';
       this.direccion = '';
       this.dir = false;
-    }
-  }
-
-  abrirPedidos(){
-    if (this.codigoCliente !== 0 && this.texto.length !== 0){
-      this.router.navigate(['/pedidos', {
-                            codCliente: this.codigoCliente,
-                            nombreCliente: this.texto,
-                            dirCliente: this.direccion
-      }]);
-    } else {
-      this.presentAlert('Pedidos', 'Debe seleccionar un cliente para ingresar un pedido.')
     }
   }
 

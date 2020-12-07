@@ -1,0 +1,46 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        Back
+      </ion-button>
+      <ion-title>Cardex</ion-title>
+      <ion-button (click)="guardarCardex()" fill="clear" slot="end" size="medium">
+        <ion-icon name="pencil-outline" color="danger" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item color="light">
+    <ion-label class="ion-text-wrap">
+      <ion-text color="primary">
+        <h1>{{ isa.clienteAct.nombre }}</h1>
+      </ion-text>
+      <ion-text>
+        <p>{{ codProducto }} - {{ nomProducto }}</p>
+      </ion-text>
+    </ion-label>
+  </ion-item>
+  <p></p>
+  <ion-list>
+    <ion-list-header color="light" lines="full">
+      <ion-grid>
+        <ion-row color="light">
+          <ion-col size="4">Fecha</ion-col>
+          <ion-col size="4">Inventario</ion-col>
+          <ion-col size="4">Pedido</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list-header>
+    <ion-grid>    
+      <ion-row *ngFor="let item of historico">
+        <ion-col size="4">{{item.fecha | date: 'shortDate'}}</ion-col>
+        <ion-col size="4">{{item.cantInventario}}</ion-col>
+        <ion-col size="4">{{item.cantPedido}}</ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-list>  
+</ion-content>

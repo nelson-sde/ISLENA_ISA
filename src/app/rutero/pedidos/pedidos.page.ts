@@ -9,6 +9,8 @@ import { DetallePedido } from 'src/app/models/detallePedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { AlertController, NavController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
+import { IsaCardexService } from 'src/app/services/isa-cardex.service';
+import { Cardex } from 'src/app/models/cardex';
 
 @Component({
   selector: 'app-pedidos',
@@ -39,6 +41,7 @@ export class PedidosPage {
   constructor( private activateRoute: ActivatedRoute,
                private isaConfig: IsaService,
                private isaPedido: IsaPedidoService,
+               private isaCardex: IsaCardexService,
                private alertController: AlertController,
                private navController: NavController ) {
 
@@ -46,7 +49,36 @@ export class PedidosPage {
       this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
       this.productos = DataProductos.slice(0);
       this.pedido = new Pedido( isaConfig.varConfig.consecutivoPedidos.toString(), this.cliente.id, 0, 0, 0, 0);
+      this.validaSiCardex();
     });
+  }
+
+  validaSiCardex(){
+    let cardex: Cardex[] = [];
+    let prod: Productos[] = [];
+
+    if (localStorage.getItem('cardex')){
+      cardex = JSON.parse( localStorage.getItem('cardex'));
+      const result = cardex.filter(data => data.codCliente == this.isaConfig.clienteAct.id);
+      if ( result.length > 0 ){
+        for (let i = 0; i < result.length; i++) {
+          prod = this.productos.filter(p => p.id == result[i].codProducto);
+          this.montoSub = result[i].cantPedido * prod[0].precio;
+          this.montoIVA = this.montoSub * 0.13;
+          this.montoTotal = this.montoSub + this.montoIVA;
+          this.nuevoDetalle = new DetallePedido(result[i].codProducto, result[i].cantPedido, this.montoSub, this.montoIVA, 0, 
+                                                this.montoTotal);
+          this.pedido.detalle.push( this.nuevoDetalle );
+          this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
+          this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
+          this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
+          this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
+          this.pedidoSinSalvar = true;
+        }
+        this.inicializaVariables();
+      }
+    }
+    
   }
 
   buscarProducto(){

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AlertController } from '@ionic/angular';
+import { Cliente } from '../models/cliente';
 
 interface variablesConfig {
   numRuta: string;
@@ -24,8 +25,19 @@ export class IsaService {
     clave: 'Admin'
   };
 
+  clienteAct: Cliente;
+
   constructor(public alertController: AlertController) { 
     this.cargaVarConfig();
+    this.clienteAct = new Cliente(0,'','',0,0);
+  }
+
+  actualizaClienteAct( id: number, nombre: string, dir: string ){
+    this.clienteAct.id = id;
+    this.clienteAct.nombre = nombre;
+    this.clienteAct.direccion = dir;
+    this.clienteAct.limiteCredito = 0;
+    this.clienteAct.montoCredito = 0;
   }
 
   cargaVarConfig(){
