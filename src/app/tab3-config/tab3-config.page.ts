@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
 import { IsaService } from '../services/isa.service';
 
 @Component({
@@ -10,34 +10,36 @@ import { IsaService } from '../services/isa.service';
 export class Tab3ConfigPage {
 
   texto:string;
-  numRuta: string;
 
   constructor( public isa: IsaService,
-               private alertCtrl: AlertController ) {
-    this.numRuta = isa.varConfig.numRuta;
+               private alertCtrl: AlertController,
+               private navControler: NavController ) {
+    this.isa.cargaRutas();
   }
 
   cargaConfig(){
-    if (this.isa.varConfig.numRuta !== this.texto){
+    this.isa.ruta = this.isa.rutas.find(l => l.numRuta == this.texto);
+    console.log(this.isa.ruta);
+    if (this.isa.ruta !== undefined && this.texto !== this.isa.varConfig.numRuta){
       this.presentAlertConfirm();
-    } else {
+    } else if (this.isa.ruta !== undefined){
       this.cargaFast();
+    } else {
+      console.log('Ruta no existe');
+      this.isa.presentAlertW(this.texto, 'La ruta no existe');
     }
   }
 
   cargaRuta(){
-    this.isa.varConfig.numRuta = this.texto;
-    this.isa.varConfig.nombreVendedor = 'Mauricio Herra';
-    this.isa.varConfig.consecutivoPedidos = 1;
-    this.isa.varConfig.consecutivoRecibos = 1;
+    this.isa.varConfig = this.isa.ruta;
+    this.isa.syncClientes();
     this.isa.guardarVarConfig();
+    this.isa.syncClientes();
+    this.isa.syncProductos();
   }
 
   cargaFast(){
-    this.isa.varConfig.numRuta = this.texto;
-    this.isa.varConfig.nombreVendedor = 'Mauricio Herra';
-    this.isa.varConfig.consecutivoPedidos = 1;
-    this.isa.varConfig.consecutivoRecibos = 1;
+    this.isa.varConfig = this.isa.ruta;
     this.isa.guardarVarConfig();
   }
 
@@ -64,6 +66,10 @@ export class Tab3ConfigPage {
     });
 
     await alert.present();
+  }
+
+  regresar(){
+    this.navControler.back();
   }
 
 }

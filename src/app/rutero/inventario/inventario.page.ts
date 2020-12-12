@@ -14,9 +14,9 @@ import { IsaService } from 'src/app/services/isa.service';
 
 export class InventarioPage {
 
-  productos: Productos[] =[];
   isItemAvailable: boolean = true;
   cardexSinSalvar: boolean = false;
+  productos: Productos[] = [];
 
   constructor( public isa: IsaService,
                public isaCardex: IsaCardexService,
@@ -24,11 +24,16 @@ export class InventarioPage {
                private router: Router,
                private alertController: AlertController ) {
 
-    this.productos = DataProductos.slice(0);
+    this.isa.cargarProductos();
+    this.initializeItems();
+    this.isaCardex.consultarCliente(this.isa.clienteAct.id);
+    if (isaCardex.cardex.length !== 0){
+      this.cardexSinSalvar = true;
+    }
   }
 
   initializeItems(){
-    this.productos = DataProductos.slice(0);
+    this.productos = this.isa.productos.slice(0);
   }
 
   getItems(ev: any) {
@@ -68,8 +73,9 @@ export class InventarioPage {
   regresar(){
     if (this.cardexSinSalvar){
       this.presentAlertSalir();
+    } else {
+      this.navController.back();
     }
-    this.navController.back();
   }
 
   async presentAlertSalir() {
@@ -88,6 +94,7 @@ export class InventarioPage {
         }, {
           text: 'Si',
           handler: () => {
+            this.isaCardex.cardex = [];
             this.navController.back();
           }
         }

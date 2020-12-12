@@ -16,15 +16,14 @@ export class RuteroPage {
   texto: string = '';                          // Campo de busqueda del cliente
   direccion: string = '';                     // Direccion del cliente en el rutero
   dir: boolean = false;                      // Hay direccion = true
-  clientes: Cliente[] = [];                 // Arreglo de los clientes de la ruta
-  busquedaClientes: Cliente[] = [];        // Arreglo de los clientes a seleccionar
+  busquedaClientes: Cliente[] = [];         // Arreglo de los clientes a seleccionar
   codigoCliente: number = 0;
 
   constructor( private alertController: AlertController,
                public modalCtrl: ModalController,
                private router: Router,
                public isa: IsaService ) {
-    this.clientes = DataClientes.slice(0);
+    this.isa.cargarClientes();
   }
 
   abrirPedidos(){
@@ -50,12 +49,12 @@ export class RuteroPage {
   buscarCliente(){
 
     if (this.texto.length == 0) {                  // Se busca en todos los cliente
-      this.busquedaClientes = this.clientes;      // El modal se abrira con el arreglo completo de clientes
+      this.busquedaClientes = this.isa.clientes;      // El modal se abrira con el arreglo completo de clientes
     } else {                                     // Se recorre el arreglo para buscar coincidencias
       this.busquedaClientes = [];
-      for (let i = 0; i < this.clientes.length; i++) {
-        if (this.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-          this.busquedaClientes.push(this.clientes[i]);
+      for (let i = 0; i < this.isa.clientes.length; i++) {
+        if (this.isa.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+          this.busquedaClientes.push(this.isa.clientes[i]);
         }
       }
     }
@@ -90,11 +89,11 @@ export class RuteroPage {
 
   buscarCodigoCliente( codigo: number ){                 // busca un cliente por codigo de cliente
     if (codigo !== 0){
-      for (let i = 0; i < this.clientes.length; i++) {
-        if (this.clientes[i].id == codigo ){
-          this.codigoCliente = this.clientes[i].id
-          this.texto = this.clientes[i].nombre;
-          this.direccion = this.clientes[i].direccion;
+      for (let i = 0; i < this.isa.clientes.length; i++) {
+        if (this.isa.clientes[i].id == codigo ){
+          this.codigoCliente = this.isa.clientes[i].id
+          this.texto = this.isa.clientes[i].nombre;
+          this.direccion = this.isa.clientes[i].direccion;
           this.dir = true;
           this.isa.actualizaClienteAct(this.codigoCliente, this.texto, this.direccion);
           return;

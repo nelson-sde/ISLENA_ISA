@@ -14,6 +14,9 @@ import { IsaService } from 'src/app/services/isa.service';
 export class CardexPage {
   codProducto: number;
   nomProducto: string;
+  cantInventario: number = 0;
+  cantPedido: number = 0;
+  i:          number;               // La posicion en el arreglo de Cardex donde esta el producto (-1 si no se halla)
   historico: Cardex[] = [];
 
   constructor( private activatedRoute: ActivatedRoute,
@@ -24,7 +27,13 @@ export class CardexPage {
 
     this.activatedRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       this.codProducto = data.codProducto;
-      this.nomProducto = data.nombreProd
+      this.nomProducto = data.nombreProd;
+      this.i = this.isaCardex.consultarProducto( this.codProducto );
+      console.log(this.i);
+      if ( this.i >= 0 ){
+        this.cantPedido = this.isaCardex.cardex[this.i].cantPedido;
+        this.cantInventario = this.isaCardex.cardex[this.i].cantInventario;
+      }
     });
     this.historico = DataCardex.slice(0);
   }
@@ -42,6 +51,7 @@ export class CardexPage {
             placeholder: 'Inventario',
             name: 'cantInventario',
             type: 'number',
+            value: this.cantInventario,
             min: 0,
             max: 1000
           },
@@ -49,6 +59,7 @@ export class CardexPage {
             placeholder: 'Pedido',
             name: 'cantPedido',
             type: 'number',
+            value: this.cantPedido,
             min: 0,
             max: 1000
           },
@@ -65,10 +76,15 @@ export class CardexPage {
             text: 'Ok',
             handler: (info) => {
               console.log('Confirm Ok');
-              const data = new Cardex(this.isa.clienteAct.id, this.codProducto, info.cantInventario , info.cantPedido );
-              this.isaCardex.agregarCardex(data);
-              console.log(data);
-              this.navController.back();
+              if (this.i < 0){
+                const data = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, info.cantInventario , info.cantPedido );
+                this.isaCardex.agregarCardex(data);
+                this.navController.back();
+              } else {
+                this.isaCardex.modificarCardex( this.i, info.cantPedido, info.cantInventario );
+                this.navController.back();
+              }
+              
             }
           }
         ]

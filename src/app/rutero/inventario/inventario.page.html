@@ -7,7 +7,7 @@
       </ion-button>
       <ion-title>Cardex</ion-title>
       <ion-button (click)="guardarInventario()" fill="clear" slot="end" size="medium">
-        <ion-icon name="save-outline" color="danger" size="large"></ion-icon>
+        <ion-icon name="save-outline" [color]=" cardexSinSalvar ? 'danger' : 'success'" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -30,17 +30,17 @@
     <ion-list-header color="light" lines="full">
       <ion-grid>
         <ion-row color="light">
-          <ion-col size="4">Producto</ion-col>
-          <ion-col size="4">Inventario</ion-col>
-          <ion-col size="4">Pedido</ion-col>
+          <ion-col size="6">Producto</ion-col>
+          <ion-col size="3">Invent</ion-col>
+          <ion-col size="3">Pedido</ion-col>
         </ion-row>
       </ion-grid>
     </ion-list-header>
     <ion-grid>    
       <ion-row *ngFor="let item of isaCardex.cardex">
-        <ion-col size="4">{{item.codProducto}}</ion-col>
-        <ion-col size="4">{{item.cantInventario}}</ion-col>
-        <ion-col size="4">{{item.cantPedido}}</ion-col>
+        <ion-col size="8">{{item.desProducto}}</ion-col>
+        <ion-col size="2">{{item.cantInventario}}</ion-col>
+        <ion-col size="2">{{item.cantPedido}}</ion-col>
       </ion-row>
     </ion-grid>
     <p></p>

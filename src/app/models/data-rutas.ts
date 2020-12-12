@@ -1,0 +1,43 @@
+
+export const DataRutas = [
+    {
+        numRuta: 'R005',
+        descripcion: 'Ruta Jaco Quepos',
+        codVendedor: 1,
+        nomVendedor: 'Francisco Lazo',
+        usuario: 'flazo',
+        clave: 'flazo',
+        consecutivoPedidos: 1,
+        consecutivoRecibos: 1,
+    },
+    {
+        numRuta: 'R006',
+        descripcion: 'Zona Atlantica',
+        codVendedor: 2,
+        nomVendedor: 'Carlos Lopez',
+        usuario: 'clopez',
+        clave: 'clopez',
+        consecutivoPedidos: 1,
+        consecutivoRecibos: 1,
+    },
+    {
+        numRuta: 'R007',
+        descripcion: 'ON Oeste',
+        codVendedor: 3,
+        nomVendedor: 'Carlos Soto',
+        usuario: 'csoto',
+        clave: 'csoto',
+        consecutivoPedidos: 1,
+        consecutivoRecibos: 1,
+    },
+    {
+        numRuta: 'R010',
+        descripcion: 'Off Heredia',
+        codVendedor: 4,
+        nomVendedor: 'Mauricio Herra',
+        usuario: 'admin',
+        clave: 'admin',
+        consecutivoPedidos: 1,
+        consecutivoRecibos: 1,
+    },
+]

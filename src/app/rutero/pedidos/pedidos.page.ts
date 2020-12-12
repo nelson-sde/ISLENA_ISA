@@ -20,7 +20,6 @@ import { Cardex } from 'src/app/models/cardex';
 export class PedidosPage {
 
   cliente: Cliente;                           // Cliente del rutero seleccionado
-  productos: Productos[] = [];               // Arreglo que contiene la lista de productos
   busquedaProd: Productos[] = [];           // Arreglo que contiene la sublista de productos seleccionados
   producto: Productos;                     // Producto seleccionado de la busqueda     
   texto: string = '';                             // campo de busqueda de productos
@@ -36,7 +35,8 @@ export class PedidosPage {
   pedido: Pedido;                            // Pedido del cliente
   nuevoDetalle: DetallePedido;              // Variable temporal con la nueva linea de pedido 
   pedidoSinSalvar: boolean = false;        // nos indica si hemos iniciado con un pedido
-
+  modificando: boolean = false;           // Si es true se esta modificando una linea del pedido
+  j: number = -1;                        // j es el index de la linea que se esta modificando en el detalle
 
   constructor( private activateRoute: ActivatedRoute,
                private isaConfig: IsaService,
@@ -47,7 +47,7 @@ export class PedidosPage {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
-      this.productos = DataProductos.slice(0);
+      this.isaConfig.cargarProductos();
       this.pedido = new Pedido( isaConfig.varConfig.consecutivoPedidos.toString(), this.cliente.id, 0, 0, 0, 0);
       this.validaSiCardex();
     });
@@ -62,7 +62,7 @@ export class PedidosPage {
       const result = cardex.filter(data => data.codCliente == this.isaConfig.clienteAct.id);
       if ( result.length > 0 ){
         for (let i = 0; i < result.length; i++) {
-          prod = this.productos.filter(p => p.id == result[i].codProducto);
+          prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
           this.montoSub = result[i].cantPedido * prod[0].precio;
           this.montoIVA = this.montoSub * 0.13;
           this.montoTotal = this.montoSub + this.montoIVA;
@@ -75,7 +75,16 @@ export class PedidosPage {
           this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
           this.pedidoSinSalvar = true;
         }
-        this.inicializaVariables();
+        this.texto = '';
+        this.mostrarListaProd = false;
+        this.mostrarProducto = false;
+        this.cantidad = 6;
+        this.descuento = 0;
+        this.montoIVA = 0;
+        this.montoDescuento = 0;
+        this.montoSub = 0;
+        this.montoTotal = 0;
+        this.defaultCant = true;
       }
     }
     
@@ -84,37 +93,54 @@ export class PedidosPage {
   buscarProducto(){
     if (this.texto.length == 0) {    
       this.mostrarProducto = false;                // Se busca en todos los cliente
-      this.busquedaProd = this.productos;         // El modal se abrira con el arreglo completo de clientes
+      this.busquedaProd = this.isaConfig.productos;         // El modal se abrira con el arreglo completo de clientes
     } else {                                     // Se recorre el arreglo para buscar coincidencias
       this.busquedaProd = [];
       this.mostrarProducto = false;
-      for (let i = 0; i < this.productos.length; i++) {
-        if (this.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-          this.busquedaProd.push(this.productos[i]);
+      for (let i = 0; i < this.isaConfig.productos.length; i++) {
+        if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+          this.busquedaProd.push(this.isaConfig.productos[i]);
         }
       }
     }
-
-    if (this.busquedaProd.length == 0){                               // no hay coincidencias
+    if (this.busquedaProd.length == 0){                    // no hay coincidencias
       this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
       this.texto = '';
       this.mostrarListaProd = false;
       this.mostrarProducto = false;
-    } else if (this.busquedaProd.length == 1){                        // La coincidencia es exacta
-      this.producto = this.busquedaProd[0];
-      this.texto = this.busquedaProd[0].nombre;
-      this.mostrarListaProd = false;
-      this.mostrarProducto = true;
+    } else if (this.busquedaProd.length == 1){        // La coincidencia es exacta
+      this.productoSelect(0);
     } else {
-      this.mostrarListaProd = true;
-    } 
+      this.mostrarListaProd = true;                // Se muestra el Arr busquedaProd con el subconjunto de productos
+    }                                             // para que se seleccione el elegido
   }
 
   productoSelect( i: number ){                  // Cuando se seleciona un producto, se quita la lista de seleccion
     this.mostrarListaProd = false;             // Y se activa el flag de mostrar producto
     this.producto = this.busquedaProd[i];
     this.texto = this.busquedaProd[i].nombre;
+    const j = this.existeEnDetalle(this.busquedaProd[i].id);
+    console.log('J: '+j);
+    if (j >= 0){
+      this.cantidad = this.pedido.detalle[j].cantidad;
+      this.descuento = this.pedido.detalle[j].descuento * 100 / this.pedido.detalle[j].subTotal;
+      this.modificando = true;
+      this.j = j;
+      this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[j].subTotal;
+      this.pedido.iva = this.pedido.iva - this.pedido.detalle[j].iva;
+      this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[j].descuento;
+      this.pedido.total = this.pedido.total - this.pedido.detalle[j].total;
+    }
     this.mostrarProducto = true;
+  }
+
+  existeEnDetalle( id: number ){
+    if ( this.pedido.detalle.length !== 0 ){
+      const j = this.pedido.detalle.findIndex( data => data.codProducto == id );
+      return j;
+    } else {
+      return -1;
+    }
   }
 
   accionPedido( event: any ){          // Segmento de IONIC que determina si la cantidad a ingresar es Q o Descuentos
@@ -131,45 +157,24 @@ export class PedidosPage {
     this.montoIVA = this.montoSub * 0.13;
     this.montoDescuento = this.montoSub * this.descuento / 100;
     this.montoTotal = this.montoSub + this.montoIVA - this.montoDescuento;
-    this.nuevoDetalle = new DetallePedido(this.producto.id, this.cantidad, this.montoSub, this.montoIVA, this.montoDescuento, 
-                                           this.montoTotal);
-    this.presentAlertConfirm(this.nuevoDetalle.subTotal, 
-                             this.nuevoDetalle.iva, 
-                             this.nuevoDetalle.descuento, 
-                             this.nuevoDetalle.total );
-  }
-
-  async presentAlertConfirm( sub: number, iva: number, desc: number, total: number ) {
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Confirm!',
-      message: 'Sub: ' + sub.toString() + ' IVA: ' + iva.toString() + ' Des: ' + desc.toString() + ' Total: ' + total.toString(),
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('Confirm Cancel');
-          }
-        }, {
-          text: 'Ok',
-          handler: () => {
-            this.pedido.detalle.push( this.nuevoDetalle );
-            this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
-            this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
-            this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
-            this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
-            this.pedidoSinSalvar = true;
-            this.inicializaVariables();
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  inicializaVariables(){
+    if (this.modificando){          // Si modificando = true se esta modificando una linea del detalle
+      this.pedido.detalle[this.j].cantidad = this.cantidad;
+      this.pedido.detalle[this.j].subTotal = this.montoSub;
+      this.pedido.detalle[this.j].iva = this.montoIVA;
+      this.pedido.detalle[this.j].descuento = this.montoDescuento;
+      this.pedido.detalle[this.j].total = this.montoTotal;
+      this.modificando = false;
+      this.j = -1;
+    } else {                        // SINO se esta creando una nueva linea de detalle
+      this.nuevoDetalle = new DetallePedido(this.producto.id, this.cantidad, this.montoSub, this.montoIVA, this.montoDescuento, 
+        this.montoTotal);
+      this.pedido.detalle.push( this.nuevoDetalle );
+    }
+    this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
+    this.pedido.iva = this.pedido.iva + this.montoIVA;
+    this.pedido.descuento = this.pedido.descuento + this.montoDescuento;
+    this.pedido.total = this.pedido.total + this.montoTotal;
+    this.pedidoSinSalvar = true;
     this.texto = '';
     this.mostrarListaProd = false;
     this.mostrarProducto = false;
@@ -204,7 +209,16 @@ export class PedidosPage {
       this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.varConfig.consecutivoPedidos + 1;
       this.isaConfig.guardarVarConfig();
       this.pedidoSinSalvar = false;
-      this.inicializaVariables();
+      this.texto = '';
+      this.mostrarListaProd = false;
+      this.mostrarProducto = false;
+      this.cantidad = 6;
+      this.descuento = 0;
+      this.montoIVA = 0;
+      this.montoDescuento = 0;
+      this.montoSub = 0;
+      this.montoTotal = 0;
+      this.defaultCant = true;
       this.pedido.numPedido = this.isaConfig.varConfig.consecutivoPedidos.toString();
       this.pedido.subTotal = 0;
       this.pedido.iva = 0;
@@ -240,17 +254,23 @@ export class PedidosPage {
     if (i+1 < this.pedido.detalle.length){
       data = data.concat(this.pedido.detalle.slice(i+1, this.pedido.detalle.length));
     }
-    this.pedido.detalle = data;
-    console.log(this.pedido);
+    this.pedido.detalle = data.slice(0);
   }
 
   editarDetalle( i: number ){
-    const codigo = this.pedido.detalle[i].codProducto;
-    this.borrarDetalle(i);
-    this.producto = this.productos.find(data => data.id == codigo);  // Funcion que retorna el producto a editar
+    this.cantidad = this.pedido.detalle[i].cantidad;
+    this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;
+    this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
+    console.log(this.producto);
     this.texto = this.producto.nombre;
     this.mostrarListaProd = false;
     this.mostrarProducto = true;
+    this.modificando = true;
+    this.j = i;
+    this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
+    this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
+    this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
+    this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
   }
 
   async presentAlertSalir() {

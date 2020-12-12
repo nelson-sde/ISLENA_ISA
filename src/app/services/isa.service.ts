@@ -1,14 +1,20 @@
 import { Injectable } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Cliente } from '../models/cliente';
+import { DataClientes } from '../models/data-clientes';
+import { DataProductos } from '../models/data-productos';
+import { DataRutas } from '../models/Data-Rutas';
+import { Productos } from '../models/productos';
 
-interface variablesConfig {
+interface Ruta {
   numRuta: string;
-  nombreVendedor: string;
-  consecutivoPedidos: number;
-  consecutivoRecibos: number;
+  descripcion: string;
+  codVendedor: number;
+  nomVendedor: string;
   usuario: string;
   clave: string;
+  consecutivoPedidos: number;
+  consecutivoRecibos: number;
 }
 
 @Injectable({
@@ -16,28 +22,26 @@ interface variablesConfig {
 })
 export class IsaService {
 
-  varConfig: variablesConfig = {
-    numRuta: 'R001',
-    nombreVendedor: 'No definido',
+  varConfig: Ruta = {
+    numRuta: 'R000',
+    descripcion: 'No definido',
+    codVendedor: 0,
+    nomVendedor: 'No definido',
+    usuario: 'admin',
+    clave: 'admin',
     consecutivoPedidos: 0,
     consecutivoRecibos: 0,
-    usuario: 'Admin',
-    clave: 'Admin'
   };
 
   clienteAct: Cliente;
+  rutas: Ruta[] = [];
+  ruta: Ruta;
+  productos: Productos[] = [];
+  clientes: Cliente[] = [];
 
   constructor(public alertController: AlertController) { 
     this.cargaVarConfig();
     this.clienteAct = new Cliente(0,'','',0,0);
-  }
-
-  actualizaClienteAct( id: number, nombre: string, dir: string ){
-    this.clienteAct.id = id;
-    this.clienteAct.nombre = nombre;
-    this.clienteAct.direccion = dir;
-    this.clienteAct.limiteCredito = 0;
-    this.clienteAct.montoCredito = 0;
   }
 
   cargaVarConfig(){
@@ -50,11 +54,47 @@ export class IsaService {
     localStorage.setItem('config', JSON.stringify(this.varConfig));
   }
 
-  getConfig( id: string ){
+  actualizaClienteAct( id: number, nombre: string, dir: string ){
+    this.clienteAct.id = id;
+    this.clienteAct.nombre = nombre;
+    this.clienteAct.direccion = dir;
+    this.clienteAct.limiteCredito = 0;
+    this.clienteAct.montoCredito = 0;
+  }
+
+  /*getConfig( id: string ){
     if (id == 'ruta'){
       return this.varConfig.numRuta;
     } else if (id == 'pedidos') {
       return this.varConfig.consecutivoPedidos;
+    }
+  }*/
+
+  cargaRutas(){
+    this.rutas = DataRutas.slice(0); 
+  }
+
+  syncProductos(){
+    const productos = DataProductos.slice(0);
+    localStorage.removeItem('productos');
+    localStorage.setItem('productos', JSON.stringify(productos));
+  }
+
+  cargarProductos(){
+    if (localStorage.getItem('productos')){
+      this.productos = JSON.parse( localStorage.getItem('productos'));
+    }
+  }
+
+  syncClientes(){
+    const clientes = DataClientes.slice(0);
+    localStorage.removeItem('clientes');
+    localStorage.setItem('clientes', JSON.stringify(clientes));
+  }
+
+  cargarClientes(){
+    if (localStorage.getItem('clientes')){
+      this.clientes = JSON.parse( localStorage.getItem('clientes'));
     }
   }
 
