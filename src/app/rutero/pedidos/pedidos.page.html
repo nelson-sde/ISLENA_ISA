@@ -39,9 +39,9 @@
       <ion-col size="3" class="ion-align-self-center">
         <ion-img src="../../assets/img/menos.png" (click)="menosFunction()"></ion-img>
       </ion-col>
-      <ion-col size="6">
+      <ion-col size="6"> 
         <ion-card >
-          <ion-img src="../../assets/img/4603.png"></ion-img>
+          <ion-img [src]="producto.imagen"></ion-img>
           <ion-card-content text-center>
             <h2>Can: <strong>{{cantidad}}</strong>  Des: <strong>{{descuento}}%</strong></h2>
           </ion-card-content>
@@ -118,7 +118,7 @@
               <div>{{ item.descuento }}</div>
             </ion-col>
             <ion-col class="ion-align-self-end">
-              <div>{{ item.total }}</div>
+              <div>{{ item.total | currency }}</div>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -131,6 +131,6 @@
 </ion-content>
 <ion-footer>
   <ion-toolbar color="dark">
-    <ion-title>Sub {{ pedido.subTotal }} IV {{ pedido.iva }} Des -{{ pedido.descuento }} [{{ pedido.total }}]</ion-title>
+    <ion-title>IVA {{ pedido.iva }} Des -{{ pedido.descuento }} [{{ pedido.total |currency }}]</ion-title>
   </ion-toolbar>
 </ion-footer>

@@ -5,4 +5,5 @@ export class Productos {
     categoria: string;
     precio: number;
     grupoPromocional: number;
+    imagen: string;
 }
