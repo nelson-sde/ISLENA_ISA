@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { Productos } from 'src/app/models/productos';
-import { DataProductos } from 'src/app/models/data-productos';
 import { Cliente } from 'src/app/models/cliente';
 import { Pedido } from 'src/app/models/pedido';
 import { DetallePedido } from 'src/app/models/detallePedido';
 import { IsaService } from 'src/app/services/isa.service';
-import { AlertController, NavController} from '@ionic/angular';
+import { AlertController, IonList, NavController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { Cardex } from 'src/app/models/cardex';
+
 
 @Component({
   selector: 'app-pedidos',
@@ -37,6 +37,8 @@ export class PedidosPage {
   pedidoSinSalvar: boolean = false;        // nos indica si hemos iniciado con un pedido
   modificando: boolean = false;           // Si es true se esta modificando una linea del pedido
   j: number = -1;                        // j es el index de la linea que se esta modificando en el detalle
+
+  @ViewChild('myList') ionList: IonList;
 
   constructor( private activateRoute: ActivatedRoute,
                private isaConfig: IsaService,
@@ -78,7 +80,7 @@ export class PedidosPage {
         this.texto = '';
         this.mostrarListaProd = false;
         this.mostrarProducto = false;
-        this.cantidad = 6;
+        this.cantidad = 0;
         this.descuento = 0;
         this.montoIVA = 0;
         this.montoDescuento = 0;
@@ -188,7 +190,7 @@ export class PedidosPage {
   }
 
   masFunction(){
-    if (this.defaultCant){
+    if (this.defaultCant){ moveTo
       this.cantidad = this.cantidad + 1;
     } else {
       this.descuento = this.descuento + this.descuentoPermitido( this.cliente.id, this.producto.id );
@@ -261,7 +263,6 @@ export class PedidosPage {
     this.cantidad = this.pedido.detalle[i].cantidad;
     this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;
     this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
-    console.log(this.producto);
     this.texto = this.producto.nombre;
     this.mostrarListaProd = false;
     this.mostrarProducto = true;
@@ -271,6 +272,7 @@ export class PedidosPage {
     this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
     this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
     this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
+    this.ionList.closeSlidingItems();
   }
 
   async presentAlertSalir() {

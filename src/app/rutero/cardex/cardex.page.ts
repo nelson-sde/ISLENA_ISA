@@ -69,15 +69,11 @@ export class CardexPage {
             text: 'Cancel',
             role: 'cancel',
             cssClass: 'secondary',
-            handler: () => {
-              console.log('Confirm Cancel');
-            }
           }, {
             text: 'Ok',
             handler: (info) => {
-              console.log('Confirm Ok');
               if (this.i < 0){
-                const data = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, info.cantInventario , info.cantPedido );
+                const data = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, +info.cantInventario , +info.cantPedido );
                 this.isaCardex.agregarCardex(data);
                 this.navController.back();
               } else {
