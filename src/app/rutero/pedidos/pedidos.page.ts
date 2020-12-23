@@ -6,10 +6,11 @@ import { Cliente } from 'src/app/models/cliente';
 import { Pedido } from 'src/app/models/pedido';
 import { DetallePedido } from 'src/app/models/detallePedido';
 import { IsaService } from 'src/app/services/isa.service';
-import { AlertController, IonList, NavController} from '@ionic/angular';
+import { AlertController, IonList, NavController, PopoverController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { Cardex } from 'src/app/models/cardex';
+import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component';
 
 
 @Component({
@@ -19,7 +20,7 @@ import { Cardex } from 'src/app/models/cardex';
 })
 export class PedidosPage {
 
-  cliente: Cliente;                           // Cliente del rutero seleccionado
+  // cliente: Cliente;                           // Cliente del rutero seleccionado
   busquedaProd: Productos[] = [];           // Arreglo que contiene la sublista de productos seleccionados
   producto: Productos;                     // Producto seleccionado de la busqueda     
   texto: string = '';                             // campo de busqueda de productos
@@ -45,12 +46,13 @@ export class PedidosPage {
                private isaPedido: IsaPedidoService,
                private isaCardex: IsaCardexService,
                private alertController: AlertController,
-               private navController: NavController ) {
+               private navController: NavController,
+               private popoverController: PopoverController ) {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
-      this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
+      //this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
       this.isaConfig.cargarProductos();
-      this.pedido = new Pedido( isaConfig.varConfig.consecutivoPedidos.toString(), this.cliente.id, 0, 0, 0, 0);
+      this.pedido = new Pedido( isaConfig.varConfig.consecutivoPedidos.toString(), this.isaConfig.clienteAct.id, 0, 0, 0, 0);
       this.validaSiCardex();
     });
   }
@@ -68,7 +70,7 @@ export class PedidosPage {
           this.montoSub = result[i].cantPedido * prod[0].precio;
           this.montoIVA = this.montoSub * 0.13;
           this.montoTotal = this.montoSub + this.montoIVA;
-          this.nuevoDetalle = new DetallePedido(result[i].codProducto, result[i].cantPedido, this.montoSub, this.montoIVA, 0, 
+          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[i].nombre, result[i].cantPedido, this.montoSub, this.montoIVA, 0, 
                                                 this.montoTotal);
           this.pedido.detalle.push( this.nuevoDetalle );
           this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
@@ -168,7 +170,7 @@ export class PedidosPage {
       this.modificando = false;
       this.j = -1;
     } else {                        // SINO se esta creando una nueva linea de detalle
-      this.nuevoDetalle = new DetallePedido(this.producto.id, this.cantidad, this.montoSub, this.montoIVA, this.montoDescuento, 
+      this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.cantidad, this.montoSub, this.montoIVA, this.montoDescuento, 
         this.montoTotal);
       this.pedido.detalle.push( this.nuevoDetalle );
     }
@@ -193,7 +195,7 @@ export class PedidosPage {
     if (this.defaultCant){ moveTo
       this.cantidad = this.cantidad + 1;
     } else {
-      this.descuento = this.descuento + this.descuentoPermitido( this.cliente.id, this.producto.id );
+      this.descuento = this.descuento + this.descuentoPermitido( this.isaConfig.clienteAct.id, this.producto.id );
     }
   }
 
@@ -297,6 +299,17 @@ export class PedidosPage {
       ]
     });
     await alert.present();
+  }
+
+  async pedidoFooter(ev: any) {
+    const popover = await this.popoverController.create({
+      component: PedidoFooterComponent,
+      componentProps: {value: this.pedido},
+      cssClass: 'my-custom-class',
+      event: ev,
+      translucent: true
+    });
+    return await popover.present();
   }
 
 }

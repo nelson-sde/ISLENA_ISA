@@ -7,6 +7,7 @@ import { IsaService } from '../services/isa.service';
   templateUrl: './tab3-config.page.html',
   styleUrls: ['./tab3-config.page.scss'],
 })
+ 
 export class Tab3ConfigPage {
 
   texto:string;
@@ -67,5 +68,10 @@ export class Tab3ConfigPage {
   regresar(){
     this.navControler.back();
   }
+
+  /*cargarJSON(){
+    this.custumer = JSON.parse(`/assets/json/Clientes.json`);
+    console.log(this.custumer);
+  }*/
 
 }

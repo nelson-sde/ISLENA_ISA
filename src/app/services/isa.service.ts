@@ -41,7 +41,7 @@ export class IsaService {
 
   constructor(public alertController: AlertController) { 
     this.cargaVarConfig();
-    this.clienteAct = new Cliente(0,'','',0,0);
+    this.clienteAct = new Cliente(0,'ND','','','','ND','','',0,0,0,0,0,0,0,0);
   }
 
   cargaVarConfig(){
@@ -53,22 +53,6 @@ export class IsaService {
   guardarVarConfig(){
     localStorage.setItem('config', JSON.stringify(this.varConfig));
   }
-
-  actualizaClienteAct( id: number, nombre: string, dir: string ){
-    this.clienteAct.id = id;
-    this.clienteAct.nombre = nombre;
-    this.clienteAct.direccion = dir;
-    this.clienteAct.limiteCredito = 0;
-    this.clienteAct.montoCredito = 0;
-  }
-
-  /*getConfig( id: string ){
-    if (id == 'ruta'){
-      return this.varConfig.numRuta;
-    } else if (id == 'pedidos') {
-      return this.varConfig.consecutivoPedidos;
-    }
-  }*/
 
   cargaRutas(){
     this.rutas = DataRutas.slice(0); 

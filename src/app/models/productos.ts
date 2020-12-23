@@ -7,3 +7,9 @@ export class Productos {
     grupoPromocional: number;
     imagen: string;
 }
+/* Se deben agregar los siguientes atributos 
+    codigoBarras: string;
+    tarifa: number;
+    porcentajeTarifa: number;
+    esCanasta: string;    // S es Canasta Basica. N no
+*/

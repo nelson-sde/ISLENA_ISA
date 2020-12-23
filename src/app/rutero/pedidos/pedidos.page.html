@@ -13,7 +13,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
   <ion-list>
     <ion-text color="primary">
       <h1>{{ isaConfig.clienteAct.nombre }}</h1>
@@ -73,22 +73,22 @@
     <ion-list-header color="light" lines="full">
       <ion-grid>
         <ion-row>
-          <ion-col>
+          <ion-col size="2">
             <div>Cod</div>
           </ion-col>
-          <ion-col >
+          <ion-col size="1">
             <div>Q</div>
           </ion-col>
-          <ion-col>
+          <ion-col size="2">
             <div>Sub</div>
           </ion-col>
-          <ion-col>
+          <ion-col size="2">
             <div>IVA</div>
           </ion-col>
-          <ion-col>
+          <ion-col size="2">
             <div>Des</div>
           </ion-col>
-          <ion-col>
+          <ion-col size="3">
             <div>Total</div>
           </ion-col>
         </ion-row>
@@ -102,23 +102,28 @@
       <ion-item>
         <ion-grid>
           <ion-row>
-            <ion-col>
+            <ion-col size="2">
               <div>{{ item.codProducto }}</div>
             </ion-col>
-            <ion-col >
+            <ion-col size="1">
               <div>{{ item.cantidad }}</div>
             </ion-col>
-            <ion-col>
+            <ion-col size="2">
               <div>{{ item.subTotal }}</div>
             </ion-col>
-            <ion-col>
+            <ion-col size="2">
               <div>{{ item.iva }}</div>
             </ion-col>
-            <ion-col>
+            <ion-col size="2">
               <div>{{ item.descuento }}</div>
             </ion-col>
-            <ion-col class="ion-align-self-end">
+            <ion-col size="3">
               <div>{{ item.total | currency }}</div>
+            </ion-col>
+            <ion-col size="12">
+              <div> 
+                <ion-text color="primary"> {{ item.descripcion }} </ion-text>
+              </div>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -131,6 +136,9 @@
 </ion-content>
 <ion-footer>
   <ion-toolbar color="dark">
-    <ion-title>IVA {{ pedido.iva }} Des -{{ pedido.descuento }} [{{ pedido.total |currency }}]</ion-title>
+    <ion-button slot="start" (click)="pedidoFooter( $event )" fill="clear">
+      <ion-icon name="reorder-three-outline" [color]="pedidoSinSalvar ? 'danger' : 'success'" size="large"></ion-icon>
+    </ion-button>
+    <ion-title slot="end">{{ pedido.total |currency }}</ion-title>
   </ion-toolbar>
 </ion-footer>

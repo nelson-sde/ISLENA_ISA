@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ModalController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
-import { DataClientes } from 'src/app/models/data-clientes';
 import { IsaService } from 'src/app/services/isa.service';
 import { ClientesPage } from '../clientes/clientes.page';
 
@@ -48,9 +47,9 @@ export class RuteroPage {
 
   buscarCliente(){
 
-    if (this.texto.length == 0) {                  // Se busca en todos los cliente
-      this.busquedaClientes = this.isa.clientes;      // El modal se abrira con el arreglo completo de clientes
-    } else {                                     // Se recorre el arreglo para buscar coincidencias
+    if (this.texto.length == 0) {                               // Se busca en todos los cliente
+      this.busquedaClientes = this.isa.clientes.slice(0);      // El modal se abrira con el arreglo completo de clientes
+    } else {                                                  // Se recorre el arreglo para buscar coincidencias
       this.busquedaClientes = [];
       for (let i = 0; i < this.isa.clientes.length; i++) {
         if (this.isa.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
@@ -70,7 +69,7 @@ export class RuteroPage {
       this.direccion = this.busquedaClientes[0].direccion;
       this.codigoCliente = this.busquedaClientes[0].id;
       this.dir = true;
-      this.isa.actualizaClienteAct(this.codigoCliente, this.texto, this.direccion);
+      this.isa.clienteAct = this.busquedaClientes[0];
     } else {                                                           // Se debe abrir el modal para busqueda de clientes
       this.modalClientes();
     }
@@ -95,7 +94,7 @@ export class RuteroPage {
           this.texto = this.isa.clientes[i].nombre;
           this.direccion = this.isa.clientes[i].direccion;
           this.dir = true;
-          this.isa.actualizaClienteAct(this.codigoCliente, this.texto, this.direccion);
+          this.isa.clienteAct = this.isa.clientes[i];
           return;
         }
       }
