@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ModalController } from '@ionic/angular';
-import { Cliente } from 'src/app/models/cliente';
+import { AlertController, ModalController, PopoverController } from '@ionic/angular';
 import { IsaService } from 'src/app/services/isa.service';
 import { ClientesPage } from '../clientes/clientes.page';
 
@@ -15,13 +14,13 @@ export class RuteroPage {
   texto: string = '';                          // Campo de busqueda del cliente
   direccion: string = '';                     // Direccion del cliente en el rutero
   dir: boolean = false;                      // Hay direccion = true
-  busquedaClientes: Cliente[] = [];         // Arreglo de los clientes a seleccionar
   codigoCliente: number = 0;
 
   constructor( private alertController: AlertController,
-               public modalCtrl: ModalController,
                private router: Router,
-               public isa: IsaService ) {
+               public isa: IsaService,
+               private popoverCtrl: PopoverController ) {
+
     this.isa.cargarClientes();
   }
 
@@ -45,64 +44,58 @@ export class RuteroPage {
     }
   }
 
-  buscarCliente(){
+  buscarCliente( ev: any ){
 
     if (this.texto.length == 0) {                               // Se busca en todos los cliente
-      this.busquedaClientes = this.isa.clientes.slice(0);      // El modal se abrira con el arreglo completo de clientes
+      this.isa.buscarClientes = this.isa.clientes.slice(0);      // El modal se abrira con el arreglo completo de clientes
     } else {                                                  // Se recorre el arreglo para buscar coincidencias
-      this.busquedaClientes = [];
+      this.isa.buscarClientes = [];
       for (let i = 0; i < this.isa.clientes.length; i++) {
         if (this.isa.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-          this.busquedaClientes.push(this.isa.clientes[i]);
+          this.isa.buscarClientes.push(this.isa.clientes[i]);
         }
       }
     }
-
-    if (this.busquedaClientes.length == 0){                               // no hay coincidencias
+    if (this.isa.buscarClientes.length == 0){                               // no hay coincidencias
       this.presentAlert( this.texto, 'No hay coincidencias' );
       this.texto = '';
       this.direccion = '';
       this.dir = false;
       this.codigoCliente = 0;
-  } else if (this.busquedaClientes.length == 1){                        // La coincidencia es exacta
-      this.texto = this.busquedaClientes[0].nombre;
-      this.direccion = this.busquedaClientes[0].direccion;
-      this.codigoCliente = this.busquedaClientes[0].id;
+  } else if (this.isa.buscarClientes.length == 1){                        // La coincidencia es exacta
+      this.texto = this.isa.buscarClientes[0].nombre;
+      this.direccion = this.isa.buscarClientes[0].direccion;
+      this.codigoCliente = this.isa.buscarClientes[0].id;
       this.dir = true;
-      this.isa.clienteAct = this.busquedaClientes[0];
+      this.isa.clienteAct = this.isa.buscarClientes[0];
     } else {                                                           // Se debe abrir el modal para busqueda de clientes
-      this.modalClientes();
+      this.clientesPopover( ev );
     }
   }
-                                // abre el modal para la seleccion del cliente
-  async modalClientes (){
-    const modal = await this.modalCtrl.create({ component: ClientesPage, componentProps: {value: this.texto} });
-    modal.onDidDismiss()
-      .then((data) => {
-        this.codigoCliente = data['data'];             // Codigo del cliente seleccionado
-        console.log(this.codigoCliente);
-        this.buscarCodigoCliente (this.codigoCliente);
-    });
-    await modal.present();
-  }
 
-  buscarCodigoCliente( codigo: number ){                 // busca un cliente por codigo de cliente
-    if (codigo !== 0){
-      for (let i = 0; i < this.isa.clientes.length; i++) {
-        if (this.isa.clientes[i].id == codigo ){
-          this.codigoCliente = this.isa.clientes[i].id
-          this.texto = this.isa.clientes[i].nombre;
-          this.direccion = this.isa.clientes[i].direccion;
-          this.dir = true;
-          this.isa.clienteAct = this.isa.clientes[i];
-          return;
-        }
+  async clientesPopover(ev: any) {
+    const popover = await this.popoverCtrl.create({
+      component: ClientesPage,
+      cssClass: 'my-custom-class',
+      event: ev,
+      translucent: true
+    });
+    await popover.present();
+
+    const {data} = await popover.onWillDismiss();
+    console.log(data);
+    if ( data !== undefined){
+      if (data.codCliente == this.isa.clienteAct.id){
+        this.codigoCliente = this.isa.clienteAct.id;
+        this.texto = this.isa.clienteAct.nombre;
+        this.direccion = this.isa.clienteAct.direccion;
+        this.dir = true;
+      } else {
+        this.codigoCliente = 0;
+        this.texto = '';
+        this.direccion = '';
+        this.dir = false;
       }
-    } else {
-      this.codigoCliente = 0;
-      this.texto = '';
-      this.direccion = '';
-      this.dir = false;
     }
   }
 

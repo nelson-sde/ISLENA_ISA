@@ -5,7 +5,7 @@
         <ion-icon name="chevron-back-outline"></ion-icon>
         Back
       </ion-button>
-      <ion-title align-text-center>Carga Configuracion - {{isa.varConfig.numRuta}}</ion-title>
+      <ion-title align-text-center>Carga Ruta - {{isa.varConfig.numRuta}}</ion-title>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -13,9 +13,9 @@
 <ion-content class="ion-padding">
   <ion-item>
     <ion-label position="floating">Numero de Ruta</ion-label>
-    <ion-input [(ngModel)]="texto" (keyup.enter)="cargaConfig()"></ion-input>
-    <ion-button (click)="cargaConfig()" slot="end" size="medium" color="light">
-      <ion-icon name="cloud-download-outline"></ion-icon>
+    <ion-input [(ngModel)]="texto" (keyup.enter)="rutaEnter(texto)"></ion-input>
+    <ion-button (click)="rutasPoppover( $event )" slot="end" size="medium" color="light">
+      <ion-icon name="search-outline"></ion-icon>
     </ion-button>
   </ion-item>
   <p></p>
@@ -29,11 +29,26 @@
         <p>Consecutivo Recibos: {{isa.varConfig.consecutivoRecibos}}</p>
       </ion-label>
     </ion-item>
+    <p></p>
+    <ion-item color="light">
+      <ion-label>Consecutivo Pedidos: </ion-label>
+      <ion-input type="number" [(ngModel)]="isa.varConfig.consecutivoPedidos"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Consecutivo Recibos: </ion-label>
+      <ion-input type="number" [(ngModel)]="isa.varConfig.consecutivoRecibos"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Usuario: </ion-label>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.usuario"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Clave: </ion-label>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.clave"></ion-input>
+    </ion-item>
   </ion-list>
-  <ion-item>
-    <ion-button (click)="cargarJSON()" expand="block" fill="clear" shape="round">
-      Cargar JSON
-    </ion-button>
-  </ion-item>
   <p></p>
+  <ion-button (click)="cargaConfig()" expand="block" shape="round">
+    Sincronizar
+  </ion-button>
 </ion-content>

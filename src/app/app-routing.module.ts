@@ -29,6 +29,10 @@ const routes: Routes = [
   {
     path: 'cardex',
     loadChildren: () => import('./rutero/cardex/cardex.module').then( m => m.CardexPageModule)
+  },
+  {
+    path: 'tab3-pop',
+    loadChildren: () => import('./tab3-pop/tab3-pop.module').then( m => m.Tab3PopPageModule)
   }
 ];
 @NgModule({

@@ -6,8 +6,8 @@
 
 <ion-item>
   <ion-label position="floating">Cliente</ion-label>
-  <ion-input [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarCliente()"></ion-input>
-  <ion-button (click)="buscarCliente()" slot="end" size="medium" color="light">
+  <ion-input [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarCliente( $event )"></ion-input>
+  <ion-button (click)="buscarCliente( $event )" slot="end" size="medium" color="light">
     <ion-icon slot="icon-only" name="search-outline"></ion-icon>
   </ion-button>
 </ion-item>

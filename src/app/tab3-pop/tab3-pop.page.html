@@ -1,0 +1,6 @@
+
+<ion-list>
+  <ion-item *ngFor="let item of rutas; let i = index" (click)="rutaSeleccionada(i)">
+    <ion-label>{{item.RUTA}} - {{item.AGENTE}}</ion-label>
+  </ion-item>
+</ion-list>

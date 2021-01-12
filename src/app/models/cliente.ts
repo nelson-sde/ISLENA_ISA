@@ -1,3 +1,4 @@
+
 export class Cliente {
     id: number;
     nombre: string;
@@ -36,4 +37,28 @@ export class Cliente {
         this.tarifa = tarifa;
         this.porcentajeTarifa = porTarifa;
     }
+}
+
+export interface ClienteBD {
+    COD_ZON: string,
+    COD_CLT: string,
+    NOM_CLT: string,
+    DIR_CLT: string,
+    TIPO_TARIFA: string,
+    PORC_TARIFA: number,
+    TIPO_IMPUESTO: string,
+    COD_CND: string,
+    COD_PAIS: string,
+    CONTRIBUYENTE: string,
+    DESCUENTO: number,
+    DIVISION_GEOGRAFICA1: string,
+    DIVISION_GEOGRAFICA2: string,
+    IND_MON: string,
+    LIM_CRE: number,
+    LST_PRE: number,
+    NOM_CTO: string,
+    NUM_TEL: string,
+    RAZONSOCIAL: string,
+    TIPO_CONTRIBUYENTE: string,
+    ID: string
 }

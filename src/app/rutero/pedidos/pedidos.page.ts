@@ -1,8 +1,7 @@
-import { Component, ViewChild } from '@angular/core';
 
+import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Productos } from 'src/app/models/productos';
-import { Cliente } from 'src/app/models/cliente';
 import { Pedido } from 'src/app/models/pedido';
 import { DetallePedido } from 'src/app/models/detallePedido';
 import { IsaService } from 'src/app/services/isa.service';
@@ -20,7 +19,6 @@ import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component'
 })
 export class PedidosPage {
 
-  // cliente: Cliente;                           // Cliente del rutero seleccionado
   busquedaProd: Productos[] = [];           // Arreglo que contiene la sublista de productos seleccionados
   producto: Productos;                     // Producto seleccionado de la busqueda     
   texto: string = '';                             // campo de busqueda de productos
@@ -44,7 +42,6 @@ export class PedidosPage {
   constructor( private activateRoute: ActivatedRoute,
                private isaConfig: IsaService,
                private isaPedido: IsaPedidoService,
-               private isaCardex: IsaCardexService,
                private alertController: AlertController,
                private navController: NavController,
                private popoverController: PopoverController ) {
@@ -70,7 +67,7 @@ export class PedidosPage {
           this.montoSub = result[i].cantPedido * prod[0].precio;
           this.montoIVA = this.montoSub * 0.13;
           this.montoTotal = this.montoSub + this.montoIVA;
-          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[i].nombre, result[i].cantPedido, this.montoSub, this.montoIVA, 0, 
+          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, result[i].cantPedido, this.montoSub, this.montoIVA, 0, 
                                                 this.montoTotal);
           this.pedido.detalle.push( this.nuevoDetalle );
           this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
