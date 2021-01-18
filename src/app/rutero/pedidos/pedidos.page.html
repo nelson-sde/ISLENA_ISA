@@ -41,7 +41,7 @@
       </ion-col>
       <ion-col size="6"> 
         <ion-card >
-          <ion-img [src]="producto.imagen"></ion-img>
+          <ion-img [src]="producto.imagen | noimage"></ion-img>
           <ion-card-content text-center>
             <h2>Can: <strong>{{cantidad}}</strong>  Des: <strong>{{descuento}}%</strong></h2>
           </ion-card-content>
@@ -73,16 +73,13 @@
     <ion-list-header color="light" lines="full">
       <ion-grid>
         <ion-row>
-          <ion-col size="2">
-            <div>Cod</div>
-          </ion-col>
           <ion-col size="1">
             <div>Q</div>
           </ion-col>
-          <ion-col size="2">
+          <ion-col size="3">
             <div>Sub</div>
           </ion-col>
-          <ion-col size="2">
+          <ion-col size="3">
             <div>IVA</div>
           </ion-col>
           <ion-col size="2">
@@ -102,25 +99,27 @@
       <ion-item>
         <ion-grid>
           <ion-row>
-            <ion-col size="2">
-              <div>{{ item.codProducto }}</div>
-            </ion-col>
             <ion-col size="1">
               <div>{{ item.cantidad }}</div>
             </ion-col>
-            <ion-col size="2">
-              <div>{{ item.subTotal }}</div>
-            </ion-col>
-            <ion-col size="2">
-              <div>{{ item.iva }}</div>
-            </ion-col>
-            <ion-col size="2">
-              <div>{{ item.descuento }}</div>
+            <ion-col size="3">
+              <div>{{ item.subTotal | colones:1 :"." :"" :"" }}</div>
             </ion-col>
             <ion-col size="3">
-              <div>{{ item.total | currency }}</div>
+              <div>{{ item.iva | colones:1 :"." :"" :"" }}</div>
             </ion-col>
-            <ion-col size="12">
+            <ion-col size="2">
+              <div>{{ item.descuento | colones:1 :"." :"" :"" }}</div>
+            </ion-col>
+            <ion-col size="3">
+              <div>{{ item.total | colones:1 :"." :"," }}</div>
+            </ion-col>
+            <ion-col size="2">
+              <div>
+                <ion-text color="success">{{ item.codProducto }}</ion-text>
+              </div>
+            </ion-col>
+            <ion-col size="10">
               <div> 
                 <ion-text color="primary"> {{ item.descripcion }} </ion-text>
               </div>
@@ -139,6 +138,6 @@
     <ion-button slot="start" (click)="pedidoFooter( $event )" fill="clear">
       <ion-icon name="reorder-three-outline" [color]="pedidoSinSalvar ? 'danger' : 'success'" size="large"></ion-icon>
     </ion-button>
-    <ion-title slot="end">{{ pedido.total |currency }}</ion-title>
+    <ion-title slot="end">{{ pedido.total | colones }}</ion-title>
   </ion-toolbar>
 </ion-footer>

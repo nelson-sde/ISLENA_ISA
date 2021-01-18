@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ModalController, PopoverController } from '@ionic/angular';
+import { AlertController, PopoverController } from '@ionic/angular';
 import { IsaService } from 'src/app/services/isa.service';
 import { ClientesPage } from '../clientes/clientes.page';
 
@@ -68,6 +68,8 @@ export class RuteroPage {
       this.codigoCliente = this.isa.buscarClientes[0].id;
       this.dir = true;
       this.isa.clienteAct = this.isa.buscarClientes[0];
+      this.isa.cargaListaPrecios();
+      console.log(this.isa.productos);
     } else {                                                           // Se debe abrir el modal para busqueda de clientes
       this.clientesPopover( ev );
     }
@@ -90,6 +92,8 @@ export class RuteroPage {
         this.texto = this.isa.clienteAct.nombre;
         this.direccion = this.isa.clienteAct.direccion;
         this.dir = true;
+        this.isa.cargaListaPrecios();
+        console.log(this.isa.productos);
       } else {
         this.codigoCliente = 0;
         this.texto = '';
@@ -102,7 +106,7 @@ export class RuteroPage {
   async presentAlert( subtitulo: string, mensaje: string ) {
     const alert = await this.alertController.create({
       cssClass: 'my-custom-class',
-      header: 'Alerta',
+      header: 'Lo siento...',
       subHeader: subtitulo,
       message: mensaje,
       buttons: ['OK']

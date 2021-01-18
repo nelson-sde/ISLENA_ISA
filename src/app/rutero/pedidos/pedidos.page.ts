@@ -7,7 +7,6 @@ import { DetallePedido } from 'src/app/models/detallePedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { AlertController, IonList, NavController, PopoverController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
-import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { Cardex } from 'src/app/models/cardex';
 import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component';
 
@@ -48,7 +47,6 @@ export class PedidosPage {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       //this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
-      this.isaConfig.cargarProductos();
       this.pedido = new Pedido( isaConfig.varConfig.consecutivoPedidos.toString(), this.isaConfig.clienteAct.id, 0, 0, 0, 0);
       this.validaSiCardex();
     });
@@ -95,12 +93,21 @@ export class PedidosPage {
     if (this.texto.length == 0) {    
       this.mostrarProducto = false;                // Se busca en todos los cliente
       this.busquedaProd = this.isaConfig.productos;         // El modal se abrira con el arreglo completo de clientes
-    } else {                                     // Se recorre el arreglo para buscar coincidencias
+    } else if (this.texto[0] == '#') {            // Se buscará por código de producto
+      this.busquedaProd = [];
+      const idProduct = +this.texto.slice(1);
+      const product = this.isaConfig.productos.find( e => e.id == idProduct );
+      if ( product !== undefined ){
+        this.busquedaProd.push(product);
+        this.productoSelect(0);
+      }
+    } else {
+        // Se recorre el arreglo para buscar coincidencias
       this.busquedaProd = [];
       this.mostrarProducto = false;
       for (let i = 0; i < this.isaConfig.productos.length; i++) {
         if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-          this.busquedaProd.push(this.isaConfig.productos[i]);
+            this.busquedaProd.push(this.isaConfig.productos[i]);
         }
       }
     }

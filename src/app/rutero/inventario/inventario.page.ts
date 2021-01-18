@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
-import { DataProductos } from 'src/app/models/data-productos';
 import { Productos } from 'src/app/models/productos';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaService } from 'src/app/services/isa.service';
@@ -24,7 +23,6 @@ export class InventarioPage {
                private router: Router,
                private alertController: AlertController ) {
 
-    this.isa.cargarProductos();
     this.initializeItems();
     this.isaCardex.consultarCliente(this.isa.clienteAct.id);
     if (isaCardex.cardex.length !== 0){

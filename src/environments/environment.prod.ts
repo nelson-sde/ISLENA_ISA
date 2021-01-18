@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  rutasURL: 'http://54.227.77.73/api/rutas',
-  clientesURL: 'http://54.227.77.73/api/clientes/'
+  rutasURL: 'http://api_isa.soportecr.xyz/api/rutas',
+  clientesURL: 'http://api_isa.soportecr.xyz/api/clientes/',
+  productosURL: 'http://api_isa.soportecr.xyz/api/productos/'
 };

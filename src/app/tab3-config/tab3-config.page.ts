@@ -1,7 +1,7 @@
 
 import { Component } from '@angular/core';
 import { AlertController, NavController, PopoverController } from '@ionic/angular';
-import { IsaService, Ruta } from '../services/isa.service';
+import { IsaService } from '../services/isa.service';
 import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
 
 @Component({
@@ -28,6 +28,8 @@ export class Tab3ConfigPage {
             this.isa.rutas.push(element);
           });*/
           console.log( 'Arreglo', this.isa.rutas );
+        }, error => {
+          console.log(error.message);
         }
       );                                // Actualiza la lista de rutas en ISA
     }
@@ -45,14 +47,16 @@ export class Tab3ConfigPage {
 
     const {data} = await popover.onWillDismiss();
     console.log(data);
-    this.isa.varConfig.numRuta = this.isa.rutas[data.indice].RUTA;         // Asigna la nueva ruta a la varaible de entorno de ISA
-    this.isa.varConfig.nomVendedor = this.isa.rutas[data.indice].AGENTE;
-    this.isa.varConfig.usuario = this.isa.rutas[data.indice].RUTA;
-    this.isa.varConfig.clave = this.isa.rutas[data.indice].HANDHELD;
+    if (data !== undefined) {
+      this.isa.varConfig.numRuta = this.isa.rutas[data.indice].Ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
+      this.isa.varConfig.nomVendedor = this.isa.rutas[data.indice].Agente;
+      this.isa.varConfig.usuario = this.isa.rutas[data.indice].Ruta;
+      this.isa.varConfig.clave = this.isa.rutas[data.indice].HandHeld;
+    }
   }
 
   rutaEnter( ruta: string ){
-    const i = this.isa.rutas.findIndex( r => r.RUTA == ruta );
+    const i = this.isa.rutas.findIndex( r => r.Ruta == ruta );
     if ( i >= 0 && this.texto !== this.isa.varConfig.numRuta){
       this.presentAlertConfirm( i );
     } else if ( i < 0 ){
@@ -70,9 +74,9 @@ export class Tab3ConfigPage {
     if ( this.isa.varConfig.numRuta.length > 0 &&
          this.isa.varConfig.clave.length > 0 &&
          this.isa.varConfig.usuario.length > 0) {
-      this.isa.guardarVarConfig();                           // Actualiza la informacion de entorno
-      this.isa.syncClientes(this.isa.varConfig.numRuta);    // Carga la BD de Clientes de la ruta
-      this.isa.syncProductos();                            // Actualiza la BD de productos
+      this.isa.guardarVarConfig();                              // Actualiza la informacion de entorno
+      this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
+      this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos
       this.regresar();
     } else {
       this.isa.presentAlertW(this.texto, 'Faltan datos claves para sincronizar la información.');
@@ -92,10 +96,10 @@ export class Tab3ConfigPage {
         }, {
           text: 'Ok',
           handler: () => {
-            this.isa.varConfig.numRuta = this.isa.rutas[i].RUTA;         // Asigna la nueva ruta a la varaible de entorno de ISA
-            this.isa.varConfig.nomVendedor = this.isa.rutas[i].AGENTE;
-            this.isa.varConfig.usuario = this.isa.rutas[i].RUTA;
-            this.isa.varConfig.clave = this.isa.rutas[i].HANDHELD;
+            this.isa.varConfig.numRuta = this.isa.rutas[i].Ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
+            this.isa.varConfig.nomVendedor = this.isa.rutas[i].Agente;
+            this.isa.varConfig.usuario = this.isa.rutas[i].Ruta;
+            this.isa.varConfig.clave = this.isa.rutas[i].HandHeld;
           }
         }
       ]

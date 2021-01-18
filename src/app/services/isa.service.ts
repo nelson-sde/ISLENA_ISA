@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
 import { Cliente, ClienteBD } from '../models/cliente';
-import { ClientesBD } from '../models/data-clientes';
 import { DataProductos } from '../models/data-productos';
-import { Productos } from '../models/productos';
+import { Productos, ProductosBD } from '../models/productos';
 
 export interface RutaConfig {
   numRuta: string;
@@ -19,13 +18,12 @@ export interface RutaConfig {
 }
 
 export interface Ruta {
-  RUTA: string;
-  HANDHELD: string;
-  GRUPO_ARTICULO: string;
-  COMPANIA: string;
-  BODEGA: number;
-  AGENTE: string;
-  ID: string;
+  Ruta: string;
+  HandHeld: string;
+  Grupo_Articulo: string;
+  Compania: string;
+  Bodega: number;
+  Agente: string;
 }
 
 @Injectable({
@@ -50,8 +48,12 @@ export class IsaService {
   clientes: Cliente[] = [];
   buscarClientes: Cliente[] = [];
 
+  loading: HTMLIonLoadingElement;
+
   constructor( public alertController: AlertController, 
-               private http: HttpClient) { 
+               private http: HttpClient,
+               private loadingCtrl: LoadingController) {
+
     this.cargaVarConfig();
     this.clienteAct = new Cliente(0,'ND','','','','ND','','',0,0,0,0,0,0,0,0);
   }
@@ -70,10 +72,30 @@ export class IsaService {
     return this.http.get<Ruta[]>( environment.rutasURL );
   }
 
-  syncProductos(){
-    const productos = DataProductos.slice(0);
-    localStorage.removeItem('productos');
-    localStorage.setItem('productos', JSON.stringify(productos));
+  syncProductos( ruta: string ){
+    let producto: Productos;
+    this.productos = [];
+
+    this.presentaLoading('Sync Productos...')
+    this.getProductos(ruta).subscribe(
+      resp => {
+        console.log('SKUBD', resp );
+        resp.forEach(e => {
+          producto = new Productos( +e.Articulo, e.Des_Art, e.Lst_Pre, e.Precio, e.moneda, e.Cod_Bar, e.Impuesto, e.Canasta_Basica, e.Articulo+'.png')
+          this.productos.push( producto );
+        });
+        console.log( 'Arreglo', this.productos );
+        if (localStorage.getItem('productos')){
+          localStorage.removeItem('productos');
+        }
+        localStorage.setItem('productos', JSON.stringify(this.productos));
+        this.cargarProductos();
+        this.loading.dismiss();
+      }, error => {
+        console.log(error.message);
+        this.loading.dismiss();
+      }
+    );
   }
 
   cargarProductos(){
@@ -82,36 +104,46 @@ export class IsaService {
     }
   }
 
+  cargaListaPrecios(){
+    let productos: Productos[];
+
+    if (localStorage.getItem('productos')){
+       productos = JSON.parse( localStorage.getItem('productos'));
+    }
+    this.productos = [];
+    this.productos = productos.filter( p => p.listaPrecios == this.clienteAct.listaPrecios);
+  }
+
   syncClientes( ruta: string ){
     let cliente: Cliente;
     this.clientes = [];
 
-    /* this.getClientes(ruta).subscribe(
+    // this.presentaLoading('Sync Clientes...')
+    this.getClientes(ruta).subscribe(
       resp => {
         console.log('ClientesBD', resp );
         resp.forEach(e => {
-          cliente = new Cliente(+e.COD_CLT, e.NOM_CLT, e.DIR_CLT, e.TIPO_CONTRIBUYENTE, e.CONTRIBUYENTE, e.RAZONSOCIAL, e.NUM_TEL,
-            e.NOM_CTO, e.LIM_CRE, e.LIM_CRE, 15, e.LST_PRE, e.DESCUENTO, +e.TIPO_IMPUESTO, +e.TIPO_TARIFA, e.PORC_TARIFA)
+          cliente = new Cliente(+e.Cod_Clt, e.Nom_Clt, e.Dir_Clt, e.Tipo_Contribuyente, e.Contribuyente, e.Razonsocial, e.Num_Tel,
+            e.Nom_Cto, e.Lim_Cre, 0, +e.Cod_Cnd, e.Lst_Pre, e.Descuento, +e.Tipo_Impuesto, +e.Tipo_Tarifa, e.Porc_Tarifa)
           this.clientes.push( cliente );
         });
         console.log( 'Arreglo', this.clientes );
+        if (localStorage.getItem('clientes')){
+          localStorage.removeItem('clientes');
+        }
+        localStorage.setItem('clientes', JSON.stringify(this.clientes));
+        this.cargarClientes();
+        // this.loading.dismiss();
+      }, error => {
+        console.log(error.message);
+        this.loading.dismiss();
       }
-    );*/
-
-    const clientesBD = ClientesBD.slice(0);
-    clientesBD.forEach(e => {
-      cliente = new Cliente(+e.COD_CLT, e.NOM_CLT, e.DIR_CLT, e.TIPO_CONTRIBUYENTE, e.CONTRIBUYENTE, e.RAZONSOCIAL, e.NUM_TEL,
-        e.NOM_CTO, e.LIM_CRE, e.LIM_CRE, 15, e.LST_PRE, e.DESCUENTO, +e.TIPO_IMPUESTO, +e.TIPO_TARIFA, e.PORC_TARIFA)
-      this.clientes.push( cliente );
-    });
-
-    localStorage.removeItem('clientes');
-    localStorage.setItem('clientes', JSON.stringify(this.clientes));
-    this.cargarClientes();
+    );
   }
 
   getClientes(ruta: string){
     const query: string = environment.clientesURL + ruta;
+    //const query: string = environment.clientesURL;
     return this.http.get<ClienteBD[]>( query );
   }
 
@@ -120,6 +152,12 @@ export class IsaService {
     if (localStorage.getItem('clientes')){
       this.clientes = JSON.parse( localStorage.getItem('clientes'));
     }
+  }
+
+  getProductos(ruta: string){
+    const query: string = environment.productosURL + ruta;
+    //const query: string = environment.clientesURL;
+    return this.http.get<ProductosBD[]>( query );
   }
 
   async presentAlertW( subtitulo: string, mensaje: string ) {
@@ -131,6 +169,13 @@ export class IsaService {
     });
 
     await alert.present();
+  }
+
+  async presentaLoading( mensaje: string ){
+    this.loading = await this.loadingCtrl.create({
+      message: mensaje,
+    });
+    await this.loading.present();
   }
 
   

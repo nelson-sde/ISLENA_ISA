@@ -7,6 +7,8 @@ import { IonicModule } from '@ionic/angular';
 import { PedidosPageRoutingModule } from './pedidos-routing.module';
 
 import { PedidosPage } from './pedidos.page';
+import { NoimagePipe } from 'src/app/pipes/noimage';
+import { ColonesPipe } from 'src/app/pipes/colones';
 
 @NgModule({
   imports: [
@@ -15,6 +17,6 @@ import { PedidosPage } from './pedidos.page';
     IonicModule,
     PedidosPageRoutingModule
   ],
-  declarations: [PedidosPage]
+  declarations: [PedidosPage, NoimagePipe, ColonesPipe]
 })
 export class PedidosPageModule {}
