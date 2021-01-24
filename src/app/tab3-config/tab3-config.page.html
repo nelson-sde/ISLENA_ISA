@@ -27,16 +27,17 @@
         <p>Nombre de Usuario: {{isa.varConfig.usuario}}</p>
         <p>Consecutivo Pedidos: {{isa.varConfig.consecutivoPedidos}}</p>
         <p>Consecutivo Recibos: {{isa.varConfig.consecutivoRecibos}}</p>
+        <p>Consecutivo Devoluciones: : {{isa.varConfig.consecutivoDevoluciones}}</p>
       </ion-label>
     </ion-item>
     <p></p>
     <ion-item color="light">
       <ion-label>Consecutivo Pedidos: </ion-label>
-      <ion-input type="number" [(ngModel)]="isa.varConfig.consecutivoPedidos"></ion-input>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.consecutivoPedidos"></ion-input>
     </ion-item>
     <ion-item color="light">
       <ion-label>Consecutivo Recibos: </ion-label>
-      <ion-input type="number" [(ngModel)]="isa.varConfig.consecutivoRecibos"></ion-input>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.consecutivoRecibos"></ion-input>
     </ion-item>
     <ion-item color="light">
       <ion-label>Usuario: </ion-label>

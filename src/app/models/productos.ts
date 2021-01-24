@@ -3,6 +3,7 @@ export class Productos {
     id: number;
     nombre: string;
     listaPrecios: number;
+    nivelPrecio: string;
     precio: number;
     moneda: string;
     codigoBarras: string;
@@ -10,10 +11,11 @@ export class Productos {
     canastaBasica: string;
     imagen: string;
 
-    constructor ( id: number, nombre: string, lstPrc: number, precio: number, moneda: string, codBar: string, tax: string, canBas: string, img: string){
+    constructor ( id: number, nombre: string, lstPrc: number, nivelPrecio: string, precio: number, moneda: string, codBar: string, tax: string, canBas: string, img: string){
         this.id = id;
         this.nombre = nombre;
         this.listaPrecios = lstPrc;
+        this.nivelPrecio = nivelPrecio;
         this.precio = precio;
         this.moneda = moneda;
         this.codigoBarras = codBar;
@@ -24,14 +26,14 @@ export class Productos {
 }
 
 export interface ProductosBD {
-    Cod_Zon: string,
-    Lst_Pre: number,
-    Nivel_Precio: string,
-    Articulo: string,
-    Precio: number,
+    cod_Zon: string,
+    lst_Pre: number,
+    nivel_Precio: string,
+    articulo: string,
+    precio: number,
     moneda: string,
-    Des_Art: string,
-    Cod_Bar: string,
-    Impuesto: string,
-    Canasta_Basica: string
+    des_Art: string,
+    cod_Bar: string,
+    impuesto: string,
+    canasta_Basica: string
 }

@@ -2,8 +2,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Productos } from 'src/app/models/productos';
-import { Pedido } from 'src/app/models/pedido';
-import { DetallePedido } from 'src/app/models/detallePedido';
+import { DetallePedido, Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { AlertController, IonList, NavController, PopoverController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
@@ -26,7 +25,8 @@ export class PedidosPage {
   cantidad: number = 6;                        // variable temporal con la cantidad de Items a agregar en el pedido
   descuento: number = 0;                      // variable temporal con el % del descuento
   montoIVA: number;                          // variable temporal con el monto del IVA
-  montoDescuento: number;                   // variable temporal con el monto del descuento del pedido
+  montoDescLinea: number;                   // variable temporal con el monto del descuento del pedido
+  montoDescGen: number;
   montoSub: number;                        // variable temporal con el monto bruto del pedido
   montoTotal: number;                     // Variable temporal con el monto del pedido
   defaultCant: boolean = true;                // Boolean que nos indica si estamos agregando cantidades o descuentos
@@ -35,6 +35,7 @@ export class PedidosPage {
   pedidoSinSalvar: boolean = false;        // nos indica si hemos iniciado con un pedido
   modificando: boolean = false;           // Si es true se esta modificando una linea del pedido
   j: number = -1;                        // j es el index de la linea que se esta modificando en el detalle
+  impuesto: number = 0;
 
   @ViewChild('myList') ionList: IonList;
 
@@ -47,7 +48,7 @@ export class PedidosPage {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       //this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
-      this.pedido = new Pedido( isaConfig.varConfig.consecutivoPedidos.toString(), this.isaConfig.clienteAct.id, 0, 0, 0, 0);
+      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', false);
       this.validaSiCardex();
     });
   }
@@ -62,11 +63,12 @@ export class PedidosPage {
       if ( result.length > 0 ){
         for (let i = 0; i < result.length; i++) {
           prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
+          this.impuesto = this.calculaImpuesto( prod[0].impuesto );
           this.montoSub = result[i].cantPedido * prod[0].precio;
-          this.montoIVA = this.montoSub * 0.13;
+          this.montoIVA = this.montoSub * this.impuesto;
           this.montoTotal = this.montoSub + this.montoIVA;
-          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, result[i].cantPedido, this.montoSub, this.montoIVA, 0, 
-                                                this.montoTotal);
+          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
+                                                0, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica);
           this.pedido.detalle.push( this.nuevoDetalle );
           this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
           this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
@@ -80,7 +82,8 @@ export class PedidosPage {
         this.cantidad = 0;
         this.descuento = 0;
         this.montoIVA = 0;
-        this.montoDescuento = 0;
+        this.montoDescLinea = 0;
+        this.montoDescGen = 0;
         this.montoSub = 0;
         this.montoTotal = 0;
         this.defaultCant = true;
@@ -127,8 +130,8 @@ export class PedidosPage {
     this.mostrarListaProd = false;             // Y se activa el flag de mostrar producto
     this.producto = this.busquedaProd[i];
     this.texto = this.busquedaProd[i].nombre;
+    this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto );
     const j = this.existeEnDetalle(this.busquedaProd[i].id);
-    console.log('J: '+j);
     if (j >= 0){
       this.cantidad = this.pedido.detalle[j].cantidad;
       this.descuento = this.pedido.detalle[j].descuento * 100 / this.pedido.detalle[j].subTotal;
@@ -162,26 +165,31 @@ export class PedidosPage {
 
   calculaLineaPedido(){           // Boton de aceptar la linea de pedido
     this.montoSub = this.cantidad * this.producto.precio;
-    this.montoIVA = this.montoSub * 0.13;
-    this.montoDescuento = this.montoSub * this.descuento / 100;
-    this.montoTotal = this.montoSub + this.montoIVA - this.montoDescuento;
+    this.montoDescLinea = this.montoSub * this.descuento / 100;
+    this.montoDescGen = (this.montoSub - this.montoDescLinea) * this.pedido.porcentajeDescGeneral / 100;
+    this.montoIVA = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.impuesto;
+    this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea - this.montoDescGen;
+
     if (this.modificando){          // Si modificando = true se esta modificando una linea del detalle
       this.pedido.detalle[this.j].cantidad = this.cantidad;
       this.pedido.detalle[this.j].subTotal = this.montoSub;
       this.pedido.detalle[this.j].iva = this.montoIVA;
-      this.pedido.detalle[this.j].descuento = this.montoDescuento;
+      this.pedido.detalle[this.j].descuento = this.montoDescLinea;
+      this.pedido.detalle[this.j].descGeneral = this.montoDescGen;
       this.pedido.detalle[this.j].total = this.montoTotal;
       this.modificando = false;
       this.j = -1;
     } else {                        // SINO se esta creando una nueva linea de detalle
-      this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.cantidad, this.montoSub, this.montoIVA, this.montoDescuento, 
-        this.montoTotal);
+      this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
+                                  this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica);
       this.pedido.detalle.push( this.nuevoDetalle );
     }
     this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
     this.pedido.iva = this.pedido.iva + this.montoIVA;
-    this.pedido.descuento = this.pedido.descuento + this.montoDescuento;
+    this.pedido.descuento = this.pedido.descuento + this.montoDescLinea;
+    this.pedido.descGeneral = this.pedido.descGeneral + this.montoDescGen;
     this.pedido.total = this.pedido.total + this.montoTotal;
+    
     this.pedidoSinSalvar = true;
     this.texto = '';
     this.mostrarListaProd = false;
@@ -189,9 +197,11 @@ export class PedidosPage {
     this.cantidad = 6;
     this.descuento = 0;
     this.montoIVA = 0;
-    this.montoDescuento = 0;
+    this.montoDescLinea = 0;
+    this.montoDescGen = 0;
     this.montoSub = 0;
     this.montoTotal = 0;
+    this.impuesto = 0;
     this.defaultCant = true;
   }
 
@@ -213,8 +223,8 @@ export class PedidosPage {
 
   carrito(){
     if (this.pedidoSinSalvar){
-      this.isaPedido.agregarPedido( this.pedido );
-      this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.varConfig.consecutivoPedidos + 1;
+      this.isaPedido.transmitirPedido( this.pedido );
+      this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.nextConsecutivo( this.isaConfig.varConfig.consecutivoPedidos );
       this.isaConfig.guardarVarConfig();
       this.pedidoSinSalvar = false;
       this.texto = '';
@@ -223,16 +233,13 @@ export class PedidosPage {
       this.cantidad = 6;
       this.descuento = 0;
       this.montoIVA = 0;
-      this.montoDescuento = 0;
+      this.montoDescLinea = 0;
+      this.montoDescGen = 0;
       this.montoSub = 0;
       this.montoTotal = 0;
       this.defaultCant = true;
-      this.pedido.numPedido = this.isaConfig.varConfig.consecutivoPedidos.toString();
-      this.pedido.subTotal = 0;
-      this.pedido.iva = 0;
-      this.pedido.descuento = 0;
-      this.pedido.total = 0;
-      this.pedido.detalle = [];
+      this.impuesto = 0;
+      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', false);
     }
   }
 
@@ -252,8 +259,10 @@ export class PedidosPage {
     let data: DetallePedido[] = [];
 
     this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
-    this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
+    const descGen = this.pedido.subTotal * this.pedido.porcentajeDescGeneral / 100;
     this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
+    this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
+    this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
     this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
 
     if (i > 0){
@@ -267,9 +276,10 @@ export class PedidosPage {
 
   editarDetalle( i: number ){
     this.cantidad = this.pedido.detalle[i].cantidad;
-    this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;
+    this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
     this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
     this.texto = this.producto.nombre;
+    this.impuesto = this.calculaImpuesto( this.producto.impuesto );
     this.mostrarListaProd = false;
     this.mostrarProducto = true;
     this.modificando = true;
@@ -277,6 +287,7 @@ export class PedidosPage {
     this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
     this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
     this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
+    this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
     this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
     this.ionList.closeSlidingItems();
   }
@@ -314,6 +325,107 @@ export class PedidosPage {
       translucent: true
     });
     return await popover.present();
+  }
+
+  async descuentoGeneral(){
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Descuento General',
+      inputs: [
+        {
+          name: 'descuento',
+          type: 'number',
+          placeholder: '%',
+          value: this.pedido.porcentajeDescGeneral,
+          min: -0,
+          max: this.isaConfig.clienteAct.descuento,
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+        }, {
+          text: 'Ok',
+          handler: (data) => {
+            this.pedido.porcentajeDescGeneral = +data.descuento;
+            this.recalcularDesGeneral();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  recalcularDesGeneral(){               // esta función recalcula el descuento general si existen lineas en el detalle
+    let montoDescGen: number;
+    let montoIVA: number;
+    let montoTotal: number;
+    let tax: number;
+
+    if (this.pedido.detalle.length > 0){
+      for (let i = 0; i < this.pedido.detalle.length; i++) {
+        tax = this.calculaImpuesto(this.pedido.detalle[i].impuesto);
+        montoDescGen = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento) * this.pedido.porcentajeDescGeneral / 100;
+        montoIVA = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento - montoDescGen) * tax;
+        montoTotal = this.pedido.detalle[i].subTotal + montoIVA - this.pedido.detalle[i].descuento - montoDescGen;
+        this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral + montoDescGen;
+        this.pedido.detalle[i].descGeneral = montoDescGen;
+        this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva + montoIVA;
+        this.pedido.detalle[i].iva = montoIVA;
+        this.pedido.total = this.pedido.total - this.pedido.detalle[i].total + montoTotal;
+        this.pedido.detalle[i].total = montoTotal;
+      }
+    }
+  }
+
+  async observaciones(){
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Observaciones',
+      inputs: [
+        {
+          name: 'observacion',
+          id: 'paragraph',
+          type: 'textarea',
+          placeholder: 'Texto',
+          value: this.pedido.observaciones
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+        }, {
+          text: 'Ok',
+          handler: (data) => {
+            this.pedido.observaciones = data.observacion;
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  calculaImpuesto( texto: string ){
+    if (texto == '0101'){
+      return 0;
+    } else if (texto == '0102'){
+      return 0.1;
+    } else if (texto == '0103'){
+      return 0.2;
+    } else if (texto == '0104'){
+      return 0.4;
+    } else if (texto == '0108'){
+      return 0.13;
+    } else {
+      return 0;
+    }
+
   }
 
 }

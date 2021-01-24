@@ -24,9 +24,7 @@ export class Tab3ConfigPage {
         resp => {
           console.log('RutasBD', resp );
           this.isa.rutas = resp;
-          /*resp.forEach(element => {
-            this.isa.rutas.push(element);
-          });*/
+          this.isa.presentaToast('Rutas cargadas...');
           console.log( 'Arreglo', this.isa.rutas );
         }, error => {
           console.log(error.message);
@@ -48,15 +46,19 @@ export class Tab3ConfigPage {
     const {data} = await popover.onWillDismiss();
     console.log(data);
     if (data !== undefined) {
-      this.isa.varConfig.numRuta = this.isa.rutas[data.indice].Ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
-      this.isa.varConfig.nomVendedor = this.isa.rutas[data.indice].Agente;
-      this.isa.varConfig.usuario = this.isa.rutas[data.indice].Ruta;
-      this.isa.varConfig.clave = this.isa.rutas[data.indice].HandHeld;
+      this.isa.varConfig.numRuta = this.isa.rutas[data.indice].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
+      this.isa.varConfig.nomVendedor = this.isa.rutas[data.indice].agente;
+      this.isa.varConfig.usuario = this.isa.rutas[data.indice].ruta;
+      this.isa.varConfig.clave = this.isa.rutas[data.indice].handHeld;
+      this.isa.varConfig.bodega = this.isa.rutas[data.indice].bodega;
+      this.isa.varConfig.consecutivoPedidos = this.isa.rutas[data.indice].pedido;
+      this.isa.varConfig.consecutivoRecibos = this.isa.rutas[data.indice].recibo;
+      this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[data.indice].devolucion;
     }
   }
 
   rutaEnter( ruta: string ){
-    const i = this.isa.rutas.findIndex( r => r.Ruta == ruta );
+    const i = this.isa.rutas.findIndex( r => r.ruta == ruta );
     if ( i >= 0 && this.texto !== this.isa.varConfig.numRuta){
       this.presentAlertConfirm( i );
     } else if ( i < 0 ){
@@ -96,10 +98,11 @@ export class Tab3ConfigPage {
         }, {
           text: 'Ok',
           handler: () => {
-            this.isa.varConfig.numRuta = this.isa.rutas[i].Ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
-            this.isa.varConfig.nomVendedor = this.isa.rutas[i].Agente;
-            this.isa.varConfig.usuario = this.isa.rutas[i].Ruta;
-            this.isa.varConfig.clave = this.isa.rutas[i].HandHeld;
+            this.isa.varConfig.numRuta = this.isa.rutas[i].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
+            this.isa.varConfig.nomVendedor = this.isa.rutas[i].agente;
+            this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
+            this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
+            this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
           }
         }
       ]

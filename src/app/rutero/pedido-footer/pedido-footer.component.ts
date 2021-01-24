@@ -12,7 +12,8 @@ export class PedidoFooterComponent {
   pedido: Pedido;
   st: string;
   iva: string;
-  des: string;
+  desLinea: string;
+  desGeneral: string;
   tot: string;
 
   constructor( private navParams: NavParams ) {
@@ -20,7 +21,8 @@ export class PedidoFooterComponent {
     console.log(this.pedido);
     this.st = this.colones(this.pedido.subTotal);
     this.iva = this.colones(this.pedido.iva);
-    this.des = this.colones(this.pedido.descuento);
+    this.desLinea = this.colones(this.pedido.descuento);
+    this.desGeneral = this.colones(this.pedido.descGeneral);
     this.tot = this.colones(this.pedido.total);
   }
 

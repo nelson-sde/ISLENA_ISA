@@ -16,10 +16,12 @@ export class Cliente {
     tipoImpuesto: number;
     tarifa: number;              // Refiere al tipo de impuesto
     porcentajeTarifa: number;    // Refiere al porcentaje del IVA
+    divGeografica1: string;
+    divGeografica2: string;
 
     constructor(id: number, nombre: string, dir: string, tipoCont: string, contri: string, razonSocial: string, telContacto: string,
         nomContacto: string, credito: number, limCredito: number, diasCred: number, listaPrecio: number, descuento: number, tipoImp: number,
-        tarifa: number, porTarifa: number ){
+        tarifa: number, porTarifa: number, divGeo1: string, divGeo2: string ){
         this.id = id;
         this.nombre = nombre;
         this.direccion = dir;
@@ -36,28 +38,30 @@ export class Cliente {
         this.tipoImpuesto = tipoImp;
         this.tarifa = tarifa;
         this.porcentajeTarifa = porTarifa;
+        this.divGeografica1 = divGeo1;
+        this.divGeografica2 = divGeo2;
     }
 }
 
 export interface ClienteBD {
-    Cod_Zon: string,
-    Cod_Clt: string,
-    Nom_Clt: string,
-    Dir_Clt: string,
-    Tipo_Tarifa: string,
-    Porc_Tarifa: number,
-    Tipo_Impuesto: string,
-    Cod_Cnd: string,
-    Cod_Pais: string,
-    Contribuyente: string,
-    Descuento: number,
-    Division_Geografica1: string,
-    Division_Geografica2: string,
-    Ind_Mon: string,
-    Lim_Cre: number,
-    Lst_Pre: number,
-    Nom_Cto: string,
-    Num_Tel: string,
-    Razonsocial: string,
-    Tipo_Contribuyente: string,
+    cod_Zon: string,
+    cod_Clt: string,
+    nom_Clt: string,
+    dir_Clt: string,
+    tipo_Tarifa: string,
+    porc_Tarifa: number,
+    tipo_Impuesto: string,
+    cod_Cnd: string,
+    cod_Pais: string,
+    contribuyente: string,
+    descuento: number,
+    division_Geografica1: string,
+    division_Geografica2: string,
+    ind_Mon: string,
+    lim_Cre: number,
+    lst_Pre: number,
+    nom_Cto: string,
+    num_Tel: string,
+    razonsocial: string,
+    tipo_Contribuyente: string,
 }
