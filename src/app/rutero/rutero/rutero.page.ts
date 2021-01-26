@@ -48,7 +48,14 @@ export class RuteroPage {
 
     if (this.texto.length == 0) {                               // Se busca en todos los cliente
       this.isa.buscarClientes = this.isa.clientes.slice(0);      // El modal se abrira con el arreglo completo de clientes
-    } else {                                                  // Se recorre el arreglo para buscar coincidencias
+    } else if (this.texto[0] == '#'){
+      this.isa.buscarClientes = [];
+      this.texto = this.texto.slice(1);
+      const i = this.isa.clientes.findIndex( d => d.id == +this.texto );
+      if ( i > 0 ){
+        this.isa.buscarClientes.push( this.isa.clientes[i]);
+      }
+    } else {
       this.isa.buscarClientes = [];
       for (let i = 0; i < this.isa.clientes.length; i++) {
         if (this.isa.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
@@ -62,14 +69,14 @@ export class RuteroPage {
       this.direccion = '';
       this.dir = false;
       this.codigoCliente = 0;
-  } else if (this.isa.buscarClientes.length == 1){                        // La coincidencia es exacta
+    } else if (this.isa.buscarClientes.length == 1){                        // La coincidencia es exacta
       this.texto = this.isa.buscarClientes[0].nombre;
       this.direccion = this.isa.buscarClientes[0].direccion;
       this.codigoCliente = this.isa.buscarClientes[0].id;
       this.dir = true;
       this.isa.clienteAct = this.isa.buscarClientes[0];
       this.isa.cargaListaPrecios();
-      console.log(this.isa.productos);
+      this.isa.cargarCardex();
     } else {                                                           // Se debe abrir el modal para busqueda de clientes
       this.clientesPopover( ev );
     }
@@ -93,6 +100,7 @@ export class RuteroPage {
         this.direccion = this.isa.clienteAct.direccion;
         this.dir = true;
         this.isa.cargaListaPrecios();
+        this.isa.cargarCardex();
         console.log(this.isa.productos);
       } else {
         this.codigoCliente = 0;

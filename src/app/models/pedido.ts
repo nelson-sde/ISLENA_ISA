@@ -1,6 +1,6 @@
 
 export class DetallePedido {
-    codProducto: number;
+    codProducto: string;
     descripcion: string;
     precio: number;
     cantidad: number;
@@ -12,7 +12,7 @@ export class DetallePedido {
     impuesto: string;
     esCanastaBasica: string;
 
-    constructor( id: number, des: string, precio: number, cantidad: number, sub: number, iva: number, desc: number, descGen: number, total: number, impuesto: string, esCanBa: string ){
+    constructor( id: string, des: string, precio: number, cantidad: number, sub: number, iva: number, desc: number, descGen: number, total: number, impuesto: string, esCanBa: string ){
         this.codProducto = id;
         this.descripcion = des;
         this.precio = precio;

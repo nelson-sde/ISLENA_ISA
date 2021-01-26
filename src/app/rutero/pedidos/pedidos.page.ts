@@ -8,6 +8,7 @@ import { AlertController, IonList, NavController, PopoverController} from '@ioni
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
 import { Cardex } from 'src/app/models/cardex';
 import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component';
+import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 
 
 @Component({
@@ -42,6 +43,7 @@ export class PedidosPage {
   constructor( private activateRoute: ActivatedRoute,
                private isaConfig: IsaService,
                private isaPedido: IsaPedidoService,
+               private isaCardex: IsaCardexService,
                private alertController: AlertController,
                private navController: NavController,
                private popoverController: PopoverController ) {
@@ -54,42 +56,38 @@ export class PedidosPage {
   }
 
   validaSiCardex(){
-    let cardex: Cardex[] = [];
     let prod: Productos[] = [];
+    let result: Cardex[] = [];
 
-    if (localStorage.getItem('cardex')){
-      cardex = JSON.parse( localStorage.getItem('cardex'));
-      const result = cardex.filter(data => data.codCliente == this.isaConfig.clienteAct.id);
-      if ( result.length > 0 ){
-        for (let i = 0; i < result.length; i++) {
-          prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
-          this.impuesto = this.calculaImpuesto( prod[0].impuesto );
-          this.montoSub = result[i].cantPedido * prod[0].precio;
-          this.montoIVA = this.montoSub * this.impuesto;
-          this.montoTotal = this.montoSub + this.montoIVA;
-          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
-                                                0, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica);
-          this.pedido.detalle.push( this.nuevoDetalle );
-          this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
-          this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
-          this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
-          this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
-          this.pedidoSinSalvar = true;
-        }
-        this.texto = '';
-        this.mostrarListaProd = false;
-        this.mostrarProducto = false;
-        this.cantidad = 0;
-        this.descuento = 0;
-        this.montoIVA = 0;
-        this.montoDescLinea = 0;
-        this.montoDescGen = 0;
-        this.montoSub = 0;
-        this.montoTotal = 0;
-        this.defaultCant = true;
+    result = this.isaCardex.cardex.slice(0);
+    if ( result.length > 0 ){
+      for (let i = 0; i < result.length; i++) {
+        prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
+        this.impuesto = this.calculaImpuesto( prod[0].impuesto );
+        this.montoSub = result[i].cantPedido * prod[0].precio;
+        this.montoIVA = this.montoSub * this.impuesto;
+        this.montoTotal = this.montoSub + this.montoIVA;
+        this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
+                                              0, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica);
+        this.pedido.detalle.push( this.nuevoDetalle );
+        this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
+        this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
+        this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
+        this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
+        this.pedidoSinSalvar = true;
       }
+      this.texto = '';
+      this.mostrarListaProd = false;
+      this.mostrarProducto = false;
+      this.cantidad = 0;
+      this.descuento = 0;
+      this.montoIVA = 0;
+      this.montoDescLinea = 0;
+      this.montoDescGen = 0;
+      this.montoSub = 0;
+      this.montoTotal = 0;
+      this.defaultCant = true;
     }
-    
   }
 
   buscarProducto(){
@@ -98,7 +96,7 @@ export class PedidosPage {
       this.busquedaProd = this.isaConfig.productos;         // El modal se abrira con el arreglo completo de clientes
     } else if (this.texto[0] == '#') {            // Se buscará por código de producto
       this.busquedaProd = [];
-      const idProduct = +this.texto.slice(1);
+      const idProduct = this.texto.slice(1);
       const product = this.isaConfig.productos.find( e => e.id == idProduct );
       if ( product !== undefined ){
         this.busquedaProd.push(product);
@@ -145,7 +143,7 @@ export class PedidosPage {
     this.mostrarProducto = true;
   }
 
-  existeEnDetalle( id: number ){
+  existeEnDetalle( id: string ){
     if ( this.pedido.detalle.length !== 0 ){
       const j = this.pedido.detalle.findIndex( data => data.codProducto == id );
       return j;
@@ -243,7 +241,7 @@ export class PedidosPage {
     }
   }
 
-  descuentoPermitido( codCliente: number, codProducto: number ){
+  descuentoPermitido( codCliente: number, codProducto: string ){
     return 5;
   }
 

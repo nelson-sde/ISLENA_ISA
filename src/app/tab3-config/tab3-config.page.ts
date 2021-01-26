@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { AlertController, NavController, PopoverController } from '@ionic/angular';
 import { IsaService } from '../services/isa.service';
+import { IsaPedidoService } from '../services/isa-pedido.service';
 import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
 
 @Component({
@@ -15,19 +16,24 @@ export class Tab3ConfigPage {
   texto:string;
 
   constructor( public isa: IsaService,
+               private isaPedidos: IsaPedidoService,
                private alertCtrl: AlertController,
                private navControler: NavController,
                private popoverCtrl: PopoverController ) {
 
     if (this.isa.rutas.length == 0) {
+      this.isa.presentaLoading('Sincronizando Rutas...');
       this.isa.getRutas().subscribe(
         resp => {
           console.log('RutasBD', resp );
           this.isa.rutas = resp;
+          this.isa.loadingDissmiss();
           this.isa.presentaToast('Rutas cargadas...');
           console.log( 'Arreglo', this.isa.rutas );
         }, error => {
           console.log(error.message);
+          this.isa.loadingDissmiss();
+          this.isa.presentAlertW('Cargando Rutas', error.message);
         }
       );                                // Actualiza la lista de rutas en ISA
     }
@@ -79,6 +85,8 @@ export class Tab3ConfigPage {
       this.isa.guardarVarConfig();                              // Actualiza la informacion de entorno
       this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
       this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos
+      this.isa.syncCardex(this.isa.varConfig.numRuta);
+      this.isaPedidos.borrarPedidos();
       this.regresar();
     } else {
       this.isa.presentAlertW(this.texto, 'Faltan datos claves para sincronizar la información.');

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { Cardex, CardexBD } from '../models/cardex';
 import { Cliente, ClienteBD } from '../models/cliente';
 import { Productos, ProductosBD } from '../models/productos';
 
@@ -55,6 +56,7 @@ export class IsaService {
   clientes: Cliente[] = [];
   buscarClientes: Cliente[] = [];
   ids: string[] = [];
+  historico: Cardex[] = [];
 
   loading: HTMLIonLoadingElement;
 
@@ -85,12 +87,11 @@ export class IsaService {
     let producto: Productos;
     this.productos = [];
 
-    this.presentaLoading('Sync Productos...')
     this.getProductos(ruta).subscribe(
       resp => {
         console.log('SKUBD', resp );
         resp.forEach(e => {
-          producto = new Productos( +e.articulo, e.des_Art, e.lst_Pre, e.nivel_Precio, e.precio, e.moneda, e.cod_Bar, e.impuesto, e.canasta_Basica, e.articulo+'.png')
+          producto = new Productos( e.articulo, e.des_Art, e.lst_Pre, e.nivel_Precio, e.precio, e.moneda, e.cod_Bar, e.impuesto, e.canasta_Basica, e.articulo+'.png')
           this.productos.push( producto );
         });
         console.log( 'Arreglo', this.productos );
@@ -98,12 +99,11 @@ export class IsaService {
           localStorage.removeItem('productos');
         }
         localStorage.setItem('productos', JSON.stringify(this.productos));
+        this.loadingDissmiss();
+        this.presentaToast('Sincronización Finalizada.');
         this.cargarProductos();
-        this.loading.dismiss();
-        this.presentaToast('Sincronización Finalizada...');
       }, error => {
         console.log(error.message);
-        this.loading.dismiss();
       }
     );
   }
@@ -134,7 +134,7 @@ export class IsaService {
     let cliente: Cliente;
     this.clientes = [];
 
-    // this.presentaLoading('Sync Clientes...')
+    this.presentaLoading('Sincronizando...');
     this.getClientes(ruta).subscribe(
       resp => {
         console.log('ClientesBD', resp );
@@ -150,10 +150,8 @@ export class IsaService {
         }
         localStorage.setItem('clientes', JSON.stringify(this.clientes));
         this.cargarClientes();
-        // this.loading.dismiss();
       }, error => {
         console.log(error.message);
-        this.loading.dismiss();
       }
     );
   }
@@ -177,6 +175,57 @@ export class IsaService {
     return this.http.get<ProductosBD[]>( query );
   }
 
+  getCardex( ruta: string ){
+    const query: string = environment.CardexURL + ruta;
+    //const query: string = environment.clientesURL;
+    return this.http.get<CardexBD[]>( query );
+  }
+
+  syncCardex( ruta: string ){
+    let j: number;
+    let cardex: Cardex;
+    let cardexArr: Cardex[] = [];
+
+    this.getCardex( ruta ).subscribe(
+      resp => {
+        console.log('CardexBD', resp );
+        resp.forEach(e => {
+          cardex = new Cardex( +e.cliente, e.articulo, 'ND', e.tipO_DOCUMENTO, e.fecha, 0, e.cantidad);
+          cardexArr.push(cardex);
+        });
+        console.log('Arreglo', cardexArr);
+        if (localStorage.getItem('cardex')){
+          localStorage.removeItem('cardex');
+        }
+        localStorage.setItem('cardex', JSON.stringify(cardexArr));
+      }, error => {
+        console.log(error.message);
+        this.loadingDissmiss();
+      }
+    );
+  }
+
+  cargarCardex(){
+    let cardex: Cardex[] = [];
+    let cardex2: Cardex[] = [];
+    let j: number;
+
+    this.historico = [];
+    if (localStorage.getItem('cardex')){
+      cardex = JSON.parse( localStorage.getItem('cardex'));
+      cardex2 = cardex.filter(d => d.codCliente == this.clienteAct.id);
+      if (cardex2.length > 0){
+        for (let i = 0; i < cardex2.length; i++) {
+          j = this.productos.findIndex(d => d.id == cardex2[i].codProducto);
+          if (j >= 0){
+            cardex2[i].desProducto = this.productos[j].nombre;
+          }
+        }
+        this.historico = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+      }
+    }
+  }
+
   async presentAlertW( subtitulo: string, mensaje: string ) {
     const alert = await this.alertController.create({
       header: 'Warning',
@@ -193,6 +242,10 @@ export class IsaService {
       message: mensaje,
     });
     await this.loading.present();
+  }
+
+  loadingDissmiss(){
+    this.loading.dismiss();
   }
 
   nextConsecutivo( consecutivo: string ){

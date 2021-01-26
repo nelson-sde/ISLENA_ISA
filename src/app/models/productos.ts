@@ -1,6 +1,6 @@
 
 export class Productos {
-    id: number;
+    id: string;
     nombre: string;
     listaPrecios: number;
     nivelPrecio: string;
@@ -11,7 +11,7 @@ export class Productos {
     canastaBasica: string;
     imagen: string;
 
-    constructor ( id: number, nombre: string, lstPrc: number, nivelPrecio: string, precio: number, moneda: string, codBar: string, tax: string, canBas: string, img: string){
+    constructor ( id: string, nombre: string, lstPrc: number, nivelPrecio: string, precio: number, moneda: string, codBar: string, tax: string, canBas: string, img: string){
         this.id = id;
         this.nombre = nombre;
         this.listaPrecios = lstPrc;

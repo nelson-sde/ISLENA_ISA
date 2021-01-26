@@ -18,34 +18,34 @@
     <h1>{{ isa.clienteAct.nombre }}</h1>
   </ion-text>
   <p></p>
-  <ion-searchbar color="light" (ionChange)="getItems($event)"></ion-searchbar>
-  <p></p>
-  <ion-list *ngIf="isItemAvailable">
-    <ion-item *ngFor="let item of productos; let i = index" (click)="abrirCardex(i)">
-      <ion-label>{{ item.nombre }}</ion-label>
+  
+  <ion-list>
+    <ion-item *ngFor="let item of cardexHistorico; let i = index" (click)="abrirCardex(i)">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="5">
+            <div>{{ item.fecha | date: shortDate }}</div>
+          </ion-col>
+          <ion-col size="3">
+            <div>{{ item.tipoDocumento }}</div>
+          </ion-col>
+          <ion-col size="2">
+            <div>{{ item.codProducto }}</div>
+          </ion-col>
+          <ion-col size="2">
+            <div>{{ item.cantPedido }}</div>
+          </ion-col>
+          <ion-col size="12">
+            <div>{{ item.desProducto }}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-item>
   </ion-list>
 
-  <ion-list *ngIf="!isItemAvailable">
-    <ion-list-header color="light" lines="full">
-      <ion-grid>
-        <ion-row color="light">
-          <ion-col size="6">Producto</ion-col>
-          <ion-col size="3">Invent</ion-col>
-          <ion-col size="3">Pedido</ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-list-header>
-    <ion-grid>    
-      <ion-row *ngFor="let item of isaCardex.cardex">
-        <ion-col size="8">{{item.desProducto}}</ion-col>
-        <ion-col size="2">{{item.cantInventario}}</ion-col>
-        <ion-col size="2">{{item.cantPedido}}</ion-col>
-      </ion-row>
-    </ion-grid>
-    <p></p>
-    <ion-button (click)="salvarCardex()" expand="block" color="success" shape="round">
-      Guardar
-    </ion-button>
-  </ion-list>
+  <p></p>
+  <ion-button (click)="salvarCardex()" expand="block" color="success" shape="round">
+    Guardar
+  </ion-button>
+  
 </ion-content>

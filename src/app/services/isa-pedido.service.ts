@@ -26,6 +26,12 @@ export class IsaPedidoService {
     localStorage.setItem('pedidos', JSON.stringify(pedidosLS));
   }
 
+  borrarPedidos(){
+    if (localStorage.getItem('pedidos')){
+      localStorage.removeItem('pedidos');
+    }
+  }
+
   actualizaEstadoPedido ( numPedido: string, estado: boolean ){
     let pedidosLS: Pedido[] = [];
 

@@ -15,7 +15,7 @@ export class IsaCardexService {
   }
 
                                                 // Consulta un id de Producto y devuelve el index en el arreglo, si no lo
-  consultarProducto( id: number ): number {      // encuentra devuelve -1
+  consultarProducto( id: string ): number {      // encuentra devuelve -1
     if (this.cardex.length !== 0 ){           
       const c = this.cardex.findIndex(d => d.codProducto == id);
       return c;
@@ -38,18 +38,6 @@ export class IsaCardexService {
     }
     localStorage.setItem('cardex', JSON.stringify(cardexBD.concat(this.cardex)));
     this.cardex = [];
-  }
-
-  consultarCliente( id: number ){
-    let cardexBD: Cardex[] = [];
-
-    if (localStorage.getItem('cardex')){
-      cardexBD = JSON.parse( localStorage.getItem('cardex'));
-      const arr = cardexBD.filter(d => (d.codCliente == id && !d.aplicado));
-      if (arr.length !== 0){
-        this.cardex = arr.slice(0);
-      }
-    }
   }
 
 }
