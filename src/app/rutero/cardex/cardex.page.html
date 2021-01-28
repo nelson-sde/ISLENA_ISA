@@ -3,11 +3,10 @@
     <ion-buttons>
       <ion-button (click)="regresar()" fill="clear" slot="start">
         <ion-icon name="chevron-back-outline"></ion-icon>
-        Back
       </ion-button>
-      <ion-title>Cardex</ion-title>
+      <ion-title class="ion-text-center">Cardex</ion-title>
       <ion-button (click)="guardarCardex()" fill="clear" slot="end" size="medium">
-        <ion-icon name="pencil-outline" color="danger" size="large"></ion-icon>
+        <ion-icon name="save-outline" [color]="isaCardex.cardexSinSalvar ? 'danger' : 'success'" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -19,9 +18,6 @@
       <ion-text color="primary">
         <h1>{{ isa.clienteAct.nombre }}</h1>
       </ion-text>
-      <ion-text>
-        <p>{{ codProducto }} - {{ nomProducto }}</p>
-      </ion-text>
     </ion-label>
   </ion-item>
   <p></p>
@@ -29,18 +25,58 @@
     <ion-list-header color="light" lines="full">
       <ion-grid>
         <ion-row color="light">
-          <ion-col size="4">Fecha</ion-col>
-          <ion-col size="4">Inventario</ion-col>
-          <ion-col size="4">Pedido</ion-col>
+          <ion-col size="4">
+            <div class="ion-text-center">
+              Producto
+            </div>
+          </ion-col>
+          <ion-col size="4">
+            <div class="ion-text-end">
+              Inventario
+            </div>
+          </ion-col>
+          <ion-col size="4">
+            <div class="ion-text-end">
+              Pedido
+            </div>
+          </ion-col>
         </ion-row>
       </ion-grid>
     </ion-list-header>
-    <ion-grid>    
-      <ion-row *ngFor="let item of historico">
-        <ion-col size="4">{{item.fecha | date: 'shortDate'}}</ion-col>
-        <ion-col size="4">{{item.cantInventario}}</ion-col>
-        <ion-col size="4">{{item.cantPedido}}</ion-col>
-      </ion-row>
-    </ion-grid>
+    <ion-item *ngFor="let item of cardex" lines="full">
+      <ion-grid>    
+        <ion-row>
+          <ion-col size="4">
+            <div>
+              {{item.codProducto}}
+            </div>
+          </ion-col>
+          <ion-col size="4">
+            <div class="ion-text-end">
+              <ion-input type="number" placeholder="?" value="{{item.cantInventario}}" [(ngModel)]="item.cantInventario"></ion-input>
+            </div>
+          </ion-col>
+          <ion-col size="4">
+            <div class="ion-text-end">
+              <ion-input type="number" placeholder="?" value="{{item.cantPedido}}" [(ngModel)]="item.cantPedido"></ion-input>
+            </div>
+          </ion-col>
+          <ion-col size="12">
+            <div>
+              <ion-text color="primary">
+                {{item.desProducto}}
+              </ion-text>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
   </ion-list>  
 </ion-content>
+<ion-footer>
+  <ion-toolbar color="dark">
+    <ion-button slot="end" (click)="agregarProducto()" fill="clear">
+      <ion-icon name="add-circle-outline" color="success" size="large"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

@@ -7,11 +7,18 @@ import { Cardex } from '../models/cardex';
 export class IsaCardexService {
 
   cardex: Cardex[] = [];
+  cardexSinSalvar: boolean = false;
 
   constructor() {}
 
   agregarCardex(data: Cardex){     // Agrega una linea de producto al arreglo cardex
     this.cardex.push(data);
+  }
+
+  cargarCardex(){
+    if (localStorage.getItem('cardexCliente')){
+      this.cardex = JSON.parse( localStorage.getItem('cardexCliente'));
+    }
   }
 
                                                 // Consulta un id de Producto y devuelve el index en el arreglo, si no lo
@@ -25,18 +32,22 @@ export class IsaCardexService {
   }
                                                       // Modifica una linea en el arreglo del cardex
 
-  modificarCardex( i: number, pedido: number, inventario: number ){
-    this.cardex[i].cantPedido = pedido;
-    this.cardex[i].cantInventario = inventario;
+  actualizaAplicado( codCliente: number ){
+    this.cardex.forEach( e => {
+      if (e.codCliente == codCliente){
+        e.aplicado = true;
+      }
+    })
+    localStorage.setItem('cardexCliente', JSON.stringify(this.cardex));
   }
 
-  guardarCardex(){                  // Guarda en arreglo en la BD
-    let cardexBD: Cardex[] = [];
+  guardarCardex( cardex: Cardex[] ){                  // Guarda en arreglo en el Local Storage
+    let cardexLS: Cardex[] = [];
 
-    if (localStorage.getItem('cardex')){
-      cardexBD = JSON.parse( localStorage.getItem('cardex'));
+    if (localStorage.getItem('cardexCliente')){
+      cardexLS = JSON.parse( localStorage.getItem('cardexCliente'));
     }
-    localStorage.setItem('cardex', JSON.stringify(cardexBD.concat(this.cardex)));
+    localStorage.setItem('cardexCliente', JSON.stringify(cardexLS.concat(cardex)));
     this.cardex = [];
   }
 

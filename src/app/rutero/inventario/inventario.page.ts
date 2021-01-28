@@ -14,8 +14,6 @@ import { IsaService } from 'src/app/services/isa.service';
 
 export class InventarioPage {
 
-  isItemAvailable: boolean = true;
-  cardexSinSalvar: boolean = false;
   productos: Productos[] = [];
   cardexHistorico: Cardex [] = [];
 
@@ -25,26 +23,38 @@ export class InventarioPage {
                private router: Router,
                private alertController: AlertController ) {
     this.cardexHistorico = this.isa.historico.slice(0);
+    this.reordenaHistorico();
+  }
+
+  reordenaHistorico(){
+    let i = 0;
+    let j = 1;
+
+    while (i < this.cardexHistorico.length && j < this.cardexHistorico.length) {
+      if(new Date(this.cardexHistorico[j].fecha).getDate() == new Date(this.cardexHistorico[i].fecha).getDate()){
+        this.cardexHistorico[j].fecha = null;
+        j++
+      } else {
+        i = j;
+        j++;
+      }
+    }
   }
 
   abrirCardex( i: number ){
-    this.cardexSinSalvar = true;
-    this.router.navigate(['/cardex', {
-      codProducto: this.productos[i].id,
-      nombreProd: this.productos[i].nombre }]);
-  }
-
-  guardarInventario(){
-    this.isItemAvailable = false;
-  }
-
-  salvarCardex(){
-    this.isaCardex.guardarCardex();
-    this.navController.back();
+    if (i >= 0){
+      this.router.navigate(['/cardex', {
+        codProducto: this.cardexHistorico[i].codProducto,
+        nombreProd: this.cardexHistorico[i].desProducto }]);
+    } else{
+      this.router.navigate(['/cardex', {
+        codProducto: null,
+        nombreProd: null }]);
+    }
   }
 
   regresar(){
-    if (this.cardexSinSalvar){
+    if (this.isaCardex.cardexSinSalvar){
       this.presentAlertSalir();
     } else {
       this.navController.back();
@@ -68,6 +78,7 @@ export class InventarioPage {
           text: 'Si',
           handler: () => {
             this.isaCardex.cardex = [];
+            this.isaCardex.cardexSinSalvar = false;
             this.navController.back();
           }
         }

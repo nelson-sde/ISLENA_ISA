@@ -33,6 +33,10 @@ const routes: Routes = [
   {
     path: 'tab3-pop',
     loadChildren: () => import('./tab3-pop/tab3-pop.module').then( m => m.Tab3PopPageModule)
+  },
+  {
+    path: 'productos',
+    loadChildren: () => import('./rutero/productos/productos.module').then( m => m.ProductosPageModule)
   }
 ];
 @NgModule({

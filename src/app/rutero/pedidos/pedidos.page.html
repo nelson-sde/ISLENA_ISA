@@ -3,7 +3,6 @@
     <ion-buttons>
       <ion-button (click)="regresar()" fill="clear" slot="start">
         <ion-icon name="chevron-back-outline"></ion-icon>
-        Back
       </ion-button>
       <ion-title align-text-center>Pedido {{pedido.numPedido}}</ion-title>
       <ion-button (click)="carrito()" fill="clear" slot="end" size="medium">
@@ -15,7 +14,7 @@
 
 <ion-content>
   <ion-list>
-    <ion-text color="primary">
+    <ion-text color="primary" >
       <h1>{{ isaConfig.clienteAct.nombre }}</h1>
     </ion-text>
   </ion-list>

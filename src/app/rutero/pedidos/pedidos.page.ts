@@ -37,6 +37,7 @@ export class PedidosPage {
   modificando: boolean = false;           // Si es true se esta modificando una linea del pedido
   j: number = -1;                        // j es el index de la linea que se esta modificando en el detalle
   impuesto: number = 0;
+  hayCardex: boolean = false;
 
   @ViewChild('myList') ionList: IonList;
 
@@ -59,8 +60,10 @@ export class PedidosPage {
     let prod: Productos[] = [];
     let result: Cardex[] = [];
 
-    result = this.isaCardex.cardex.slice(0);
+    this.isaCardex.cargarCardex();
+    result = this.isaCardex.cardex.filter( d => d.codCliente == this.isaConfig.clienteAct.id && d.aplicado == false )
     if ( result.length > 0 ){
+      this.hayCardex = true;
       for (let i = 0; i < result.length; i++) {
         prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
         this.impuesto = this.calculaImpuesto( prod[0].impuesto );
@@ -222,6 +225,7 @@ export class PedidosPage {
   carrito(){
     if (this.pedidoSinSalvar){
       this.isaPedido.transmitirPedido( this.pedido );
+      this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
       this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.nextConsecutivo( this.isaConfig.varConfig.consecutivoPedidos );
       this.isaConfig.guardarVarConfig();
       this.pedidoSinSalvar = false;
