@@ -44,6 +44,10 @@ export class RuteroPage {
     }
   }
 
+  abrirResumen(){
+    this.router.navigate(['/resumen']);
+  }
+
   buscarCliente( ev: any ){
 
     if (this.texto.length == 0) {                               // Se busca en todos los cliente

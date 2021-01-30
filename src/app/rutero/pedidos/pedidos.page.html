@@ -41,8 +41,8 @@
       <ion-col size="6"> 
         <ion-card >
           <ion-img [src]="producto.imagen | noimage"></ion-img>
-          <ion-card-content text-center>
-            <h2>Can: <strong>{{cantidad}}</strong>  Des: <strong>{{descuento}}%</strong></h2>
+          <ion-card-content text-center (click)="ingresaCantidad()">
+            <h2>Q: <strong>{{cantidad}}</strong>  Des: <strong>{{descuento}}%</strong></h2>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -72,20 +72,17 @@
     <ion-list-header color="light" lines="full">
       <ion-grid>
         <ion-row>
-          <ion-col size="1">
+          <ion-col size="2">
             <div>Q</div>
           </ion-col>
           <ion-col size="3">
-            <div>Sub</div>
+            <div class="ion-text-center">IVA</div>
           </ion-col>
           <ion-col size="3">
-            <div>IVA</div>
+            <div class="ion-text-center">Des</div>
           </ion-col>
-          <ion-col size="2">
-            <div>Des</div>
-          </ion-col>
-          <ion-col size="3">
-            <div>Total</div>
+          <ion-col size="4">
+            <div class="ion-text-center">Total</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -98,20 +95,17 @@
       <ion-item>
         <ion-grid>
           <ion-row>
-            <ion-col size="1">
+            <ion-col size="2">
               <div>{{ item.cantidad }}</div>
             </ion-col>
             <ion-col size="3">
-              <div>{{ item.subTotal | colones:1 :"." :"" :"" }}</div>
+              <div class="ion-text-end">{{ item.iva | colones:1 :"." :"" :"" }}</div>
             </ion-col>
             <ion-col size="3">
-              <div>{{ item.iva | colones:1 :"." :"" :"" }}</div>
+              <div class="ion-text-end">{{ item.descuento | colones:1 :"." :"" :"" }}</div>
             </ion-col>
-            <ion-col size="2">
-              <div>{{ item.descuento | colones:1 :"." :"" :"" }}</div>
-            </ion-col>
-            <ion-col size="3">
-              <div>{{ item.total | colones:1 :"." :"," }}</div>
+            <ion-col size="4">
+              <div class="ion-text-end">{{ item.total | colones:1 :"." :"," }}</div>
             </ion-col>
             <ion-col size="2">
               <div>

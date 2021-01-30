@@ -296,7 +296,7 @@ export class IsaService {
   async presentaToast ( message ){
     const toast = await this.toastCtrl.create({
       message,
-      duration: 3000
+      duration: 3500
     });
     toast.present();
   }

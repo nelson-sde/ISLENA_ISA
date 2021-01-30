@@ -4,18 +4,22 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-item>
-  <ion-label position="floating">Cliente</ion-label>
-  <ion-input [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarCliente( $event )"></ion-input>
-  <ion-button (click)="buscarCliente( $event )" slot="end" size="medium" color="light">
-    <ion-icon slot="icon-only" name="search-outline"></ion-icon>
-  </ion-button>
-</ion-item>
-<ion-item *ngIf="dir">
-  <ion-label>{{direccion}}</ion-label>
-</ion-item>
+
 
 <ion-content>
+  <p></p>
+  <ion-item color="light">
+    <ion-label position="floating">Cliente</ion-label>
+    <ion-input color="primary" [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarCliente( $event )"></ion-input>
+    <ion-button (click)="buscarCliente( $event )" slot="end" size="medium" color="light">
+      <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+  <ion-item color="light" *ngIf="dir">
+    <div class="ion-text-wrap">{{direccion}} - {{codigoCliente}}</div>
+  </ion-item>
+
+  <p></p>
   <ion-grid fixed>
     <ion-row style="height:120px">
       <ion-col size="6" size-lg>
@@ -54,8 +58,22 @@
       </ion-col>
       <ion-col size="6">
         <ion-button style="height:100%" (click)="onClick()" size="large" expand="block" color="light">
-          <ion-icon slot="start" name="calculator-outline"></ion-icon>
+          <ion-icon slot="start" name="bar-chart-outline"></ion-icon>
           Estadis
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row style="height:120px">
+      <ion-col size="6">
+        <ion-button style="height:100%" (click)="abrirResumen()" size="large" expand="block" color="light">
+          <ion-icon slot="start" name="file-tray-full-outline"></ion-icon>
+          Resumen
+        </ion-button>
+      </ion-col>
+      <ion-col size="6">
+        <ion-button style="height:100%" (click)="onClick()" size="large" expand="block" color="light">
+          <ion-icon slot="start" name="receipt-outline"></ion-icon>
+          Liquida
         </ion-button>
       </ion-col>
     </ion-row>

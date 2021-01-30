@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-title align-text-center>Resumen Diario</ion-title>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-segment (ionChange)="segmentChanged($event)" value="Pedidos">
+    <ion-segment-button value="Pedidos">
+      <ion-label>Pedidos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="Recibos">
+      <ion-label>Recibos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="Devoluciones">
+      <ion-label>Devoluciones</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+  <p></p>
+
+  <ion-list *ngIf="mostrarPedidos">
+    <ion-item color="light">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="4">
+            <div>Cliente</div>
+          </ion-col>
+          <ion-col size="4">
+            <div>Pedido</div>
+          </ion-col>
+          <ion-col size="4">
+            <div>Monto</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <ion-item *ngFor="let item of pedidos; let i = index" (click)="abrirDetalle(i)">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="3">
+            <div>
+              <ion-text [color]="item.envioExitoso ? 'success' : 'danger'">{{item.codCliente}}</ion-text>
+            </div>
+          </ion-col>
+          <ion-col size="5">
+            <div>{{item.numPedido}}</div>
+          </ion-col>
+          <ion-col size="4">
+            <div class="ion-text-end">{{item.total | colones}}</div>
+          </ion-col>
+          <ion-col size="12">
+            <div>
+              <ion-text color="primary">{{item.codCliente | cliente}}</ion-text>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

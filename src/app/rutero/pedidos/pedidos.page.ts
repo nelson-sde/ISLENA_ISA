@@ -249,14 +249,6 @@ export class PedidosPage {
     return 5;
   }
 
-  regresar(){
-    if (this.pedidoSinSalvar){
-      this.presentAlertSalir();
-    } else {
-      this.navController.back();
-    }
-  }
-
   borrarDetalle( i: number ){
     let data: DetallePedido[] = [];
 
@@ -427,7 +419,60 @@ export class PedidosPage {
     } else {
       return 0;
     }
+  }
 
+  async ingresaCantidad(){
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Cantidades!',
+      inputs: [
+        {
+          name: 'cantidad',
+          type: 'number',
+          placeholder: 'Cantidad',
+          min: 0,
+          max: 1000
+        },
+        {
+          name: 'descuento',
+          type: 'number',
+          placeholder: 'Descuento',
+          min: 0,
+          max: 1000
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Ok',
+          handler: (data) => {
+            console.log('Confirm Ok', data);
+            if (data.cantidad.length > 0){
+              this.cantidad = +data.cantidad;
+            }
+            if (data.descuento.length > 0){
+              this.descuento = +data.descuento;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  regresar(){
+    if (this.pedidoSinSalvar){
+      this.presentAlertSalir();
+    } else {
+      this.navController.back();
+    }
   }
 
 }

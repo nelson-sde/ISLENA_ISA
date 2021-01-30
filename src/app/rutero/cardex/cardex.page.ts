@@ -80,4 +80,16 @@ export class CardexPage {
     this.navController.back();
   }
 
+  borrarLinea( i: number ){
+    let data: Cardex[] = [];
+
+    if (i > 0){
+      data = this.cardex.slice(0, i);
+    } 
+    if (i+1 < this.cardex.length){
+      data = data.concat(this.cardex.slice(i+1, this.cardex.length));
+    }
+    this.cardex = data.slice(0);
+  }
+
 }

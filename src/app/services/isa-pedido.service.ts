@@ -38,7 +38,7 @@ export class IsaPedidoService {
     if (localStorage.getItem('pedidos')){
       pedidosLS = JSON.parse( localStorage.getItem('pedidos'));
       const i = pedidosLS.findIndex( data => data.numPedido == numPedido );
-      if (i > 0){
+      if (i >= 0){
         pedidosLS[i].envioExitoso = estado;
         localStorage.setItem('pedidos', JSON.stringify(pedidosLS));
       }
@@ -83,6 +83,7 @@ export class IsaPedidoService {
         this.agregarDetalle( numPedido, arrDetBD );
       }, error => {
         console.log('Error Encabezado ', error);
+        this.isa.presentaToast( 'Error de Envío...' );
       }
     );
     
@@ -100,6 +101,7 @@ export class IsaPedidoService {
       }, error => {
         console.log('Error Detalle ', error);
         console.log('debemos borrar el enca del pedido...');
+        this.isa.presentaToast( 'Error de Envío...' );
       }
     );
   }

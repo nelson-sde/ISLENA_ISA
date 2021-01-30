@@ -37,6 +37,14 @@ const routes: Routes = [
   {
     path: 'productos',
     loadChildren: () => import('./rutero/productos/productos.module').then( m => m.ProductosPageModule)
+  },
+  {
+    path: 'resumen',
+    loadChildren: () => import('./rutero/resumen/resumen.module').then( m => m.ResumenPageModule)
+  },
+  {
+    path: 'resumen-ped',
+    loadChildren: () => import('./rutero/resumen-ped/resumen-ped.module').then( m => m.ResumenPedPageModule)
   }
 ];
 @NgModule({
