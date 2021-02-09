@@ -45,6 +45,10 @@ const routes: Routes = [
   {
     path: 'resumen-ped',
     loadChildren: () => import('./rutero/resumen-ped/resumen-ped.module').then( m => m.ResumenPedPageModule)
+  },
+  {
+    path: 'pen-cobro',
+    loadChildren: () => import('./rutero/pen-cobro/pen-cobro.module').then( m => m.PenCobroPageModule)
   }
 ];
 @NgModule({

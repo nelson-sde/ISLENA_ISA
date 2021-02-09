@@ -94,37 +94,35 @@ export class PedidosPage {
   }
 
   buscarProducto(){
-    if (this.texto.length == 0) {    
-      this.mostrarProducto = false;                // Se busca en todos los cliente
-      this.busquedaProd = this.isaConfig.productos;         // El modal se abrira con el arreglo completo de clientes
-    } else if (this.texto[0] == '#') {            // Se buscará por código de producto
-      this.busquedaProd = [];
-      const idProduct = this.texto.slice(1);
-      const product = this.isaConfig.productos.find( e => e.id == idProduct );
-      if ( product !== undefined ){
-        this.busquedaProd.push(product);
-        this.productoSelect(0);
-      }
-    } else {
-        // Se recorre el arreglo para buscar coincidencias
-      this.busquedaProd = [];
-      this.mostrarProducto = false;
-      for (let i = 0; i < this.isaConfig.productos.length; i++) {
-        if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-            this.busquedaProd.push(this.isaConfig.productos[i]);
+    this.busquedaProd = [];
+
+    if (this.texto.length !== 0) {    
+      if (isNaN(+this.texto)) {            // Se buscará por código de producto
+          // Se recorre el arreglo para buscar coincidencias
+        this.mostrarProducto = false;
+        for (let i = 0; i < this.isaConfig.productos.length; i++) {
+          if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+              this.busquedaProd.push(this.isaConfig.productos[i]);
+          }
+        }
+      } else {                      // la busqueda es por codigo de producto
+        const product = this.isaConfig.productos.find( e => e.id == this.texto );
+        if ( product !== undefined ){
+          this.busquedaProd.push(product);
+          this.productoSelect(0);
         }
       }
+      if (this.busquedaProd.length == 0){                    // no hay coincidencias
+        this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
+        this.texto = '';
+        this.mostrarListaProd = false;
+        this.mostrarProducto = false;
+      } else if (this.busquedaProd.length == 1){        // La coincidencia es exacta
+        this.productoSelect(0);
+      } else {
+        this.mostrarListaProd = true;                // Se muestra el Arr busquedaProd con el subconjunto de productos
+      }                                             // para que se seleccione el elegido
     }
-    if (this.busquedaProd.length == 0){                    // no hay coincidencias
-      this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
-      this.texto = '';
-      this.mostrarListaProd = false;
-      this.mostrarProducto = false;
-    } else if (this.busquedaProd.length == 1){        // La coincidencia es exacta
-      this.productoSelect(0);
-    } else {
-      this.mostrarListaProd = true;                // Se muestra el Arr busquedaProd con el subconjunto de productos
-    }                                             // para que se seleccione el elegido
   }
 
   productoSelect( i: number ){                  // Cuando se seleciona un producto, se quita la lista de seleccion
@@ -183,7 +181,7 @@ export class PedidosPage {
     } else {                        // SINO se esta creando una nueva linea de detalle
       this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
                                   this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica);
-      this.pedido.detalle.push( this.nuevoDetalle );
+      this.pedido.detalle.unshift( this.nuevoDetalle );
     }
     this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
     this.pedido.iva = this.pedido.iva + this.montoIVA;

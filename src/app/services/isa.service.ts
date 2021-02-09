@@ -4,6 +4,7 @@ import { AlertController, LoadingController, ToastController } from '@ionic/angu
 import { environment } from 'src/environments/environment';
 import { Cardex, CardexBD } from '../models/cardex';
 import { Cliente, ClienteBD } from '../models/cliente';
+import { CxCBD, Pen_Cobro } from '../models/cobro';
 import { Productos, ProductosBD } from '../models/productos';
 
 export interface RutaConfig {
@@ -66,10 +67,10 @@ export class IsaService {
                private toastCtrl: ToastController) {
 
     this.cargaVarConfig();
-    this.clienteAct = new Cliente(0,'ND','','','','ND','','',0,0,0,0,0,0,0,0,'','');
+    this.clienteAct = new Cliente(0,'ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','');
   }
 
-  cargaVarConfig(){
+  private cargaVarConfig(){
     if (localStorage.getItem('config')){
       this.varConfig = JSON.parse( localStorage.getItem('config'));
     } 
@@ -81,6 +82,30 @@ export class IsaService {
 
   getRutas(){
     return this.http.get<Ruta[]>( environment.rutasURL );
+  }
+
+  private getClientes(ruta: string){
+    const query: string = environment.clientesURL + ruta;
+    //const query: string = environment.clientesURL;
+    return this.http.get<ClienteBD[]>( query );
+  }
+
+  private getProductos(ruta: string){
+    const query: string = environment.productosURL + ruta;
+    //const query: string = environment.clientesURL;
+    return this.http.get<ProductosBD[]>( query );
+  }
+
+  private getCardex( ruta: string ){
+    const query: string = environment.CardexURL + ruta;
+    //const query: string = environment.clientesURL;
+    return this.http.get<CardexBD[]>( query );
+  }
+
+  private getCxC( ruta: string ){
+    const query: string = environment.CxCURL + ruta;
+    //const query: string = environment.clientesURL;
+    return this.http.get<CxCBD[]>( query );
   }
 
   syncProductos( ruta: string ){
@@ -141,7 +166,7 @@ export class IsaService {
         resp.forEach(e => {
           cliente = new Cliente(+e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
             e.nom_Cto, e.lim_Cre, 0, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
-            e.division_Geografica2);
+            e.division_Geografica2, e.moroso, e.e_MAIL);
           this.clientes.push( cliente );
         });
         console.log( 'Arreglo', this.clientes );
@@ -156,29 +181,11 @@ export class IsaService {
     );
   }
 
-  getClientes(ruta: string){
-    const query: string = environment.clientesURL + ruta;
-    //const query: string = environment.clientesURL;
-    return this.http.get<ClienteBD[]>( query );
-  }
-
   cargarClientes(){
     this.clientes = [];
     if (localStorage.getItem('clientes')){
       this.clientes = JSON.parse( localStorage.getItem('clientes'));
     }
-  }
-
-  getProductos(ruta: string){
-    const query: string = environment.productosURL + ruta;
-    //const query: string = environment.clientesURL;
-    return this.http.get<ProductosBD[]>( query );
-  }
-
-  getCardex( ruta: string ){
-    const query: string = environment.CardexURL + ruta;
-    //const query: string = environment.clientesURL;
-    return this.http.get<CardexBD[]>( query );
   }
 
   syncCardex( ruta: string ){
@@ -224,6 +231,29 @@ export class IsaService {
         this.historico = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
       }
     }
+  }
+
+  syncCxC( ruta: string ){
+    let cxc: Pen_Cobro;
+    let cxcArray: Pen_Cobro[] = [];
+
+    this.getCxC(ruta).subscribe(
+      resp => {
+        console.log('CXCBD', resp );
+        resp.forEach(e => {
+          cxc = new Pen_Cobro( ruta, e.coD_TIP_DC, e.nuM_DOC, +e.coD_CLT, e.saldO_DOLAR, e.saldO_LOCAL, e.montO_DOLAR, e.montO_LOCAL,
+                                new Date(e.feC_DOC_FT), new Date(e.feC_VEN), e.condicioN_PAGO);
+          cxcArray.push( cxc );
+        });
+        console.log( 'Arreglo', cxcArray );
+        if (localStorage.getItem('cxc')){
+          localStorage.removeItem('cxc');
+        }
+        localStorage.setItem('cxc', JSON.stringify(cxcArray));
+      }, error => {
+        console.log(error.message);
+      }
+    );
   }
 
   async presentAlertW( subtitulo: string, mensaje: string ) {

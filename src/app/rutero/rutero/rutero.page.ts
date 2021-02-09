@@ -44,6 +44,14 @@ export class RuteroPage {
     }
   }
 
+  abrirCobro(){
+    if (this.codigoCliente !== 0 && this.texto.length !== 0){
+      this.router.navigate(['/pen-cobro']);
+    } else {
+      this.presentAlert('Cobros', 'Debe seleccionar un cliente para realizar un cobro.');
+    }
+  }
+
   abrirResumen(){
     this.router.navigate(['/resumen']);
   }

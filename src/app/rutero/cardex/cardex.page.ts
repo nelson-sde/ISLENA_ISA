@@ -40,22 +40,22 @@ export class CardexPage {
 
   cargarCardex(){
     if (this.isaCardex.cardex.length > 0){
-      this.cardex = this.isaCardex.cardex.slice(0);
+      this.cardex = this.isaCardex.cardex.filter( d => d.codCliente == this.isa.clienteAct.id && d.aplicado == false );
     }
   }
 
   agregaLineaCardex(){
-    const i = this.cardex.findIndex( d => d.codProducto == this.lineaCardex.codProducto );
-    if ( i == -1 ){
-      this.cardex.push(this.lineaCardex);
+    const existe = this.cardex.find( d => d.codProducto == this.lineaCardex.codProducto );
+    if ( !existe ){
+      this.cardex.unshift(this.lineaCardex);
+      this.isaCardex.cardex.unshift( this.lineaCardex );
       this.isaCardex.cardexSinSalvar = true;
     }
     
   }
 
   regresar(){
-    this.isaCardex.cardex = [];
-    this.isaCardex.cardex = this.cardex.slice(0);
+    this.isaCardex.guardarCardex();
     this.navController.back();
   }
 
@@ -74,7 +74,7 @@ export class CardexPage {
   }
 
   guardarCardex(){
-    this.isaCardex.guardarCardex( this.cardex );
+    this.isaCardex.guardarCardex();
     this.isaCardex.cardexSinSalvar = false;
     this.navController.back();
     this.navController.back();
@@ -83,6 +83,7 @@ export class CardexPage {
   borrarLinea( i: number ){
     let data: Cardex[] = [];
 
+    this.isaCardex.borrarLinea( this.cardex[i].codProducto, this.cardex[i].codCliente );
     if (i > 0){
       data = this.cardex.slice(0, i);
     } 

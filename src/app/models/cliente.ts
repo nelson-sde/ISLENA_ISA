@@ -18,10 +18,12 @@ export class Cliente {
     porcentajeTarifa: number;    // Refiere al porcentaje del IVA
     divGeografica1: string;
     divGeografica2: string;
+    moroso: boolean;
+    email: string;
 
     constructor(id: number, nombre: string, dir: string, tipoCont: string, contri: string, razonSocial: string, telContacto: string,
         nomContacto: string, credito: number, limCredito: number, diasCred: number, listaPrecio: number, descuento: number, tipoImp: number,
-        tarifa: number, porTarifa: number, divGeo1: string, divGeo2: string ){
+        tarifa: number, porTarifa: number, divGeo1: string, divGeo2: string, moroso: string, email: string ){
         this.id = id;
         this.nombre = nombre;
         this.direccion = dir;
@@ -40,6 +42,12 @@ export class Cliente {
         this.porcentajeTarifa = porTarifa;
         this.divGeografica1 = divGeo1;
         this.divGeografica2 = divGeo2;
+        if (moroso == 'N'){
+            this.moroso = false
+        } else {
+            this.moroso = true;
+        }
+        this.email = email;
     }
 }
 
@@ -64,4 +72,6 @@ export interface ClienteBD {
     num_Tel: string,
     razonsocial: string,
     tipo_Contribuyente: string,
+    moroso: string,
+    e_MAIL: string,
 }

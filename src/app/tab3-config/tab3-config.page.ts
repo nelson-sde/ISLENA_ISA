@@ -86,6 +86,7 @@ export class Tab3ConfigPage {
       this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
       this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos
       this.isa.syncCardex(this.isa.varConfig.numRuta);
+      this.isa.syncCxC(this.isa.varConfig.numRuta);
       this.isaPedidos.borrarPedidos();
       this.regresar();
     } else {

@@ -9,7 +9,9 @@ export class IsaCardexService {
   cardex: Cardex[] = [];
   cardexSinSalvar: boolean = false;
 
-  constructor() {}
+  constructor() {
+    this.cargarCardex();
+  }
 
   agregarCardex(data: Cardex){     // Agrega una linea de producto al arreglo cardex
     this.cardex.push(data);
@@ -41,14 +43,23 @@ export class IsaCardexService {
     localStorage.setItem('cardexCliente', JSON.stringify(this.cardex));
   }
 
-  guardarCardex( cardex: Cardex[] ){                  // Guarda en arreglo en el Local Storage
-    let cardexLS: Cardex[] = [];
-
+  guardarCardex(){                  // Guarda en arreglo en el Local Storage
     if (localStorage.getItem('cardexCliente')){
-      cardexLS = JSON.parse( localStorage.getItem('cardexCliente'));
+      localStorage.setItem('cardexCliente', JSON.stringify(this.cardex));
     }
-    localStorage.setItem('cardexCliente', JSON.stringify(cardexLS.concat(cardex)));
-    this.cardex = [];
+  }
+
+  borrarLinea( codProducto: string, CodCliente: number ){
+    let data: Cardex[] = [];
+
+    const i = this.cardex.findIndex( d => d.codCliente == CodCliente && d.codProducto == codProducto );
+    if (i > 0){
+      data = this.cardex.slice(0, i);
+    } 
+    if (i+1 < this.cardex.length){
+      data = data.concat(this.cardex.slice(i+1, this.cardex.length));
+    }
+    this.cardex = data.slice(0);
   }
 
 }

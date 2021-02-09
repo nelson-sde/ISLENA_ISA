@@ -1,10 +1,13 @@
 <ion-header>
   <ion-toolbar color="dark">
-    <ion-title>Rutero - {{isa.varConfig.numRuta}}</ion-title>
+    <ion-buttons>
+      <ion-title align-text-center>{{isa.varConfig.numRuta}}</ion-title>
+      <ion-button fill="clear" slot="end" size="medium">
+        <ion-icon name="wallet-outline" [color]="isa.clienteAct.moroso ? 'danger' : 'success'" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-
-
 
 <ion-content>
   <p></p>
@@ -37,7 +40,7 @@
     </ion-row>
     <ion-row style="height:120px">
       <ion-col size="6">
-        <ion-button style="height:100%" (click)="onClick()" size="large" expand="block" color="light">
+        <ion-button style="height:100%" (click)="abrirCobro()" size="large" expand="block" color="light">
           <ion-icon slot="start" name="cash-outline"></ion-icon>
           Cobro
         </ion-button>
