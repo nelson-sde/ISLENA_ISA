@@ -280,8 +280,9 @@ export class IsaService {
 
   nextConsecutivo( consecutivo: string ){
     let consec: number;
-    let array: string = 'P';
+    let array: string;
 
+    array = consecutivo[4];
     consec = +consecutivo.slice(5) + 1;
     for (let i = 0; i < 9 - consec.toString().length; i++) {
       array = array + '0';

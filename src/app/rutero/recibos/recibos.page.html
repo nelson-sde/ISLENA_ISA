@@ -1,0 +1,82 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-title class="ion-text-center">Recibo de Dinero</ion-title>
+      <ion-button (click)="salvarRecibo()" fill="clear" slot="end" size="medium">
+        <ion-icon name="save-outline" color="danger" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item color="light">
+      <ion-text color="primary">
+        <h1>{{ isa.clienteAct.nombre }}</h1>
+      </ion-text>
+    </ion-item>
+    <p></p>
+    <ion-item color="light">
+      <ion-label>
+        <h2><strong>Recibo: </strong> {{ recibo.numeroRecibo }}</h2>
+        <p><strong>Abono...: </strong>{{ recibo.montoLocal | colones }}</p>
+        <p><strong>Efectivo: </strong>{{ recibo.montoEfectivoL | colones }}</p>
+        <p><strong>Cheque.: </strong>{{ recibo.montoChequeL | colones }}</p>
+        <p><strong>Tarjeta..: </strong>{{ recibo.montoTarjetaL | colones }}</p>
+        <p>
+          <strong>Depósito: </strong>{{ recibo.montoDepositoL | colones }}
+          <ion-button slot="end" (click)="modificarRecibo()" fill="clear" shape="round">
+            <ion-icon name="build-outline" color="danger" size="large"></ion-icon>
+          </ion-button>
+        </p>
+      </ion-label>
+    </ion-item>
+    <p></p>
+    <ion-item color="light">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="7">
+            <div class="ion-text-center">Factura</div>
+          </ion-col>
+          <ion-col size="5">
+            <div class="ion-text-center">Abono</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <ion-item *ngFor="let item of recibo.detalle; let i = index">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="7">
+            <div>{{item.numeroDocumen}}</div>
+          </ion-col>
+          <ion-col size="5" (click)="modificarAbono(i)">
+            <div class="ion-text-end">{{item.abonoLocal | colones}}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <ion-item>
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="7">
+            <div class="ion-text-end">Saldo :</div>
+          </ion-col>
+          <ion-col size="5">
+            <div class="ion-text-end">{{saldo | colones}}</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar color="dark">
+    <ion-title>Monto {{ monto | colones }}</ion-title>
+  </ion-toolbar>
+</ion-footer>

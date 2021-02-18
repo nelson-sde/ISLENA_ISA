@@ -49,6 +49,10 @@ const routes: Routes = [
   {
     path: 'pen-cobro',
     loadChildren: () => import('./rutero/pen-cobro/pen-cobro.module').then( m => m.PenCobroPageModule)
+  },
+  {
+    path: 'recibos',
+    loadChildren: () => import('./rutero/recibos/recibos.module').then( m => m.RecibosPageModule)
   }
 ];
 @NgModule({

@@ -10,7 +10,9 @@ export const environment = {
   PedEncaURL: 'http://api_isa.soportecr.xyz/api/FAC_enc_ped/',
   PedDetaURL: 'http://api_isa.soportecr.xyz/api/FAC_det_ped/',
   CardexURL: 'http://api_isa.soportecr.xyz/api/ISA_Estad_Ventas/',
-  CxCURL: 'http://api_isa.soportecr.xyz/api/cxc/'
+  CxCURL: 'http://api_isa.soportecr.xyz/api/cxc/',
+  RecEncaURL: 'http://api_isa.soportecr.xyz/api/RecEnca/',
+  RecDetaURL: 'http://api_isa.soportecr.xyz/api/RecDeta/'
 };
 
 /*
