@@ -56,6 +56,8 @@ export interface CxCBD {
 export class Det_Recibo {
     tipoDocumen: string;
     numeroDocumen: string;
+    numeroDocumenAf: string;
+    ncAsignada: boolean;
     fechaDocu: Date;
     saldoDolar: number;
     saldoLocal: number;
@@ -64,9 +66,11 @@ export class Det_Recibo {
     abonoLocal: number;
     abonoDolar: number;
 
-    constructor ( tipDocu: string, numDocu: string, fecha: Date, saldoD: number, saldoL: number, montoD: number, montoL: number, abonoL: number, abonoD: number ){
+    constructor ( tipDocu: string, numDocu: string, ncAsignada: boolean, fecha: Date, saldoD: number, saldoL: number, montoD: number, montoL: number, abonoL: number, abonoD: number ){
         this.tipoDocumen = tipDocu;
         this.numeroDocumen = numDocu;
+        this.numeroDocumenAf = numDocu;
+        this.ncAsignada = ncAsignada;
         this.fechaDocu = new Date(fecha);
         this.saldoDolar = saldoD;
         this.saldoLocal = saldoL;
@@ -182,7 +186,7 @@ export class RecDetaBD {
 
     constructor (){
         this.coD_CIA =        'ISLENA';
-        this.coD_TIP_DC =     '5';                     // Para recibo, un 7 para NC
+        this.coD_TIP_DC =     '';                     // 5 para recibo, un 7 para NC
         this.coD_ZON =        '';
         this.nuM_REC =        '';
         this.nuM_DOC =        '';

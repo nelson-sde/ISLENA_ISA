@@ -23,7 +23,7 @@ export class PenCobroPage {
     this.isaCobro.cargarCxC ( isa.clienteAct.id );
     this.cxc = isaCobro.cxc.slice(0);
     if ( this.cxc.length > 0 ){
-      this.cxc.forEach( e => this.saldo = this.saldo + e.saldoLocal );
+      this.cxc.forEach( e => this.saldo += e.saldoLocal );
       this.credito = this.cxc[0].condicionPago;
     }
   }

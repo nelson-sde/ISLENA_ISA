@@ -53,6 +53,10 @@ const routes: Routes = [
   {
     path: 'recibos',
     loadChildren: () => import('./rutero/recibos/recibos.module').then( m => m.RecibosPageModule)
+  },
+  {
+    path: 'facturas',
+    loadChildren: () => import('./rutero/facturas/facturas.module').then( m => m.FacturasPageModule)
   }
 ];
 @NgModule({

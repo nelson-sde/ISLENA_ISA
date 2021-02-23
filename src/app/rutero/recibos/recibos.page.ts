@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { AlertController, NavController } from '@ionic/angular';
+import { AlertController, NavController, PopoverController } from '@ionic/angular';
 import { Det_Recibo, Pen_Cobro, Recibo } from 'src/app/models/cobro';
 import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 import { IsaService } from 'src/app/services/isa.service';
+import { FacturasPage } from '../facturas/facturas.page';
 
 @Component({
   selector: 'app-recibos',
@@ -15,6 +16,11 @@ export class RecibosPage {
   recibo: Recibo;
   tipoCambio: number = 1;
   reciboSinSalvar: boolean = false;
+  hayFactura: boolean = false;           // Indicador utilizado para saber que se aplicará el recibo a una factura
+  hayNC: boolean = false;            // Nos indica si hay una nota de credito en los documentos a aplicar
+  ncAsignada: boolean = false          // true si la NC ya fue asignada a una factura
+  cantNC: number = 0;
+  asignadasNC: number = 0;
   monto: number = 0;
   abono: number = 0;
   saldo: number = 0;
@@ -22,7 +28,8 @@ export class RecibosPage {
   constructor( private isa: IsaService,
                private isaCobros: IsaCobrosService,
                private navController: NavController,
-               private alertController: AlertController ) {
+               private alertController: AlertController,
+               private popoverCtrl: PopoverController ) {
     
     let det: Det_Recibo;
 
@@ -30,10 +37,18 @@ export class RecibosPage {
     this.docsPagar = this.isaCobros.cxc.filter( d => d.pago );
     if ( this.docsPagar.length > 0 ){
       this.docsPagar.forEach( e => {
-        this.recibo.montoLocal = this.recibo.montoLocal + e.saldoLocal;
-        this.recibo.montoDolar = this.recibo.montoDolar + e.saldoDolar;
-        det = new Det_Recibo( '1', e.numeroDocumen, e.fechaDoc, 0, 0, e.montoDolar, e.montoLocal, e.saldoLocal, e.saldoDolar );
+        if (e.tipoDocumen == '1'){
+          this.hayFactura = true;
+          this.recibo.montoLocal = this.recibo.montoLocal + e.saldoLocal;
+          this.recibo.montoDolar = this.recibo.montoDolar + e.saldoDolar;
+          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, true, e.fechaDoc, 0, 0, e.montoDolar, e.montoLocal, e.saldoLocal, e.saldoDolar );
         this.recibo.detalle.push(det);
+        } else {
+          this.hayNC = true;
+          this.cantNC++;
+          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, false, e.fechaDoc, 0, 0, e.montoDolar, e.montoLocal, e.saldoLocal, e.saldoDolar );
+          this.recibo.detalle.push(det);
+        }
       });
       this.reciboSinSalvar = true;
       this.recibo.montoEfectivoL = this.recibo.montoLocal;
@@ -173,11 +188,10 @@ export class RecibosPage {
   }
 
   salvarRecibo(){
-    console.log(this.recibo);
     let cxc: Pen_Cobro[] = [];
     let j: number;
 
-    if ( this.recibo.montoLocal > 0 ){
+    if ( this.recibo.montoLocal > 0 && this.hayFactura ){
       cxc = JSON.parse(localStorage.getItem('cxc'));
       for (let i = 0; i < this.recibo.detalle.length; i++) {                                  // Actualiza CxC con los nuevos saldos por recibo
         j = cxc.findIndex( d => d.numeroDocumen == this.recibo.detalle[i].numeroDocumen );
@@ -189,6 +203,46 @@ export class RecibosPage {
       this.isaCobros.transmitirRecibo( this.recibo );
       this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
       this.isa.guardarVarConfig();
+      this.navController.navigateRoot('rutero');
+    } else {
+      this.isa.presentAlertW( 'Salvar Recibo', 'No es posible guardar el Recibo si no se aplica un abono a una factura' );
+    }
+  }
+
+  async asignaFactura( i: number, ev ){    // recibo.detalle[i] es la NC que se está asignando a una factura
+    let facturas: Pen_Cobro[] = [];
+
+    if ( this.recibo.detalle[i].tipoDocumen == '7' ){
+      facturas = this.docsPagar.filter( d => d.tipoDocumen == '1' );
+      if ( facturas.length > 0 ){
+        const popover = await this.popoverCtrl.create({
+          component: FacturasPage,
+          componentProps: {value: facturas},
+          cssClass: 'my-custom-class',
+          event: ev,
+          translucent: true
+        });
+        await popover.present();
+  
+        const {data} = await popover.onWillDismiss();
+        if ( data !== undefined){
+          if ( !this.recibo.detalle[i].ncAsignada ){
+            this.recibo.detalle[i].numeroDocumenAf = data.item; 
+            this.recibo.detalle[i].ncAsignada = true;
+            this.asignadasNC++;
+            const j = this.recibo.detalle.findIndex( d => d.numeroDocumen == data.item );   // obtenemos el indice J de la factura asignada a la NC
+            this.recibo.detalle[j].abonoLocal -= this.recibo.detalle[i].montoLocal;        // Se le resta al abono de la factura el monto de la NC
+            this.recibo.detalle[j].abonoDolar -= this.recibo.detalle[i].montoDolar;
+            this.recibo.detalle[i].saldoLocal = this.recibo.detalle[j].montoLocal - this.recibo.detalle[i].montoLocal;  // El saldo de la NC será el saldo de la factura
+            this.recibo.detalle[i].saldoDolar = this.recibo.detalle[j].montoDolar - this.recibo.detalle[i].montoDolar;
+            this.recibo.montoLocal -= this.recibo.detalle[i].montoLocal;                  // Se le resta al recibo el monto de la NC
+            this.recibo.montoDolar -= this.recibo.detalle[i].montoDolar;
+            this.recibo.montoEfectivoL -= this.recibo.detalle[i].montoLocal;
+            this.recibo.montoEfectivoD -= this.recibo.detalle[i].montoDolar;
+          }
+        }
+      }
+      
     }
   }
 

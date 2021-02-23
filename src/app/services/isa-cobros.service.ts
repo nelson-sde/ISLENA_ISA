@@ -57,7 +57,7 @@ export class IsaCobrosService {
 
     if (localStorage.getItem('cxc')){
       c = JSON.parse(localStorage.getItem('cxc'));
-      this.cxc = c.filter( d => d.codCliente == codCliente && d.tipoDocumen == '1' && d.saldoLocal > 0);
+      this.cxc = c.filter( d => d.codCliente == codCliente && d.saldoLocal > 0);
       if ( this.cxc.length > 0 ){
         c = this.cxc.slice(0);
         this.cxc = c.sort((a,b) => new Date(a.fechaDoc).getTime() - new Date(b.fechaDoc).getTime());
@@ -100,11 +100,17 @@ export class IsaCobrosService {
     for (let i = 0; i < recibo.detalle.length; i++) {
       rowPointer = this.isa.generate();
       this.detalleRec = new RecDetaBD();
+      if ( recibo.detalle[i].tipoDocumen == '1' ){
+        this.detalleRec.coD_TIP_DC = '5';
+        this.detalleRec.nuM_DOC = recibo.numeroRecibo;
+      } else {
+        this.detalleRec.coD_TIP_DC = '7';
+        this.detalleRec.nuM_DOC = recibo.detalle[i].numeroDocumen;
+      }
       this.detalleRec.coD_ZON = this.isa.varConfig.numRuta;
       this.detalleRec.coD_CLT = recibo.codCliente.toString();
       this.detalleRec.nuM_REC = recibo.numeroRecibo;
-      this.detalleRec.nuM_DOC = recibo.numeroRecibo;
-      this.detalleRec.nuM_DOC_AF = recibo.detalle[i].numeroDocumen;
+      this.detalleRec.nuM_DOC_AF = recibo.detalle[i].numeroDocumenAf;
       this.detalleRec.feC_DOC = recibo.detalle[i].fechaDocu;
       this.detalleRec.moN_MOV_LOCAL = recibo.detalle[i].abonoLocal;
       this.detalleRec.moN_MOV_DOL = recibo.detalle[i].abonoDolar;
@@ -126,6 +132,7 @@ export class IsaCobrosService {
       }
     );
     console.log('Encabezado JSON',JSON.stringify(this.reciboBD));
+    console.log('Detalle JSON',JSON.stringify(this.detalleReciboBD));
   }
 
   agregarDetalle( detalle: RecDetaBD[] ) {
@@ -138,7 +145,6 @@ export class IsaCobrosService {
       }, error => {
         console.log('Error en Recibo ', error);
         console.log('debemos borrar el enca del recibo...');
-        console.log('Detalle JSON',JSON.stringify(this.detalleReciboBD));
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );

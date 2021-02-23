@@ -104,7 +104,6 @@ export class RuteroPage {
     await popover.present();
 
     const {data} = await popover.onWillDismiss();
-    console.log(data);
     if ( data !== undefined){
       if (data.codCliente == this.isa.clienteAct.id){
         this.codigoCliente = this.isa.clienteAct.id;
