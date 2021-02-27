@@ -12,7 +12,9 @@ export const environment = {
   CardexURL: 'http://api_isa.soportecr.xyz/api/ISA_Estad_Ventas/',
   CxCURL: 'http://api_isa.soportecr.xyz/api/cxc/',
   RecEncaURL: 'http://api_isa.soportecr.xyz/api/RecEnca/',
-  RecDetaURL: 'http://api_isa.soportecr.xyz/api/RecDeta/'
+  RecDetaURL: 'http://api_isa.soportecr.xyz/api/RecDeta/',
+  Existencias: 'http://api_isa.soportecr.xyz/api/Existencias/',
+  BancosURL: 'http://api_isa.soportecr.xyz/api/Bancos/',
 };
 
 /*

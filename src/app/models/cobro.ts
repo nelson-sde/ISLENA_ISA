@@ -65,6 +65,8 @@ export class Det_Recibo {
     montoLocal: number;
     abonoLocal: number;
     abonoDolar: number;
+    saldoNCFL: number;
+    saldoNCFD: number;
 
     constructor ( tipDocu: string, numDocu: string, ncAsignada: boolean, fecha: Date, saldoD: number, saldoL: number, montoD: number, montoL: number, abonoL: number, abonoD: number ){
         this.tipoDocumen = tipDocu;
@@ -78,6 +80,8 @@ export class Det_Recibo {
         this.montoLocal = montoL;
         this.abonoDolar = abonoD;
         this.abonoLocal = abonoL;
+        this.saldoNCFL = 0;
+        this.saldoNCFD = 0;
     }
 }
 

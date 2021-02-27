@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD } from '../models/cardex';
 import { Cliente, ClienteBD } from '../models/cliente';
 import { CxCBD, Pen_Cobro } from '../models/cobro';
@@ -106,6 +107,10 @@ export class IsaService {
     const query: string = environment.CxCURL + ruta;
     //const query: string = environment.clientesURL;
     return this.http.get<CxCBD[]>( query );
+  }
+
+  private getBancos(){
+    return this.http.get<BancosBD[]>(environment.BancosURL);
   }
 
   syncProductos( ruta: string ){
@@ -254,6 +259,35 @@ export class IsaService {
         console.log(error.message);
       }
     );
+  }
+
+  syncBancos(){
+    let banco: Bancos;
+    let bancos: Bancos[] = [];
+
+    this.getBancos().subscribe(
+      resp => {
+        console.log('Bancos', resp );
+        resp.forEach(e => {
+          banco = new Bancos(e.entidaD_FINANCIERA, e.descripcion);
+          bancos.push( banco );
+        });
+        console.log( 'Arreglo', bancos );
+        if (localStorage.getItem('bancos')){
+          localStorage.removeItem('bancos');
+        }
+        localStorage.setItem('bancos', JSON.stringify(bancos));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
+  cargarBancos(){
+    if (localStorage.getItem('bancos')){
+      const bancos = JSON.parse( localStorage.getItem('bancos'));
+      return bancos;
+    }
   }
 
   async presentAlertW( subtitulo: string, mensaje: string ) {

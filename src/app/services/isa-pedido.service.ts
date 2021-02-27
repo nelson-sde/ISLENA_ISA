@@ -2,7 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { PedDeta, PedEnca, Pedido } from '../models/pedido';
+import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
 import { IsaService } from './isa.service';
 
 @Injectable({
@@ -16,7 +16,7 @@ export class IsaPedidoService {
 
   }
 
-  guardarPedido( pedido: Pedido ){
+  private guardarPedido( pedido: Pedido ){
     let pedidosLS: Pedido[] = [];
 
     if (localStorage.getItem('pedidos')){
@@ -32,7 +32,7 @@ export class IsaPedidoService {
     }
   }
 
-  actualizaEstadoPedido ( numPedido: string, estado: boolean ){
+  private actualizaEstadoPedido ( numPedido: string, estado: boolean ){
     let pedidosLS: Pedido[] = [];
 
     if (localStorage.getItem('pedidos')){
@@ -45,7 +45,7 @@ export class IsaPedidoService {
     }
   }
 
-  transmitirPedido( pedido: Pedido ){
+  transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
     let detalleBD: PedDeta;
     let arrDetBD: PedDeta[] = [];
     let rowPointer: string = '';
@@ -74,9 +74,9 @@ export class IsaPedidoService {
                         pedido.detalle[i].esCanastaBasica );
       arrDetBD.push(detalleBD);
     }
-
-    this.guardarPedido( pedido );                              // Se guarda el pedido en el Local Stotage
-
+    if ( tipo == 'N' ){
+      this.guardarPedido( pedido );                              // Se guarda el pedido en el Local Stotage
+    } 
     this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {
         console.log('Success Encabezado...', resp);
@@ -91,7 +91,7 @@ export class IsaPedidoService {
     console.log('Detalle JSON ', JSON.stringify(arrDetBD));
   }
 
-  agregarDetalle( numPedido: string, detalle: PedDeta[] ) {
+  private agregarDetalle( numPedido: string, detalle: PedDeta[] ) {
     console.log('Inicia detalle');
     this.postPedidoDetalle( detalle ).subscribe(
       resp2 => {
@@ -140,6 +140,12 @@ export class IsaPedidoService {
     } else {
       return 0;
     }
+  }
+
+  getExistencias( codProducto: string ){
+    const query: string = environment.Existencias + codProducto;
+
+    return this.http.get<Existencias[]>( query );
   }
 
 }

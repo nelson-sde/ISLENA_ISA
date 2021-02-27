@@ -2,7 +2,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Productos } from 'src/app/models/productos';
-import { DetallePedido, Pedido } from 'src/app/models/pedido';
+import { DetallePedido, Existencias, Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { AlertController, IonList, NavController, PopoverController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
@@ -222,7 +222,7 @@ export class PedidosPage {
 
   carrito(){
     if (this.pedidoSinSalvar){
-      this.isaPedido.transmitirPedido( this.pedido );
+      this.isaPedido.transmitirPedido( this.pedido, 'N' );    // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
       this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
       this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.nextConsecutivo( this.isaConfig.varConfig.consecutivoPedidos );
       this.isaConfig.guardarVarConfig();
@@ -463,6 +463,24 @@ export class PedidosPage {
     });
 
     await alert.present();
+  }
+
+  existencia(){
+    console.log(this.producto);
+    this.isaPedido.getExistencias( this.producto.id ).subscribe(
+      resp => {
+        console.log('Success Existencias...', resp);
+        this.mostrarExistencias( resp );
+      }, error => {
+        console.log('Error Existencias ', error);
+        this.isaConfig.presentaToast( 'Error Leyendo Datos...' );
+      }
+    );
+  }
+
+  mostrarExistencias( existe: Existencias[] ){
+    const str = 'Cantidad: ' + existe[0].existencia.toString();
+    this.isaConfig.presentAlertW(this.producto.nombre, str);
   }
 
   regresar(){

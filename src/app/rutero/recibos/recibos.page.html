@@ -20,21 +20,69 @@
       </ion-text>
     </ion-item>
     <p></p>
-    <ion-item color="light">
+
+    <ion-item color="light" *ngIf="!edicion">
       <ion-label>
         <h2><strong>Recibo: </strong> {{ recibo.numeroRecibo }}</h2>
         <p><strong>Abono...: </strong>{{ recibo.montoLocal | colones }}</p>
         <p><strong>Efectivo: </strong>{{ recibo.montoEfectivoL | colones }}</p>
-        <p><strong>Cheque.: </strong>{{ recibo.montoChequeL | colones }}</p>
         <p><strong>Tarjeta..: </strong>{{ recibo.montoTarjetaL | colones }}</p>
-        <p>
-          <strong>Depósito: </strong>{{ recibo.montoDepositoL | colones }}
-          <ion-button slot="end" (click)="modificarRecibo()" fill="clear" shape="round">
-            <ion-icon name="build-outline" color="danger" size="large"></ion-icon>
-          </ion-button>
-        </p>
+        <p><strong>Depósito: </strong>{{ recibo.montoDepositoL | colones }}</p>
+        <p><strong>Cheque....: </strong>{{ recibo.montoChequeL | colones }}</p>
+        <p><strong>Banco....: </strong>{{ banco.nombre }}</p>
+      </ion-label>
+      <ion-button slot="end" (click)="modificarRecibo()" expand="block" shape="round">
+        Editar
+      </ion-button>
+    </ion-item>
+
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <h2><strong>Recibo: </strong> {{ recibo.numeroRecibo }}</h2>
+        <p><strong>Abono...: </strong>{{ recibo.montoLocal | colones }}</p>
+        <p></p>
       </ion-label>
     </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.montoEfectivoL">Efectivo:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.montoTarjetaL">Tarjeta   :</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.montoDepositoL">Deposito:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>Cheque</ion-label>
+      <ion-checkbox slot="start" [(ngModel)]="hayCheque"></ion-checkbox>
+    </ion-item>
+    <ion-item color="light" *ngIf="hayCheque">
+      <ion-label>
+        <ion-input inputmode="text" [(ngModel)]="cheque.numeroCheque">Numero Cheque:</ion-input>
+        <ion-input inputmode="text" [(ngModel)]="cheque.numeroCuenta">Numero Cuenta:</ion-input>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="cheque.monto">Monto...............:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="hayCheque">
+      <ion-label>Banco</ion-label>
+      <ion-select [(ngModel)]="banco">
+        <ion-select-option *ngFor="let banco of bancos" [value]="banco">{{banco.nombre}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <ion-button slot="end" (click)="modificarRecibo()" expand="block" shape="round" color="success">
+          ...OK...
+        </ion-button>
+      </ion-label>
+    </ion-item>
+
     <p></p>
     <ion-item color="light">
       <ion-grid fixed>

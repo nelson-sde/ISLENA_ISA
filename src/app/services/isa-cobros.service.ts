@@ -103,9 +103,13 @@ export class IsaCobrosService {
       if ( recibo.detalle[i].tipoDocumen == '1' ){
         this.detalleRec.coD_TIP_DC = '5';
         this.detalleRec.nuM_DOC = recibo.numeroRecibo;
+        this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoLocal;
+        this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoDolar;
       } else {
         this.detalleRec.coD_TIP_DC = '7';
         this.detalleRec.nuM_DOC = recibo.detalle[i].numeroDocumen;
+        this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoNCFL;
+        this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoNCFD;
       }
       this.detalleRec.coD_ZON = this.isa.varConfig.numRuta;
       this.detalleRec.coD_CLT = recibo.codCliente.toString();
@@ -114,8 +118,7 @@ export class IsaCobrosService {
       this.detalleRec.feC_DOC = recibo.detalle[i].fechaDocu;
       this.detalleRec.moN_MOV_LOCAL = recibo.detalle[i].abonoLocal;
       this.detalleRec.moN_MOV_DOL = recibo.detalle[i].abonoDolar;
-      this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoLocal;
-      this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoDolar;
+      
       this.detalleRec.rowPointer = rowPointer;
       this.detalleReciboBD.push(this.detalleRec);
     } 
