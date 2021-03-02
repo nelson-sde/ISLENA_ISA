@@ -51,13 +51,11 @@ export class IsaPedidoService {
     let rowPointer: string = '';
     let tax: number;
     const fecha = new Date();
-    let fechaDesp = new Date();
     const numPedido = pedido.numPedido;
 
-    fechaDesp.setDate( fecha.getDate() + 1);
     rowPointer = this.isa.generate();
 
-    const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', fecha, fecha, fechaDesp, fecha, pedido.iva,
+    const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', fecha, fecha, pedido.fechaEntrega, fecha, pedido.iva,
                                   0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, pedido.detalle.length, this.isa.clienteAct.listaPrecios, 
                                   pedido.observaciones, null, 'N', this.isa.clienteAct.diasCredito.toString(), this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', 
                                   pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, this.isa.nivelPrecios, 'L', 0, fecha, 

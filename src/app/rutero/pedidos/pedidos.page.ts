@@ -52,6 +52,8 @@ export class PedidosPage {
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       //this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
       this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', false);
+      const fecha = new Date();
+      this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
       this.validaSiCardex();
     });
   }
@@ -94,54 +96,103 @@ export class PedidosPage {
   }
 
   buscarProducto(){
-    this.busquedaProd = [];
 
-    if (this.texto.length !== 0) {    
-      if (isNaN(+this.texto)) {            // Se buscará por código de producto
-          // Se recorre el arreglo para buscar coincidencias
-        this.mostrarProducto = false;
-        for (let i = 0; i < this.isaConfig.productos.length; i++) {
-          if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-              this.busquedaProd.push(this.isaConfig.productos[i]);
+    if ( !this.mostrarListaProd ){
+      if (this.texto.length !== 0) {    
+        if (isNaN(+this.texto)) {            // Se buscará por código de producto
+            // Se recorre el arreglo para buscar coincidencias
+          this.mostrarProducto = false;
+          for (let i = 0; i < this.isaConfig.productos.length; i++) {
+            if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+                this.busquedaProd.push(this.isaConfig.productos[i]);
+            }
+          }
+        } else {                      // la busqueda es por codigo de producto
+          const product = this.isaConfig.productos.find( e => e.id == this.texto );
+          if ( product !== undefined ){
+            this.busquedaProd.push(product);
+            this.productoSelect(0);
           }
         }
-      } else {                      // la busqueda es por codigo de producto
-        const product = this.isaConfig.productos.find( e => e.id == this.texto );
-        if ( product !== undefined ){
-          this.busquedaProd.push(product);
+        if (this.busquedaProd.length == 0){                    // no hay coincidencias
+          this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
+          this.texto = '';
+          this.mostrarListaProd = false;
+          this.mostrarProducto = false;
+        } else if (this.busquedaProd.length == 1){        // La coincidencia es exacta
           this.productoSelect(0);
-        }
+        } else {
+          this.mostrarListaProd = true;                // Se muestra el Arr busquedaProd con el subconjunto de productos
+        }                                             // para que se seleccione el elegido
       }
-      if (this.busquedaProd.length == 0){                    // no hay coincidencias
-        this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
-        this.texto = '';
-        this.mostrarListaProd = false;
-        this.mostrarProducto = false;
-      } else if (this.busquedaProd.length == 1){        // La coincidencia es exacta
+    } else {
+      console.log(this.busquedaProd);
+      const listaAux = this.busquedaProd.filter( d => d.seleccionado );
+      console.log(listaAux);
+      if ( listaAux.length == 1 ){
         this.productoSelect(0);
+      } else if ( listaAux.length > 1 ){
+        this.busquedaProd = listaAux.slice(0);
+        this.productoSelect( -1 );
       } else {
-        this.mostrarListaProd = true;                // Se muestra el Arr busquedaProd con el subconjunto de productos
-      }                                             // para que se seleccione el elegido
+        this.busquedaProd = null;
+        this.mostrarListaProd = false;
+        this.texto = null;
+      }
     }
   }
 
   productoSelect( i: number ){                  // Cuando se seleciona un producto, se quita la lista de seleccion
     this.mostrarListaProd = false;             // Y se activa el flag de mostrar producto
-    this.producto = this.busquedaProd[i];
-    this.texto = this.busquedaProd[i].nombre;
-    this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto );
-    const j = this.existeEnDetalle(this.busquedaProd[i].id);
-    if (j >= 0){
-      this.cantidad = this.pedido.detalle[j].cantidad;
-      this.descuento = this.pedido.detalle[j].descuento * 100 / this.pedido.detalle[j].subTotal;
-      this.modificando = true;
-      this.j = j;
-      this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[j].subTotal;
-      this.pedido.iva = this.pedido.iva - this.pedido.detalle[j].iva;
-      this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[j].descuento;
-      this.pedido.total = this.pedido.total - this.pedido.detalle[j].total;
+    if ( i >= 0 ){
+      this.busquedaProd[i].seleccionado = false;
+      this.producto = this.busquedaProd[i];
+      this.texto = this.busquedaProd[i].nombre;
+      this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto );
+      const j = this.existeEnDetalle(this.busquedaProd[i].id);
+      if (j >= 0){
+        this.cantidad = this.pedido.detalle[j].cantidad;
+        this.descuento = this.pedido.detalle[j].descuento * 100 / this.pedido.detalle[j].subTotal;
+        this.modificando = true;
+        this.j = j;
+        this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[j].subTotal;
+        this.pedido.iva = this.pedido.iva - this.pedido.detalle[j].iva;
+        this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[j].descuento;
+        this.pedido.total = this.pedido.total - this.pedido.detalle[j].total;
+      }
+      this.mostrarProducto = true;
+    } else {      // Se seleccionaron varios articulos
+      for (let x = 0; x < this.busquedaProd.length; x++) {
+        if ( this.existeEnDetalle(this.busquedaProd[x].id) < 0 ) {   // si el articulo no existe en el detalle se agrega
+          this.impuesto = this.calculaImpuesto( this.busquedaProd[x].impuesto );
+          this.montoSub = 1 * this.busquedaProd[x].precio;
+          this.montoIVA = this.montoSub * this.impuesto;
+          this.montoTotal = this.montoSub + this.montoIVA;
+          this.nuevoDetalle = new DetallePedido(this.busquedaProd[x].id, this.busquedaProd[x].nombre, this.busquedaProd[x].precio, 1, this.montoSub, this.montoIVA, 
+                                                0, 0, this.montoTotal, this.busquedaProd[x].impuesto, this.busquedaProd[x].canastaBasica);
+          this.pedido.detalle.unshift( this.nuevoDetalle );
+          this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
+          this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
+          this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
+          this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
+        }
+        this.busquedaProd[x].seleccionado = false;
+      }
+      this.pedidoSinSalvar = true;
+      this.texto = '';
+      this.mostrarListaProd = false;
+      this.mostrarProducto = false;
+      this.cantidad = 6;
+      this.descuento = 0;
+      this.montoIVA = 0;
+      this.montoDescLinea = 0;
+      this.montoDescGen = 0;
+      this.montoSub = 0;
+      this.montoTotal = 0;
+      this.impuesto = 0;
+      this.defaultCant = true;
     }
-    this.mostrarProducto = true;
+    this.busquedaProd = [];
   }
 
   existeEnDetalle( id: string ){
@@ -385,6 +436,13 @@ export class PedidosPage {
           placeholder: 'Texto',
           value: this.pedido.observaciones
         },
+        {
+          name: 'entrega',
+          id: 'entrega',
+          type: 'date',
+          placeholder: 'Fecha entrega',
+          value: new Date(this.pedido.fechaEntrega)
+        },
       ],
       buttons: [
         {
@@ -395,6 +453,9 @@ export class PedidosPage {
           text: 'Ok',
           handler: (data) => {
             this.pedido.observaciones = data.observacion;
+            this.pedido.fechaEntrega = new Date(data.entrega);
+            console.log(data.entrega);
+            console.log(this.pedido.fechaEntrega);
           }
         }
       ]

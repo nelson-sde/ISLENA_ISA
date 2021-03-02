@@ -15,6 +15,7 @@ export const environment = {
   RecDetaURL: 'http://api_isa.soportecr.xyz/api/RecDeta/',
   Existencias: 'http://api_isa.soportecr.xyz/api/Existencias/',
   BancosURL: 'http://api_isa.soportecr.xyz/api/Bancos/',
+  ChequeURL: 'http://api_isa.soportecr.xyz/api/Cheque/',
 };
 
 /*

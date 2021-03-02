@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Pen_Cobro, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
 import { IsaService } from './isa.service';
 import { environment } from 'src/environments/environment';
+import { Cheque, ChequeBD } from '../models/cheques';
 
 @Injectable({
   providedIn: 'root'
@@ -75,7 +76,7 @@ export class IsaCobrosService {
     localStorage.setItem('recibos', JSON.stringify(recibosLS));
   }
 
-  transmitirRecibo( recibo: Recibo ){
+  transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean ){
 
     let rowPointer: string = '';
     this.detalleReciboBD = [];
@@ -128,7 +129,7 @@ export class IsaCobrosService {
     this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {
         console.log('Success RecEnca...', resp);
-        this.agregarDetalle( this.detalleReciboBD );
+        this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque );
       }, error => {
         console.log('Error RecEnca ', error);
         this.isa.presentaToast( 'Error de Envío...' );
@@ -138,17 +139,47 @@ export class IsaCobrosService {
     console.log('Detalle JSON',JSON.stringify(this.detalleReciboBD));
   }
 
-  agregarDetalle( detalle: RecDetaBD[] ) {
+  agregarDetalle( detalle: RecDetaBD[], cheque: Cheque, hayCheque: boolean ) {
     console.log('Inicia detalle');
     this.postReciboDetalle( detalle ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
-        // this.actualizaEstadoPedido( numPedido, true );
+        if ( hayCheque ){
+          this.transmitirCheque( cheque );
+        }
         this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
       }, error => {
         console.log('Error en Recibo ', error);
         console.log('debemos borrar el enca del recibo...');
         this.isa.presentaToast( 'Error de Envío...' );
+      }
+    );
+  }
+
+  transmitirCheque( cheque: Cheque ){
+    let chequeBD: ChequeBD = {
+      coD_CIA: 'ISLENA',
+      coD_ZON: this.isa.varConfig.numRuta,
+      coD_BCO: cheque.codigoBanco,
+      coD_CLT: cheque.codCliente,
+      nuM_REC: cheque.numeroRecibo,
+      nuM_CHE: cheque.numeroCheque,
+      nuM_CTA: cheque.numeroCuenta,
+      moN_CHE: cheque.monto,
+      tiP_DOC: '5',
+      feC_CHE: new Date(),
+      noteExistsFlag: 0,
+      recordDate: new Date(),
+      rowPointer: this.isa.generate(),
+      createdBy: 'ISA',
+      updatedBy: 'ISA',
+      createDate: new Date()
+    }
+    this.postCheque( chequeBD ).subscribe(
+      resp => {
+        console.log('Success Cheque...', resp);
+      }, error => {
+        console.log('Error en Cheque', error);
       }
     );
   }
@@ -171,6 +202,16 @@ export class IsaCobrosService {
       }
     };
     return this.http.post( environment.RecDetaURL, JSON.stringify(detalle), options );
+  }
+
+  private postCheque( cheque: ChequeBD ){
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( environment.ChequeURL, JSON.stringify(cheque), options );
   }
 
 }

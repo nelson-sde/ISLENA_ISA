@@ -10,6 +10,7 @@ export class Productos {
     impuesto: string;
     canastaBasica: string;
     imagen: string;
+    seleccionado: boolean;
 
     constructor ( id: string, nombre: string, lstPrc: number, nivelPrecio: string, precio: number, moneda: string, codBar: string, tax: string, canBas: string, img: string){
         this.id = id;
@@ -22,6 +23,7 @@ export class Productos {
         this.impuesto = tax;
         this.canastaBasica = canBas;
         this.imagen = img;
+        this.seleccionado = false;
     }
 }
 

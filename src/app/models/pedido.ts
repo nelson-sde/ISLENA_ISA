@@ -31,6 +31,7 @@ export class Pedido {
     numPedido: string;
     codCliente: number;
     fecha: Date;
+    fechaEntrega: Date;
     subTotal: number;
     iva: number;                             // IVA = (subtotal - descuento - descuentoGeneral) * % del impuesto
     descuento: number;                      // monto del descuento por linea. descuento = subtotal * %desclinea
@@ -45,6 +46,7 @@ export class Pedido {
         this.numPedido = numPedido;
         this.codCliente = id;
         this.fecha = new Date();
+        this.fechaEntrega = new Date();
         this.subTotal = subTotal;
         this.iva = iva;
         this.descuento = desc;

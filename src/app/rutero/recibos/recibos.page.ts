@@ -192,83 +192,6 @@ export class RecibosPage {
     }
   }
 
-  /* async modificarRecibo(){
-    let efectivo: string = '';
-    let cheque: string = '';
-    let tarjeta: string = '';
-    let deposito: string = '';
-
-    if ( this.recibo.montoEfectivoL > 0 ){
-      efectivo = this.recibo.montoEfectivoL.toString();
-    }
-    if ( this.recibo.montoChequeL > 0 ){
-      cheque = this.recibo.montoChequeL.toString();
-    }
-    if ( this.recibo.montoTarjetaL > 0 ){
-      tarjeta = this.recibo.montoTarjetaL.toString();
-    }
-    if ( this.recibo.montoDepositoL > 0 ){
-      deposito = this.recibo.montoDepositoL.toString();
-    }
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Forma Pago!',
-      inputs: [
-        {
-          name: 'efectivo',
-          type: 'number',
-          placeholder: 'Efectivo',
-          value: efectivo,
-        },
-        {
-          name: 'cheque',
-          type: 'number',
-          placeholder: 'Cheque',
-          value: cheque,
-        },
-        {
-          name: 'tarjeta',
-          type: 'number',
-          placeholder: 'Tarjeta',
-          value: tarjeta,
-        },
-        {
-          name: 'deposito',
-          type: 'number',
-          placeholder: 'Deposito',
-          value: deposito,
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('Confirm Cancel');
-          }
-        }, {
-          text: 'Ok',
-          handler: (d) => {
-            const suma = +d.efectivo + +d.cheque + +d.deposito + +d.tarjeta;
-            if ( suma == this.recibo.montoLocal ){
-              this.recibo.montoEfectivoL = +d.efectivo;
-              this.recibo.montoEfectivoD = this.recibo.montoEfectivoL / this.tipoCambio;
-              this.recibo.montoChequeL = +d.cheque;
-              this.recibo.montoChequeD = this.recibo.montoChequeL / this.tipoCambio;
-              this.recibo.montoTarjetaL = +d.tarjeta;
-              this.recibo.montoTarjetaD = this.recibo.montoTarjetaL / this.tipoCambio;
-              this.recibo.montoDepositoL = +d.deposito;
-              this.recibo.montoDepositoD = this.recibo.montoDepositoL / this.tipoCambio;
-            }
-            console.log('Confirm Ok');
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }*/
-
   salvarRecibo(){
     let cxc: Pen_Cobro[] = [];
     let j: number;
@@ -282,7 +205,7 @@ export class RecibosPage {
           cxc[j].saldoDolar = this.recibo.detalle[i].saldoDolar;
         }
         localStorage.setItem('cxc', JSON.stringify(cxc));                                     // Actualiza CxC en el Local Storage
-        this.isaCobros.transmitirRecibo( this.recibo );
+        this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque );
         this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
         this.isa.guardarVarConfig();
         this.navController.navigateRoot('rutero');
