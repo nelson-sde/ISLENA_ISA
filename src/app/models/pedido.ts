@@ -29,7 +29,7 @@ export class DetallePedido {
 
 export class Pedido {
     numPedido: string;
-    codCliente: number;
+    codCliente: string;
     fecha: Date;
     fechaEntrega: Date;
     subTotal: number;
@@ -42,7 +42,7 @@ export class Pedido {
     observaciones: string;
     envioExitoso: boolean;
 
-    constructor ( numPedido: string, id: number, subTotal: number, iva: number, desc: number, porDesGen: number, descGen:number, total: number, obser: string, exito: boolean ){
+    constructor ( numPedido: string, id: string, subTotal: number, iva: number, desc: number, porDesGen: number, descGen:number, total: number, obser: string, exito: boolean ){
         this.numPedido = numPedido;
         this.codCliente = id;
         this.fecha = new Date();
@@ -246,10 +246,10 @@ export class PedDeta {
 export class Pendientes {
     fecha: Date;
     numPedido: string;
-    codCliente: number;
+    codCliente: string;
     isChecked: boolean;
 
-    constructor ( fecha: Date, NumPedido: string, codCliente: number, isCheck: boolean ){
+    constructor ( fecha: Date, NumPedido: string, codCliente: string, isCheck: boolean ){
         this.fecha = fecha;
         this.numPedido = NumPedido;
         this.codCliente = codCliente;

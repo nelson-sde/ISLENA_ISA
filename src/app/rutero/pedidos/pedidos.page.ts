@@ -295,7 +295,7 @@ export class PedidosPage {
     }
   }
 
-  descuentoPermitido( codCliente: number, codProducto: string ){
+  descuentoPermitido( codCliente: string, codProducto: string ){
     return 5;
   }
 

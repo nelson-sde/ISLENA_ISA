@@ -59,7 +59,7 @@ export class Tab3Page {
     for (let i = 0; i < this.pendientes.length; i++) {
       if ( this.pendientes[i].isChecked ){
         pedido = this.pedidos.find(data => data.numPedido = this.pendientes[i].numPedido);
-        this.isaPedido.transmitirPedido( pedido, 'R' );
+        this.isaPedido.validaPedido( pedido, 'R' );
       }
     }
   }

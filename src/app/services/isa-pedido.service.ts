@@ -2,8 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { DetallePedido, Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
-import { Productos } from '../models/productos';
+import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
 import { IsaService } from './isa.service';
 
 @Injectable({

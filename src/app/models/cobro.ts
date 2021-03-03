@@ -3,7 +3,7 @@ export class Pen_Cobro {    // Estructura de la CxC en el Local Storage
     numeroRuta: string;
     tipoDocumen: string;
     numeroDocumen: string;
-    codCliente: number;
+    codCliente: string;
     saldoDolar: number;
     saldoLocal: number;
     montoDolar: number;
@@ -13,7 +13,7 @@ export class Pen_Cobro {    // Estructura de la CxC en el Local Storage
     condicionPago: string;
     pago: boolean;
 
-    constructor ( ruta: string, tipDoc: string, numDoc: string, codCliente: number, saldoD: number, saldoL: number, montoD: number, 
+    constructor ( ruta: string, tipDoc: string, numDoc: string, codCliente: string, saldoD: number, saldoL: number, montoD: number, 
                   montoL: number, fecDoc: Date, fecVen: Date, conPago: string ){
         this.numeroRuta = ruta;
         this.tipoDocumen = tipDoc;
@@ -87,7 +87,7 @@ export class Det_Recibo {
 
 export class Recibo {
     numeroRuta: string;
-    codCliente: number;
+    codCliente: string;
     numeroRecibo: string;
     fecha: Date;
     montoDolar: number;
@@ -102,7 +102,7 @@ export class Recibo {
     montoTarjetaL: number;
     detalle: Det_Recibo[];
 
-    constructor ( ruta: string, cliente: number, recibo: string, fecha: Date, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
+    constructor ( ruta: string, cliente: string, recibo: string, fecha: Date, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
                   depositoL: number, depositoD: number, tarjetaL: number, tarjetaD: number ){
         this.numeroRuta = ruta;
         this.codCliente = cliente;

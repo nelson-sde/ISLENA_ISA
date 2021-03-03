@@ -4,6 +4,8 @@ import { AlertController, NavController, PopoverController } from '@ionic/angula
 import { IsaService } from '../services/isa.service';
 import { IsaPedidoService } from '../services/isa-pedido.service';
 import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
+import { IsaCobrosService } from '../services/isa-cobros.service';
+import { IsaCardexService } from '../services/isa-cardex.service';
 
 @Component({
   selector: 'app-tab3-config',
@@ -17,6 +19,8 @@ export class Tab3ConfigPage {
 
   constructor( public isa: IsaService,
                private isaPedidos: IsaPedidoService,
+               private isaCobros: IsaCobrosService,
+               private isaCardex: IsaCardexService,
                private alertCtrl: AlertController,
                private navControler: NavController,
                private popoverCtrl: PopoverController ) {
@@ -89,6 +93,8 @@ export class Tab3ConfigPage {
       this.isa.syncCxC(this.isa.varConfig.numRuta);
       this.isa.syncBancos();
       this.isaPedidos.borrarPedidos();
+      this.isaCobros.borrarRecibos();
+      this.isaCardex.borrarCardex();
       this.regresar();
     } else {
       this.isa.presentAlertW(this.texto, 'Faltan datos claves para sincronizar la información.');

@@ -56,7 +56,6 @@ export class IsaService {
   rutas: Ruta[] = [];
   productos: Productos[] = [];
   clientes: Cliente[] = [];
-  buscarClientes: Cliente[] = [];
   ids: string[] = [];
   historico: Cardex[] = [];
 
@@ -68,7 +67,7 @@ export class IsaService {
                private toastCtrl: ToastController) {
 
     this.cargaVarConfig();
-    this.clienteAct = new Cliente(0,'ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','');
+    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','');
   }
 
   private cargaVarConfig(){
@@ -169,7 +168,7 @@ export class IsaService {
       resp => {
         console.log('ClientesBD', resp );
         resp.forEach(e => {
-          cliente = new Cliente(+e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
+          cliente = new Cliente(e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
             e.nom_Cto, e.lim_Cre, 0, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
             e.division_Geografica2, e.moroso, e.e_MAIL);
           this.clientes.push( cliente );
@@ -202,7 +201,7 @@ export class IsaService {
       resp => {
         console.log('CardexBD', resp );
         resp.forEach(e => {
-          cardex = new Cardex( +e.cliente, e.articulo, 'ND', e.tipO_DOCUMENTO, e.fecha, 0, e.cantidad);
+          cardex = new Cardex( e.cliente, e.articulo, 'ND', e.tipO_DOCUMENTO, e.fecha, 0, e.cantidad);
           cardexArr.push(cardex);
         });
         console.log('Arreglo', cardexArr);
@@ -246,7 +245,7 @@ export class IsaService {
       resp => {
         console.log('CXCBD', resp );
         resp.forEach(e => {
-          cxc = new Pen_Cobro( ruta, e.coD_TIP_DC, e.nuM_DOC, +e.coD_CLT, e.saldO_DOLAR, e.saldO_LOCAL, e.montO_DOLAR, e.montO_LOCAL,
+          cxc = new Pen_Cobro( ruta, e.coD_TIP_DC, e.nuM_DOC, e.coD_CLT, e.saldO_DOLAR, e.saldO_LOCAL, e.montO_DOLAR, e.montO_LOCAL,
                                 new Date(e.feC_DOC_FT), new Date(e.feC_VEN), e.condicioN_PAGO);
           cxcArray.push( cxc );
         });

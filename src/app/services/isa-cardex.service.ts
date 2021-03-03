@@ -34,7 +34,7 @@ export class IsaCardexService {
   }
                                                       // Modifica una linea en el arreglo del cardex
 
-  actualizaAplicado( codCliente: number ){
+  actualizaAplicado( codCliente: string ){
     this.cardex.forEach( e => {
       if (e.codCliente == codCliente){
         e.aplicado = true;
@@ -49,7 +49,13 @@ export class IsaCardexService {
     }
   }
 
-  borrarLinea( codProducto: string, CodCliente: number ){
+  borrarCardex(){
+    if (localStorage.getItem('cardexCliente')){
+      localStorage.removeItem('cardexCliente');
+    }
+  }
+
+  borrarLinea( codProducto: string, CodCliente: string ){
     let data: Cardex[] = [];
 
     const i = this.cardex.findIndex( d => d.codCliente == CodCliente && d.codProducto == codProducto );

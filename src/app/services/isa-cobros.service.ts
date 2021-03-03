@@ -53,7 +53,7 @@ export class IsaCobrosService {
   constructor( private isa: IsaService,
                private http: HttpClient ) { }
 
-  cargarCxC( codCliente: number ){
+  cargarCxC( codCliente: string ){
     let c: Pen_Cobro[] = [];
 
     if (localStorage.getItem('cxc')){
@@ -182,6 +182,12 @@ export class IsaCobrosService {
         console.log('Error en Cheque', error);
       }
     );
+  }
+
+  borrarRecibos(){
+    if (localStorage.getItem('recibos')){
+      localStorage.removeItem('recibos');
+    }
   }
 
   private postRecibo( recEncaBD: RecEncaBD ){

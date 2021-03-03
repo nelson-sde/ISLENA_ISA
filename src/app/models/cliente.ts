@@ -1,6 +1,6 @@
 
 export class Cliente {
-    id: number;
+    id: string;
     nombre: string;
     direccion: string;
     tipoContribuyente: string;   // F: Fisico, J: Juridico
@@ -21,7 +21,7 @@ export class Cliente {
     moroso: boolean;
     email: string;
 
-    constructor(id: number, nombre: string, dir: string, tipoCont: string, contri: string, razonSocial: string, telContacto: string,
+    constructor(id: string, nombre: string, dir: string, tipoCont: string, contri: string, razonSocial: string, telContacto: string,
         nomContacto: string, credito: number, limCredito: number, diasCred: number, listaPrecio: number, descuento: number, tipoImp: number,
         tarifa: number, porTarifa: number, divGeo1: string, divGeo2: string, moroso: string, email: string ){
         this.id = id;

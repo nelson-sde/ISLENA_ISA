@@ -1,6 +1,6 @@
 
 export class Cardex {
-    codCliente: number;
+    codCliente: string;
     codProducto: string;
     desProducto: string;
     tipoDocumento: string;
@@ -9,7 +9,7 @@ export class Cardex {
     cantInventario: number;
     cantPedido: number;
 
-    constructor ( idClient: number, idProd: string, desProd: string, tipoDocum: string, fecha: Date, cantInventario: number, cantPedido: number ){
+    constructor ( idClient: string, idProd: string, desProd: string, tipoDocum: string, fecha: Date, cantInventario: number, cantPedido: number ){
         this.codCliente = idClient;
         this.codProducto = idProd;
         this.desProducto = desProd;

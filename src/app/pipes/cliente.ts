@@ -6,7 +6,7 @@ import { Cliente } from '../models/cliente';
 })
 export class ClientePipe implements PipeTransform {
 
-  transform(value: number): string {
+  transform(value: string): string {
     let clientes: Cliente[] = [];
 
     clientes = JSON.parse( localStorage.getItem('clientes'));
