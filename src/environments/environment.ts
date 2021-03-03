@@ -16,6 +16,7 @@ export const environment = {
   Existencias: 'http://api_isa.soportecr.xyz/api/Existencias/',
   BancosURL: 'http://api_isa.soportecr.xyz/api/Bancos/',
   ChequeURL: 'http://api_isa.soportecr.xyz/api/Cheque/',
+  cantLineasMaxPedido: 35,
 };
 
 /*

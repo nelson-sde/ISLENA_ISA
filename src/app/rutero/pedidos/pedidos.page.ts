@@ -21,23 +21,24 @@ export class PedidosPage {
   busquedaProd: Productos[] = [];           // Arreglo que contiene la sublista de productos seleccionados
   producto: Productos;                     // Producto seleccionado de la busqueda     
   texto: string = '';                             // campo de busqueda de productos
-  mostrarListaProd: boolean = false;             // La seleccion de productos respondio multiples lineas
-  mostrarProducto: boolean = false;             // True: Se ha seleccionado un producto para agregar al pedido
   cantidad: number = 6;                        // variable temporal con la cantidad de Items a agregar en el pedido
   descuento: number = 0;                      // variable temporal con el % del descuento
   montoIVA: number;                          // variable temporal con el monto del IVA
-  montoDescLinea: number;                   // variable temporal con el monto del descuento del pedido
-  montoDescGen: number;
-  montoSub: number;                        // variable temporal con el monto bruto del pedido
-  montoTotal: number;                     // Variable temporal con el monto del pedido
-  defaultCant: boolean = true;                // Boolean que nos indica si estamos agregando cantidades o descuentos
-  pedido: Pedido;                            // Pedido del cliente
-  nuevoDetalle: DetallePedido;              // Variable temporal con la nueva linea de pedido 
-  pedidoSinSalvar: boolean = false;        // nos indica si hemos iniciado con un pedido
-  modificando: boolean = false;           // Si es true se esta modificando una linea del pedido
-  j: number = -1;                        // j es el index de la linea que se esta modificando en el detalle
+  montoDescLinea: number;                // variable temporal con el monto del descuento de la línea del pedido
+  montoDescGen: number;                 // Descuento general del pedido
+  montoSub: number;                    // variable temporal con el monto bruto del pedido
+  montoTotal: number;                 // Variable temporal con el monto del pedido
+  pedido: Pedido;                    // Pedido del cliente
+  nuevoDetalle: DetallePedido;      // Variable temporal con la nueva linea de pedido 
+  j: number = -1;                  // j es el index de la linea que se esta modificando en el detalle
   impuesto: number = 0;
-  hayCardex: boolean = false;
+  hayCardex: boolean = false;               // True = se cargó como pedido un cardex del cliente
+  mostrarListaProd: boolean = false;       // La seleccion de productos respondio multiples lineas
+  mostrarProducto: boolean = false;       // True: Se ha seleccionado un producto para agregar al pedido
+  defaultCant: boolean = true;           // Boolean que nos indica si estamos agregando cantidades o descuentos
+  pedidoSinSalvar: boolean = false;     // nos indica si hemos iniciado con un pedido
+  modificando: boolean = false;        // Si es true se esta modificando una linea del pedido
+
 
   @ViewChild('myList') ionList: IonList;
 
@@ -273,7 +274,7 @@ export class PedidosPage {
 
   carrito(){
     if (this.pedidoSinSalvar){
-      this.isaPedido.transmitirPedido( this.pedido, 'N' );    // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
+      this.isaPedido.validaPedido( this.pedido, 'N' );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
       this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
       this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.nextConsecutivo( this.isaConfig.varConfig.consecutivoPedidos );
       this.isaConfig.guardarVarConfig();

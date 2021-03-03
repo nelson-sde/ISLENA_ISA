@@ -17,7 +17,7 @@ export class ResumenPedPage {
 
   transmitirPedido(){
     if ( !this.pedido.envioExitoso ) {
-      this.isaPedidos.transmitirPedido( this.pedido, 'R' );
+      this.isaPedidos.validaPedido( this.pedido, 'R' );
     }
   }
 

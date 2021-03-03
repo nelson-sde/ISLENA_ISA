@@ -2,7 +2,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
+import { DetallePedido, Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
+import { Productos } from '../models/productos';
 import { IsaService } from './isa.service';
 
 @Injectable({
@@ -45,7 +46,56 @@ export class IsaPedidoService {
     }
   }
 
-  transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
+  validaPedido( pedido: Pedido, tipo: string ) {       // Tipo = N pedido nuevo; R retransmitir
+    let lineas = pedido.detalle.length;
+    let pedidoAux: Pedido;
+    let pedidoOriginal: Pedido;
+
+    console.log('Pedido original', pedido);
+    pedidoOriginal = new Pedido( pedido.numPedido, pedido.codCliente, pedido.subTotal, pedido.iva, pedido.descuento, pedido.porcentajeDescGeneral, pedido.descGeneral,
+                                pedido.total, pedido.observaciones, false );
+    pedidoOriginal.detalle = pedido.detalle.slice(0);
+
+    while ( lineas > 0 ) {
+      if ( lineas > environment.cantLineasMaxPedido ){
+        pedidoAux = this.nuevoPedido( pedidoOriginal );
+        console.log('Nuevo Pedido', pedidoAux);
+        lineas -= environment.cantLineasMaxPedido;
+        this.isa.varConfig.consecutivoPedidos = this.isa.nextConsecutivo( this.isa.varConfig.consecutivoPedidos );
+        pedidoOriginal.numPedido = this.isa.varConfig.consecutivoPedidos;
+        this.isa.guardarVarConfig();
+        this.transmitirPedido( pedidoAux, 'N');
+      } else {
+        console.log('Pedido final', pedidoOriginal);
+        lineas = 0;
+        this.transmitirPedido( pedidoOriginal, 'N');
+      }
+    }
+  }
+
+  private nuevoPedido( pedido: Pedido ){
+    let pedidoNuevo: Pedido;
+
+    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, false );
+    for (let i = 0; i < environment.cantLineasMaxPedido; i++) {
+      pedidoNuevo.detalle.push(pedido.detalle[i]);
+      pedidoNuevo.subTotal += pedido.detalle[i].subTotal;
+      pedidoNuevo.iva +=  pedido.detalle[i].iva;
+      pedidoNuevo.descuento += pedido.detalle[i].descuento
+      pedidoNuevo.descGeneral += pedido.detalle[i].descGeneral; 
+      pedidoNuevo.total += pedido.detalle[i].total;
+      pedido.subTotal -= pedido.detalle[i].subTotal;    // Decrementa los valores de la linea en el pedido original
+      pedido.iva -=  pedido.detalle[i].iva;
+      pedido.descuento -= pedido.detalle[i].descuento
+      pedido.descGeneral -= pedido.detalle[i].descGeneral; 
+      pedido.total -= pedido.detalle[i].total;
+    } 
+    const detAux = pedido.detalle.slice(environment.cantLineasMaxPedido);
+    pedido.detalle = detAux.slice(0);
+    return pedidoNuevo;
+  }
+
+  private transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
     let detalleBD: PedDeta;
     let arrDetBD: PedDeta[] = [];
     let rowPointer: string = '';
@@ -54,6 +104,10 @@ export class IsaPedidoService {
     const numPedido = pedido.numPedido;
 
     rowPointer = this.isa.generate();
+
+    if ( tipo == 'N' ){
+      this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
+    }
 
     const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', fecha, fecha, pedido.fechaEntrega, fecha, pedido.iva,
                                   0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, pedido.detalle.length, this.isa.clienteAct.listaPrecios, 
@@ -71,9 +125,6 @@ export class IsaPedidoService {
                         'ISA', 'ISA', fecha, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, 0, 0, tax, 0, 'N', 
                         pedido.detalle[i].esCanastaBasica );
       arrDetBD.push(detalleBD);
-    }
-    if ( tipo == 'N' ){
-      this.guardarPedido( pedido );                              // Se guarda el pedido en el Local Stotage
     } 
     this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {

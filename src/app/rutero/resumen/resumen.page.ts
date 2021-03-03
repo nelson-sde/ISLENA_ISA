@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalController, NavController } from '@ionic/angular';
+import { Recibo } from 'src/app/models/cobro';
 import { Pedido } from 'src/app/models/pedido';
 import { ResumenPedPage } from '../resumen-ped/resumen-ped.page';
 
@@ -11,6 +12,10 @@ import { ResumenPedPage } from '../resumen-ped/resumen-ped.page';
 export class ResumenPage {
 
   pedidos: Pedido[] = [];
+  recibos: Recibo[] = [];
+  total: number = 0;
+  totalPedidos: number = 0;
+  totalRecibos: number = 0;
   mostrarPedidos: boolean = true;
   mostrarRecibos: boolean = false;
   mostrarDevol: boolean = false;
@@ -18,14 +23,18 @@ export class ResumenPage {
   constructor( private navController: NavController,
                private modalCtrl: ModalController ) {
     this.cargarPedidos();
+    this.cargarRecibos();
+    this.total = this.totalPedidos;
   }
 
   segmentChanged(ev: any) {
     if (ev.detail.value == 'Pedidos'){
+      this.total = this.totalPedidos;
       this.mostrarPedidos = true;
       this.mostrarDevol = false;
       this.mostrarRecibos = false;
     } else if (ev.detail.value == 'Recibos'){
+      this.total = this.totalRecibos;
       this.mostrarPedidos = false;
       this.mostrarDevol = false;
       this.mostrarRecibos = true;
@@ -40,6 +49,18 @@ export class ResumenPage {
   cargarPedidos(){
     if (localStorage.getItem('pedidos')){
       this.pedidos = JSON.parse( localStorage.getItem('pedidos'));
+      this.pedidos.forEach(e => {
+        this.totalPedidos += e.total;
+      });
+    }
+  }
+
+  cargarRecibos(){
+    if (localStorage.getItem('recibos')){
+      this.recibos = JSON.parse( localStorage.getItem('recibos'));
+      this.recibos.forEach(e => {
+        this.totalRecibos += e.montoLocal;
+      });
     }
   }
 
