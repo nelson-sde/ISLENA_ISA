@@ -1,6 +1,6 @@
 
 import { Component } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { NavParams, PopoverController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
 import { IsaService } from 'src/app/services/isa.service';
 
@@ -16,13 +16,13 @@ export class ClientesPage {
   busquedaClientes: Cliente[] = [];
 
   constructor( private isa: IsaService,
-               private popoverCtrl: PopoverController ) {
-
-    this.busquedaClientes = this.isa.buscarClientes.slice(0);
+               private popoverCtrl: PopoverController,
+               private navParams: NavParams ) {
+    this.busquedaClientes = this.navParams.get('value');
   }
 
   dismissClientes( i: number ){             // Retorna el codigo del cliente seleccionado, sino selecciono
-    this.isa.clienteAct = this.isa.buscarClientes[i];
+    this.isa.clienteAct = this.busquedaClientes[i];
     this.popoverCtrl.dismiss({
       codCliente: this.isa.clienteAct.id
     });

@@ -100,46 +100,50 @@ export class PedidosPage {
 
     if ( !this.mostrarListaProd ){
       if (this.texto.length !== 0) {    
-        if (isNaN(+this.texto)) {            // Se buscará por código de producto
-            // Se recorre el arreglo para buscar coincidencias
-          this.mostrarProducto = false;
-          for (let i = 0; i < this.isaConfig.productos.length; i++) {
-            if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-                this.busquedaProd.push(this.isaConfig.productos[i]);
-            }
-          }
-        } else {                      // la busqueda es por codigo de producto
-          const product = this.isaConfig.productos.find( e => e.id == this.texto );
-          if ( product !== undefined ){
-            this.busquedaProd.push(product);
-            this.productoSelect(0);
-          }
-        }
-        if (this.busquedaProd.length == 0){                    // no hay coincidencias
-          this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
-          this.texto = '';
-          this.mostrarListaProd = false;
-          this.mostrarProducto = false;
-        } else if (this.busquedaProd.length == 1){        // La coincidencia es exacta
-          this.productoSelect(0);
-        } else {
-          this.mostrarListaProd = true;                // Se muestra el Arr busquedaProd con el subconjunto de productos
-        }                                             // para que se seleccione el elegido
+        this.busqueda();                  // Llena el arreglo BusquedaProd con los articulos que cumplen la seleccion
       }
     } else {
       console.log(this.busquedaProd);
       const listaAux = this.busquedaProd.filter( d => d.seleccionado );
       console.log(listaAux);
-      if ( listaAux.length == 1 ){
+      if ( listaAux.length == 1 ){   // Un solo producto seleccionado
         this.productoSelect(0);
-      } else if ( listaAux.length > 1 ){
+      } else if ( listaAux.length > 1 ){          // Se seleccionaron varios productos
         this.busquedaProd = listaAux.slice(0);
         this.productoSelect( -1 );
-      } else {
-        this.busquedaProd = null;
-        this.mostrarListaProd = false;
-        this.texto = null;
+      } else {                    // No se seleccionó ningún producto o se cambio el texto de seleccion
+        this.busquedaProd = [];
+        // this.mostrarListaProd = false;
+        this.busqueda();
       }
+    }
+  }
+
+  busqueda(){
+    if (isNaN(+this.texto)) {            // Se buscará por código de producto
+      // Se recorre el arreglo para buscar coincidencias
+      this.mostrarProducto = false;
+      for (let i = 0; i < this.isaConfig.productos.length; i++) {
+        if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+            this.busquedaProd.push(this.isaConfig.productos[i]);
+        }
+      }
+    } else {                      // la busqueda es por codigo de producto
+      const product = this.isaConfig.productos.find( e => e.id == this.texto );
+      if ( product !== undefined ){
+        this.busquedaProd.push(product);
+        this.productoSelect(0);
+      }
+    }
+    if (this.busquedaProd.length == 0){                    // no hay coincidencias
+      this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
+      this.texto = '';
+      this.mostrarListaProd = false;
+      this.mostrarProducto = false;
+    } else if (this.busquedaProd.length == 1){        // La coincidencia es exacta
+      this.productoSelect(0);
+    } else {
+      this.mostrarListaProd = true;                // Se muestra el Arr busquedaProd con el subconjunto de productos
     }
   }
 

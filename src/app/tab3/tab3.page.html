@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="dark">
     <ion-title>
-      Configuracion - {{numRuta}}
+      Configuracion - {{isa.varConfig.numRuta}}
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -16,9 +16,9 @@
         </ion-button>
       </ion-col>
       <ion-col size="6" size-lg>
-        <ion-button style="height:100%" (click)="abrirPedidos()" size="large" expand="block" color="light">
+        <ion-button style="height:100%" (click)="cargarDatos()" size="large" expand="block" color="light">
           <ion-icon slot="start" name="enter-outline"></ion-icon>
-          Datos
+          Sync
         </ion-button>
       </ion-col>
     </ion-row>
@@ -37,15 +37,5 @@
       </ion-col>
     </ion-row>
     <p></p>
-    <ion-button (click)="transmitir()" size="large" color="success" expand="block" shape="round">
-      <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
-      Transmitir...
-    </ion-button>
   </ion-grid>
-  <ion-list>
-    <ion-item *ngFor="let item of pendientes; let i = index">
-      <ion-label>{{ item.fecha | date:'shortDate' }} - {{item.numPedido}} - {{item.codCliente}}</ion-label>
-      <ion-checkbox slot="end" [(ngModel)]="item.isChecked"></ion-checkbox>
-    </ion-item>
-  </ion-list>
 </ion-content>

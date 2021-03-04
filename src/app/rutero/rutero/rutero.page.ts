@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AlertController, PopoverController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
 import { IsaService } from 'src/app/services/isa.service';
+import { ClienteInfoPage } from '../cliente-info/cliente-info.page';
 import { ClientesPage } from '../clientes/clientes.page';
 
 @Component({
@@ -98,12 +99,12 @@ export class RuteroPage {
   async clientesPopover(ev: any) {
     const popover = await this.popoverCtrl.create({
       component: ClientesPage,
+      componentProps: {value: this.buscarClientes},
       cssClass: 'my-custom-class',
       event: ev,
       translucent: true
     });
     await popover.present();
-
     const {data} = await popover.onWillDismiss();
     if ( data !== undefined){
       if (data.codCliente == this.isa.clienteAct.id){
@@ -119,6 +120,23 @@ export class RuteroPage {
         this.texto = '';
         this.direccion = '';
         this.dir = false;
+      }
+    }
+  }
+
+  async clienteInfoPopover(ev: any) {
+    const popover = await this.popoverCtrl.create({
+      component: ClienteInfoPage,
+      cssClass: 'my-custom-class',
+      event: ev,
+      translucent: true
+    });
+    await popover.present();
+    const {data} = await popover.onWillDismiss();
+    if ( data !== undefined){
+      if ( data.modificado ){
+        console.log('Se modificaron los datos del cliente');
+        this.isa.modificarCliente( this.isa.clienteAct );
       }
     }
   }

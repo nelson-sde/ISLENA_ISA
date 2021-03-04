@@ -15,25 +15,10 @@ import { IsaService } from '../services/isa.service';
 export class Tab3Page {
 
   numRuta: string;
-  pedidos: Pedido[] = [];
-  pendientes: Pendientes [] = [];
 
   constructor( public isa: IsaService,
                private isaPedido: IsaPedidoService,
                private router: Router ) {
-
-    let pendiente: Pendientes;
-    this.numRuta = isa.varConfig.numRuta;
-    this.cargarPedidos();
-    if ( this.pedidos.length > 0 ){
-      for (let i = 0; i < this.pedidos.length; i++) {
-        if ( this.pedidos[i].envioExitoso == false ){
-          pendiente = new Pendientes( this.pedidos[i].fecha, this.pedidos[i].numPedido, this.pedidos[i].codCliente, false);
-          this.pendientes.push(pendiente);
-        }
-      }
-    }
-    console.log(this.pendientes);
   }
 
   configRuta(){
@@ -46,22 +31,8 @@ export class Tab3Page {
     }
   }
 
-  cargarPedidos(){
-    if (localStorage.getItem('pedidos')){
-      this.pedidos = JSON.parse( localStorage.getItem('pedidos'));
-    } 
-  }
-
-  transmitir(){
-    let pedido: Pedido;
-
-    console.log(this.pendientes);
-    for (let i = 0; i < this.pendientes.length; i++) {
-      if ( this.pendientes[i].isChecked ){
-        pedido = this.pedidos.find(data => data.numPedido = this.pendientes[i].numPedido);
-        this.isaPedido.validaPedido( pedido, 'R' );
-      }
-    }
+  cargarDatos(){
+    this.router.navigate(['tab3-datos']);
   }
 
 }

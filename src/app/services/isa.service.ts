@@ -192,6 +192,19 @@ export class IsaService {
     }
   }
 
+  modificarCliente( cliente: Cliente ){
+    let clientes: Cliente[] = [];
+
+    if (localStorage.getItem('clientesModificados')){
+      clientes = JSON.parse( localStorage.getItem('clientesModificados'));
+    }
+    clientes.push( cliente );
+    localStorage.setItem('clientesModificados', JSON.stringify(clientes));
+    const i = this.clientes.findIndex( d => d.id == this.clienteAct.id );
+    this.clientes[i] = this.clienteAct;
+    localStorage.setItem('clientes', JSON.stringify(this.clientes));
+  }
+
   syncCardex( ruta: string ){
     let j: number;
     let cardex: Cardex;

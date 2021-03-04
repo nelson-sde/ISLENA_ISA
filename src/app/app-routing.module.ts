@@ -20,7 +20,7 @@ const routes: Routes = [
   },
   {
     path: 'tab3-config',
-    loadChildren: () => import('./tab3-config/tab3-config.module').then( m => m.Tab3ConfigPageModule)
+    loadChildren: () => import('./configuracion/tab3-config/tab3-config.module').then( m => m.Tab3ConfigPageModule)
   },
   {
     path: 'inventario',
@@ -32,7 +32,7 @@ const routes: Routes = [
   },
   {
     path: 'tab3-pop',
-    loadChildren: () => import('./tab3-pop/tab3-pop.module').then( m => m.Tab3PopPageModule)
+    loadChildren: () => import('./configuracion/tab3-pop/tab3-pop.module').then( m => m.Tab3PopPageModule)
   },
   {
     path: 'productos',
@@ -57,6 +57,14 @@ const routes: Routes = [
   {
     path: 'facturas',
     loadChildren: () => import('./rutero/facturas/facturas.module').then( m => m.FacturasPageModule)
+  },
+  {
+    path: 'tab3-datos',
+    loadChildren: () => import('./configuracion/tab3-datos/tab3-datos.module').then( m => m.Tab3DatosPageModule)
+  },
+  {
+    path: 'cliente-info',
+    loadChildren: () => import('./rutero/cliente-info/cliente-info.module').then( m => m.ClienteInfoPageModule)
   }
 ];
 @NgModule({

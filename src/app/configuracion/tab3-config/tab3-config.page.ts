@@ -1,11 +1,11 @@
 
 import { Component } from '@angular/core';
 import { AlertController, NavController, PopoverController } from '@ionic/angular';
-import { IsaService } from '../services/isa.service';
-import { IsaPedidoService } from '../services/isa-pedido.service';
+import { IsaService } from '../../services/isa.service';
+import { IsaPedidoService } from '../../services/isa-pedido.service';
 import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
-import { IsaCobrosService } from '../services/isa-cobros.service';
-import { IsaCardexService } from '../services/isa-cardex.service';
+import { IsaCobrosService } from '../../services/isa-cobros.service';
+import { IsaCardexService } from '../../services/isa-cardex.service';
 
 @Component({
   selector: 'app-tab3-config',

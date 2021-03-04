@@ -20,6 +20,9 @@
   </ion-item>
   <ion-item color="light" *ngIf="dir">
     <div class="ion-text-wrap">{{direccion}} - {{codigoCliente}}</div>
+    <ion-button fill="clear" slot="end" size="medium" (click)="clienteInfoPopover( $event )">
+      <ion-icon slot="end" name="ellipsis-vertical-outline"></ion-icon>
+    </ion-button>
   </ion-item>
 
   <p></p>
