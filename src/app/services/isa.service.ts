@@ -33,6 +33,13 @@ export interface Ruta {
   devolucion: string;
 }
 
+export interface Email {
+  to: string;
+  subject: string;
+  body: string;
+  isHtml: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -43,8 +50,8 @@ export class IsaService {
     descripcion: 'No definido',
     codVendedor: 0,
     nomVendedor: 'No definido',
-    usuario: 'admin',
-    clave: 'admin',
+    usuario: '',
+    clave: '',
     consecutivoPedidos: '',
     consecutivoRecibos: '',
     consecutivoDevoluciones: '',
@@ -57,14 +64,15 @@ export class IsaService {
   productos: Productos[] = [];
   clientes: Cliente[] = [];
   ids: string[] = [];
-  historico: Cardex[] = [];
+  // historico: Cardex[] = [];
+  userLogged: boolean = false;
 
   loading: HTMLIonLoadingElement;
 
   constructor( public alertController: AlertController, 
                private http: HttpClient,
                private loadingCtrl: LoadingController,
-               private toastCtrl: ToastController) {
+               private toastCtrl: ToastController ) {
 
     this.cargaVarConfig();
     this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','');
@@ -169,7 +177,7 @@ export class IsaService {
         console.log('ClientesBD', resp );
         resp.forEach(e => {
           cliente = new Cliente(e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
-            e.nom_Cto, e.lim_Cre, 0, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
+            e.nom_Cto, 0, e.lim_Cre, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
             e.division_Geografica2, e.moroso, e.e_MAIL);
           this.clientes.push( cliente );
         });
@@ -209,12 +217,14 @@ export class IsaService {
     let j: number;
     let cardex: Cardex;
     let cardexArr: Cardex[] = [];
+    let letra: string;
 
     this.getCardex( ruta ).subscribe(
       resp => {
         console.log('CardexBD', resp );
         resp.forEach(e => {
-          cardex = new Cardex( e.cliente, e.articulo, 'ND', e.tipO_DOCUMENTO, e.fecha, 0, e.cantidad);
+          letra = e.tipO_DOCUMENTO[0];
+          cardex = new Cardex( e.cliente, e.articulo, 'ND', letra, e.fecha, 0, e.cantidad, e.descuento);
           cardexArr.push(cardex);
         });
         console.log('Arreglo', cardexArr);
@@ -229,15 +239,19 @@ export class IsaService {
     );
   }
 
-  cargarCardex(){
+  cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
     let cardex: Cardex[] = [];
     let cardex2: Cardex[] = [];
+    let consulta: Cardex[] = [];
     let j: number;
 
-    this.historico = [];
     if (localStorage.getItem('cardex')){
       cardex = JSON.parse( localStorage.getItem('cardex'));
-      cardex2 = cardex.filter(d => d.codCliente == this.clienteAct.id);
+      if ( texto == 'TODO' ){ 
+        cardex2 = cardex.filter(d => d.codCliente == this.clienteAct.id);
+      } else {
+        cardex2 = cardex.filter(d => d.codCliente == this.clienteAct.id && d.codProducto == texto );
+      }
       if (cardex2.length > 0){
         for (let i = 0; i < cardex2.length; i++) {
           j = this.productos.findIndex(d => d.id == cardex2[i].codProducto);
@@ -245,7 +259,8 @@ export class IsaService {
             cardex2[i].desProducto = this.productos[j].nombre;
           }
         }
-        this.historico = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+        consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+        return consulta;
       }
     }
   }

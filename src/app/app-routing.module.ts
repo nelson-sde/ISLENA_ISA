@@ -65,6 +65,14 @@ const routes: Routes = [
   {
     path: 'cliente-info',
     loadChildren: () => import('./rutero/cliente-info/cliente-info.module').then( m => m.ClienteInfoPageModule)
+  },
+  {
+    path: 'cobro-info',
+    loadChildren: () => import('./rutero/cobro-info/cobro-info.module').then( m => m.CobroInfoPageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./configuracion/login/login.module').then( m => m.LoginPageModule)
   }
 ];
 @NgModule({

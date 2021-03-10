@@ -14,6 +14,7 @@ import { ProductosPage } from '../productos/productos.page';
 export class CardexPage {
   codProducto: string;
   nomProducto: string;
+  descuento: number;
   cantInventario: number = 0;
   cantPedido: number = 0;
   i:          number;               // La posicion en el arreglo de Cardex donde esta el producto (-1 si no se halla)
@@ -29,10 +30,11 @@ export class CardexPage {
     this.activatedRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       this.codProducto = data.codProducto;
       this.nomProducto = data.nombreProd;
+      this.descuento = data.descuento;
       this.cargarCardex();
       console.log(this.codProducto);
       if (this.codProducto !== 'null'){
-        this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, null);
+        this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, null, this.descuento);
         this.agregaLineaCardex();
       }
     });
@@ -68,7 +70,7 @@ export class CardexPage {
 
     const {data} = await modal.onDidDismiss();
     if (data.codProducto !== null){
-      this.lineaCardex = new Cardex(this.isa.clienteAct.id, data.codProducto, data.desProducto, 'Pedido', new Date(), null, null);
+      this.lineaCardex = new Cardex(this.isa.clienteAct.id, data.codProducto, data.desProducto, 'Pedido', new Date(), null, null, 0);
       this.agregaLineaCardex();
     }
   }

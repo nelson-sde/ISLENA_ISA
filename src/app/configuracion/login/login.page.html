@@ -1,0 +1,62 @@
+
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-slides class="mainSlide">
+    
+    <ion-slide>
+
+      <form #formulario="ngForm" (ngSubmit)="login()">
+        <ion-grid fixed>
+
+          <ion-row>
+            <ion-col>
+              
+                <ion-list>
+                  
+                  <ion-item>
+                    <ion-label>Usuario</ion-label>
+                    <ion-input name="user"
+                                type="text"
+                                [(ngModel)]="usuarioForm.usuarioF"
+                                required></ion-input>
+                  </ion-item>
+
+                  <ion-item>
+                    <ion-label>Password</ion-label>
+                    <ion-input name="password"
+                                type="password"
+                                [(ngModel)]="usuarioForm.claveF"
+                                required></ion-input>
+                  </ion-item>
+
+                </ion-list>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col>
+              <ion-button [disabled]="formulario.invalid"
+                          type="submit"
+                          color="dark"
+                          shape="round">
+                Login
+              </ion-button>
+            </ion-col>
+          </ion-row>
+
+        </ion-grid>
+      </form>
+
+    </ion-slide>
+  </ion-slides>
+</ion-content>

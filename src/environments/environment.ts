@@ -17,6 +17,8 @@ export const environment = {
   BancosURL: 'http://api_isa_test.soportecr.xyz/api/Bancos/',
   ChequeURL: 'http://api_isa_test.soportecr.xyz/api/Cheque/',
   cantLineasMaxPedido: 35,
+  adminClave: '@dmin2021*',
+  prdMode: false,
 };
 
 /*

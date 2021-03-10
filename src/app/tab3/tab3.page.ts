@@ -22,13 +22,10 @@ export class Tab3Page {
   }
 
   configRuta(){
-    if (this.isa.varConfig.usuario !== 'admin'){
-      // abre el modal de logeo
-    }
-    if (this.isa.varConfig.usuario == 'admin'){
-      console.log('Abrir Config');
-      this.router.navigate(['tab3-config']);
-    }
+    this.router.navigate(['login',{
+      usuario: 'admin',
+      navega: 'tab3-config'
+    }]);
   }
 
   cargarDatos(){

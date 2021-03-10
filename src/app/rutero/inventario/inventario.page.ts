@@ -16,13 +16,13 @@ export class InventarioPage {
 
   productos: Productos[] = [];
   cardexHistorico: Cardex [] = [];
+  filtra: boolean = false;
 
   constructor( public isa: IsaService,
                public isaCardex: IsaCardexService,
                private navController: NavController,
                private router: Router,
                private alertController: AlertController ) {
-    this.cardexHistorico = this.isa.historico.slice(0);
     this.reordenaHistorico();
   }
 
@@ -30,6 +30,7 @@ export class InventarioPage {
     let i = 0;
     let j = 1;
 
+    this.cardexHistorico = this.isa.cargarCardex('TODO');
     while (i < this.cardexHistorico.length && j < this.cardexHistorico.length) {
       if(new Date(this.cardexHistorico[j].fecha).getDate() == new Date(this.cardexHistorico[i].fecha).getDate()){
         this.cardexHistorico[j].fecha = null;
@@ -41,23 +42,25 @@ export class InventarioPage {
     }
   }
 
+  filtraItem( producto: string ){
+    this.cardexHistorico = this.isa.cargarCardex(producto);
+    this.filtra = true;
+  }
+
+  cancelarFiltro(){
+    this.reordenaHistorico();
+  }
+
   abrirCardex( i: number ){
     if (i >= 0){
       this.router.navigate(['/cardex', {
         codProducto: this.cardexHistorico[i].codProducto,
-        nombreProd: this.cardexHistorico[i].desProducto }]);
+        nombreProd: this.cardexHistorico[i].desProducto,
+        descuento: this.cardexHistorico[i].descuento }]);
     } else{
       this.router.navigate(['/cardex', {
         codProducto: null,
         nombreProd: null }]);
-    }
-  }
-
-  regresar(){
-    if (this.isaCardex.cardexSinSalvar){
-      this.presentAlertSalir();
-    } else {
-      this.navController.back();
     }
   }
 
@@ -85,6 +88,14 @@ export class InventarioPage {
       ]
     });
     await alert.present();
+  }
+
+  regresar(){
+    if (this.isaCardex.cardexSinSalvar){
+      this.presentAlertSalir();
+    } else {
+      this.navController.back();
+    }
   }
 
 }

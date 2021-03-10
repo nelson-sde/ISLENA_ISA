@@ -71,10 +71,11 @@ export class PedidosPage {
         prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
         this.impuesto = this.calculaImpuesto( prod[0].impuesto );
         this.montoSub = result[i].cantPedido * prod[0].precio;
+        this.montoDescLinea = this.montoSub * result[i].descuento / 100;
         this.montoIVA = this.montoSub * this.impuesto;
         this.montoTotal = this.montoSub + this.montoIVA;
         this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
-                                              0, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica);
+                                              this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica);
         this.pedido.detalle.push( this.nuevoDetalle );
         this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
         this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;

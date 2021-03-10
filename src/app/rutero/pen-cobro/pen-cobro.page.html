@@ -17,6 +17,9 @@
     <ion-text color="primary">
       <h1>{{ isa.clienteAct.nombre }}</h1>
     </ion-text>
+    <ion-button fill="clear" slot="end" size="medium" (click)="cobroInfoPopover( $event )">
+      <ion-icon slot="end" name="ellipsis-vertical-outline"></ion-icon>
+    </ion-button>
   </ion-item>
   <p></p>
   
@@ -77,7 +80,6 @@
 
 <ion-footer>
   <ion-toolbar color="dark">
-    <ion-title slot="start">Días Credito: {{ credito }}</ion-title>
     <ion-title slot="end">{{ saldo | colones }}</ion-title>
   </ion-toolbar>
 </ion-footer>

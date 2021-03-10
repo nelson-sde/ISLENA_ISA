@@ -208,7 +208,8 @@ export class RecibosPage {
         this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque );
         this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
         this.isa.guardarVarConfig();
-        this.navController.navigateRoot('rutero');
+        this.navController.back();
+        this.navController.back();
       } else {
         this.isa.presentAlertW( 'Salvar Recibo', 'No es posible transmitir el Recibo si no se aplica la NC a una factura' );
       }

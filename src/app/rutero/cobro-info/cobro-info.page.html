@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-toolbar color="light">
+    <ion-title>Datos de Crédito</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label>Días Crédito: {{ isa.clienteAct.diasCredito}}</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Límite Crédito: {{ isa.clienteAct.limiteCredito | colones }}</ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-label>Lista Precios: {{ isa.clienteAct.listaPrecios}}</ion-label>
+  </ion-item>
+</ion-content>

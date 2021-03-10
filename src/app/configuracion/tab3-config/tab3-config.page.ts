@@ -129,5 +129,6 @@ export class Tab3ConfigPage {
 
   regresar(){
     this.navControler.back();
+    this.navControler.back();
   }
 }

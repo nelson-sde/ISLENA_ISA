@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, PopoverController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
-import { IsaService } from 'src/app/services/isa.service';
+import { Email, IsaService } from 'src/app/services/isa.service';
+import { environment } from 'src/environments/environment';
 import { ClienteInfoPage } from '../cliente-info/cliente-info.page';
 import { ClientesPage } from '../clientes/clientes.page';
 
@@ -60,39 +61,45 @@ export class RuteroPage {
   }
 
   buscarCliente( ev: any ){
-    if (this.texto.length == 0) {                               // Se busca en todos los cliente
-      this.buscarClientes = this.isa.clientes.slice(0);      // El modal se abrira con el arreglo completo de clientes
-    } else if (this.texto[0] == '#'){
-      this.buscarClientes = [];
-      this.texto = this.texto.slice(1);
-      const i = this.isa.clientes.findIndex( d => d.id == this.texto );
-      if ( i >= 0 ){
-        this.buscarClientes.push( this.isa.clientes[i]);
-      }
-    } else {
-      this.buscarClientes = [];
-      for (let i = 0; i < this.isa.clientes.length; i++) {
-        if (this.isa.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-          this.buscarClientes.push(this.isa.clientes[i]);
+    if ( this.isa.userLogged || !environment.prdMode ){            // Valida si el vendedor hizo login
+      if (this.texto.length == 0) {                               // Se busca en todos los cliente
+        this.buscarClientes = this.isa.clientes.slice(0);        // El modal se abrira con el arreglo completo de clientes
+      } else if (this.texto[0] == '#'){
+        this.buscarClientes = [];
+        this.texto = this.texto.slice(1);
+        const i = this.isa.clientes.findIndex( d => d.id == this.texto );
+        if ( i >= 0 ){
+          this.buscarClientes.push( this.isa.clientes[i]);
+        }
+      } else {
+        this.buscarClientes = [];
+        for (let i = 0; i < this.isa.clientes.length; i++) {
+          if (this.isa.clientes[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+            this.buscarClientes.push(this.isa.clientes[i]);
+          }
         }
       }
-    }
-    if (this.buscarClientes.length == 0){                               // no hay coincidencias
-      this.presentAlert( this.texto, 'No hay coincidencias' );
-      this.texto = '';
-      this.direccion = '';
-      this.dir = false;
-      this.codigoCliente = '';
-    } else if (this.buscarClientes.length == 1){                        // La coincidencia es exacta
-      this.texto = this.buscarClientes[0].nombre;
-      this.direccion = this.buscarClientes[0].direccion;
-      this.codigoCliente = this.buscarClientes[0].id;
-      this.dir = true;
-      this.isa.clienteAct = this.buscarClientes[0];
-      this.isa.cargaListaPrecios();
-      this.isa.cargarCardex();
-    } else {                                                           // Se debe abrir el modal para busqueda de clientes
-      this.clientesPopover( ev );
+      if (this.buscarClientes.length == 0){                               // no hay coincidencias
+        this.presentAlert( this.texto, 'No hay coincidencias' );
+        this.texto = '';
+        this.direccion = '';
+        this.dir = false;
+        this.codigoCliente = '';
+      } else if (this.buscarClientes.length == 1){                        // La coincidencia es exacta
+        this.texto = this.buscarClientes[0].nombre;
+        this.direccion = this.buscarClientes[0].direccion;
+        this.codigoCliente = this.buscarClientes[0].id;
+        this.dir = true;
+        this.isa.clienteAct = this.buscarClientes[0];
+        this.isa.cargaListaPrecios();
+      } else {                                                           // Se debe abrir el modal para busqueda de clientes
+        this.clientesPopover( ev );
+      }
+    } else {
+      this.router.navigate(['login',{
+        usuario: 'user',
+        navega: 'root'
+      }]);
     }
   }
 
@@ -113,7 +120,6 @@ export class RuteroPage {
         this.direccion = this.isa.clienteAct.direccion;
         this.dir = true;
         this.isa.cargaListaPrecios();
-        this.isa.cargarCardex();
         console.log(this.isa.productos);
       } else {
         this.codigoCliente = '';
@@ -137,8 +143,20 @@ export class RuteroPage {
       if ( data.modificado ){
         console.log('Se modificaron los datos del cliente');
         this.isa.modificarCliente( this.isa.clienteAct );
+        this.enviarEmailCliente( this.isa.clienteAct );
       }
     }
+  }
+
+  enviarEmailCliente( cliente: Cliente ){
+    // let texto: string = 'Se modificó el cliente: ' + cliente.id + '. Telefono: ' + cliente.telefonoContacto + '. Contacto: ' + cliente.nombreContacto + '. Email: ' + cliente.email;
+    let email: Email = {
+      to: 'mauricio.herra@gmail.com',
+      subject: 'Actualizacion de Cliente',
+      body: 'texto',
+      isHtml: true,
+    }
+    // this.isa.enviarEmail(email);
   }
 
   async presentAlert( subtitulo: string, mensaje: string ) {
