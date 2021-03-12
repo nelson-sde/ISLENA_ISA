@@ -6,6 +6,7 @@ import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD } from '../models/cardex';
 import { Cliente, ClienteBD } from '../models/cliente';
 import { CxCBD, Pen_Cobro } from '../models/cobro';
+import { Exoneraciones } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 
 export interface RutaConfig {
@@ -58,11 +59,12 @@ export class IsaService {
     bodega: 0,
   };
 
-  clienteAct: Cliente;
+  clienteAct: Cliente;                          // Cliente Actual en el rutero
   nivelPrecios: string = '';
   rutas: Ruta[] = [];
-  productos: Productos[] = [];
-  clientes: Cliente[] = [];
+  productos: Productos[] = [];                 // Variable Global con la lista de Productos disponibles para el cliente
+  clientes: Cliente[] = [];                   // Variable Global con la lista de Clientes de la ruta
+  exoneraciones: Exoneraciones[] = [];       // Variable Global con las exoneraciones de impuestos
   ids: string[] = [];
   // historico: Cardex[] = [];
   userLogged: boolean = false;
@@ -118,6 +120,11 @@ export class IsaService {
 
   private getBancos(){
     return this.http.get<BancosBD[]>(environment.BancosURL);
+  }
+
+  private getExoneraciones(){
+    const query: string = environment.ExoneracionesURL + this.varConfig.numRuta;
+    return this.http.get<Exoneraciones[]>( query );
   }
 
   syncProductos( ruta: string ){
@@ -314,6 +321,54 @@ export class IsaService {
     if (localStorage.getItem('bancos')){
       const bancos = JSON.parse( localStorage.getItem('bancos'));
       return bancos;
+    }
+  }
+
+  syncExoneraciones(){
+    let exoneracion: Exoneraciones;
+    let exoneraciones: Exoneraciones[] = [];
+
+    this.getExoneraciones().subscribe(
+      resp => {
+        console.log('Exoneraciones', resp );
+        resp.forEach(e => {
+          exoneracion = new Exoneraciones( e.cliente, e.codigO_ARTICULO, e.porcentaje, e.fechA_RIGE, e.fechA_VENCE );
+          exoneraciones.push( exoneracion );
+        });
+        console.log( 'Arreglo', exoneraciones );
+        if (localStorage.getItem('exoneraciones')){
+          localStorage.removeItem('exoneraciones');
+        }
+        localStorage.setItem('exoneraciones', JSON.stringify(exoneraciones));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
+  cargarExoneraciones(){                           // Carga las exoneraciones que tenga vigentes un cliente en la variable global exoneraciones[]
+    let exonerados: Exoneraciones[] = [];
+
+    if (localStorage.getItem('exoneraciones')){
+      exonerados = JSON.parse( localStorage.getItem('exoneraciones'));
+    }
+    if ( exonerados.length > 0 ){
+      this.exoneraciones = exonerados.filter( d => d.cliente == this.clienteAct.id );
+    } else {
+      this.exoneraciones = [];
+    }
+  }
+
+  consultarExoneracion( codCliente: string, codProducto: string ){
+    if ( this.exoneraciones.length > 0 ){
+      const exonera = this.exoneraciones.filter( d => d.codigO_ARTICULO == codProducto && d.cliente == codCliente );
+      if ( exonera.length > 0 ){
+        return exonera[0].porcentaje;
+      } else {
+        return 0;
+      }
+    } else {
+      return 0;
     }
   }
 

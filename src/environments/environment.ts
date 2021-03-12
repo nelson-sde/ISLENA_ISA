@@ -16,6 +16,7 @@ export const environment = {
   Existencias: 'http://api_isa_test.soportecr.xyz/api/Existencias/',
   BancosURL: 'http://api_isa_test.soportecr.xyz/api/Bancos/',
   ChequeURL: 'http://api_isa_test.soportecr.xyz/api/Cheque/',
+  ExoneracionesURL: 'http://api_isa_test.soportecr.xyz/api/Exoneraciones/',
   cantLineasMaxPedido: 35,
   adminClave: '@dmin2021*',
   prdMode: false,

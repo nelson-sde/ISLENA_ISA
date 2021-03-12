@@ -75,10 +75,13 @@
           <ion-col size="2">
             <ion-button color="success" expand="block" (click)="existencia()">Q</ion-button>
           </ion-col>
-          <ion-col size="3">
+          <ion-col size="2">
+            <div class="ion-text-center">Item</div>
+          </ion-col>
+          <ion-col size="2">
             <div class="ion-text-center">IVA</div>
           </ion-col>
-          <ion-col size="3">
+          <ion-col size="2">
             <div class="ion-text-center">Des</div>
           </ion-col>
           <ion-col size="4">
@@ -98,21 +101,21 @@
             <ion-col size="2">
               <div>{{ item.cantidad }}</div>
             </ion-col>
-            <ion-col size="3">
-              <div class="ion-text-end">{{ item.iva | colones:1 :"." :"" :"" }}</div>
-            </ion-col>
-            <ion-col size="3">
-              <div class="ion-text-end">{{ item.descuento | colones:1 :"." :"" :"" }}</div>
-            </ion-col>
-            <ion-col size="4">
-              <div class="ion-text-end">{{ item.total | colones:1 :"." :"," }}</div>
-            </ion-col>
             <ion-col size="2">
               <div>
                 <ion-text color="success">{{ item.codProducto }}</ion-text>
               </div>
             </ion-col>
-            <ion-col size="10">
+            <ion-col size="2">
+              <div class="ion-text-end">{{ item.porcenIVA}}%</div>
+            </ion-col>
+            <ion-col size="2">
+              <div class="ion-text-end">{{ item.porcenDescuento}}%</div>
+            </ion-col>
+            <ion-col size="4">
+              <div class="ion-text-end">{{ item.total | colones:1 :"." :"," }}</div>
+            </ion-col>
+            <ion-col size="12">
               <div> 
                 <ion-text color="primary"> {{ item.descripcion }} </ion-text>
               </div>

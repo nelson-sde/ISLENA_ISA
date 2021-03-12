@@ -1,4 +1,5 @@
 
+
 export class DetallePedido {
     codProducto: string;
     descripcion: string;
@@ -11,8 +12,11 @@ export class DetallePedido {
     total: number;
     impuesto: string;
     esCanastaBasica: string;
+    porcenDescuento: number;
+    porcenIVA: number;
 
-    constructor( id: string, des: string, precio: number, cantidad: number, sub: number, iva: number, desc: number, descGen: number, total: number, impuesto: string, esCanBa: string ){
+    constructor( id: string, des: string, precio: number, cantidad: number, sub: number, iva: number, desc: number, descGen: number, total: number, impuesto: string, 
+                 esCanBa: string, pDescuento: number, pIVA: number ){
         this.codProducto = id;
         this.descripcion = des;
         this.precio = precio;
@@ -24,6 +28,8 @@ export class DetallePedido {
         this.total = total;
         this.impuesto = impuesto;
         this.esCanastaBasica = esCanBa;
+        this.porcenDescuento = pDescuento;
+        this.porcenIVA = pIVA;
     }
 }
 
@@ -263,6 +269,22 @@ export interface Existencias {
     articulo:   string;
     bodega:     string;
     existencia: number;
+}
+
+export class Exoneraciones {    // Listado con las Exoneraciones de impuestos
+    cliente: string;
+    codigO_ARTICULO: string;
+    porcentaje: number;
+    fechA_RIGE: Date;
+    fechA_VENCE: Date;
+
+    constructor ( cliente: string, codProducto: string, porcentaje: number, rige: Date, vence: Date ){
+        this.cliente = cliente;
+        this.codigO_ARTICULO = codProducto;
+        this.porcentaje = porcentaje;
+        this.fechA_RIGE = rige;
+        this.fechA_VENCE = vence;
+    }
 }
 
 

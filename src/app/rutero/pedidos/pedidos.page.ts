@@ -69,13 +69,13 @@ export class PedidosPage {
       this.hayCardex = true;
       for (let i = 0; i < result.length; i++) {
         prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
-        this.impuesto = this.calculaImpuesto( prod[0].impuesto );
+        this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
         this.montoSub = result[i].cantPedido * prod[0].precio;
         this.montoDescLinea = this.montoSub * result[i].descuento / 100;
         this.montoIVA = this.montoSub * this.impuesto;
         this.montoTotal = this.montoSub + this.montoIVA;
         this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
-                                              this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica);
+                                              this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100);
         this.pedido.detalle.push( this.nuevoDetalle );
         this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
         this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
@@ -98,7 +98,6 @@ export class PedidosPage {
   }
 
   buscarProducto(){
-
     if ( !this.mostrarListaProd ){
       if (this.texto.length !== 0) {    
         this.busqueda();                  // Llena el arreglo BusquedaProd con los articulos que cumplen la seleccion
@@ -108,6 +107,7 @@ export class PedidosPage {
       const listaAux = this.busquedaProd.filter( d => d.seleccionado );
       console.log(listaAux);
       if ( listaAux.length == 1 ){   // Un solo producto seleccionado
+        this.busquedaProd = listaAux.slice(0);
         this.productoSelect(0);
       } else if ( listaAux.length > 1 ){          // Se seleccionaron varios productos
         this.busquedaProd = listaAux.slice(0);
@@ -154,7 +154,7 @@ export class PedidosPage {
       this.busquedaProd[i].seleccionado = false;
       this.producto = this.busquedaProd[i];
       this.texto = this.busquedaProd[i].nombre;
-      this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto );
+      this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto, this.busquedaProd[i].id );
       const j = this.existeEnDetalle(this.busquedaProd[i].id);
       if (j >= 0){
         this.cantidad = this.pedido.detalle[j].cantidad;
@@ -170,12 +170,12 @@ export class PedidosPage {
     } else {      // Se seleccionaron varios articulos
       for (let x = 0; x < this.busquedaProd.length; x++) {
         if ( this.existeEnDetalle(this.busquedaProd[x].id) < 0 ) {   // si el articulo no existe en el detalle se agrega
-          this.impuesto = this.calculaImpuesto( this.busquedaProd[x].impuesto );
+          this.impuesto = this.calculaImpuesto( this.busquedaProd[x].impuesto, this.busquedaProd[x].id );
           this.montoSub = 1 * this.busquedaProd[x].precio;
           this.montoIVA = this.montoSub * this.impuesto;
           this.montoTotal = this.montoSub + this.montoIVA;
           this.nuevoDetalle = new DetallePedido(this.busquedaProd[x].id, this.busquedaProd[x].nombre, this.busquedaProd[x].precio, 1, this.montoSub, this.montoIVA, 
-                                                0, 0, this.montoTotal, this.busquedaProd[x].impuesto, this.busquedaProd[x].canastaBasica);
+                                                0, 0, this.montoTotal, this.busquedaProd[x].impuesto, this.busquedaProd[x].canastaBasica, 0, this.impuesto*100);
           this.pedido.detalle.unshift( this.nuevoDetalle );
           this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
           this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
@@ -237,7 +237,7 @@ export class PedidosPage {
       this.j = -1;
     } else {                        // SINO se esta creando una nueva linea de detalle
       this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
-                                  this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica);
+                                  this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100);
       this.pedido.detalle.unshift( this.nuevoDetalle );
     }
     this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
@@ -328,7 +328,7 @@ export class PedidosPage {
     this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
     this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
     this.texto = this.producto.nombre;
-    this.impuesto = this.calculaImpuesto( this.producto.impuesto );
+    this.impuesto = this.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
     this.mostrarListaProd = false;
     this.mostrarProducto = true;
     this.modificando = true;
@@ -416,7 +416,7 @@ export class PedidosPage {
 
     if (this.pedido.detalle.length > 0){
       for (let i = 0; i < this.pedido.detalle.length; i++) {
-        tax = this.calculaImpuesto(this.pedido.detalle[i].impuesto);
+        tax = this.calculaImpuesto(this.pedido.detalle[i].impuesto, this.pedido.detalle[i].codProducto );
         montoDescGen = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento) * this.pedido.porcentajeDescGeneral / 100;
         montoIVA = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento - montoDescGen) * tax;
         montoTotal = this.pedido.detalle[i].subTotal + montoIVA - this.pedido.detalle[i].descuento - montoDescGen;
@@ -470,20 +470,33 @@ export class PedidosPage {
     await alert.present();
   }
 
-  calculaImpuesto( texto: string ){
-    if (texto == '0101'){
-      return 0;
-    } else if (texto == '0102'){
-      return 0.1;
-    } else if (texto == '0103'){
-      return 0.2;
-    } else if (texto == '0104'){
-      return 0.4;
-    } else if (texto == '0108'){
-      return 0.13;
-    } else {
-      return 0;
+  calculaImpuesto( texto: string, codProducto: string ){
+    let impuesto: number;
+
+    switch ( texto ){
+      case '0101':
+        impuesto = 0;
+        break;
+      case '0102':
+        impuesto = 0.01;
+        break;
+      case '0103':
+        impuesto = 0.02;
+        break;
+      case '0104':
+        impuesto = 0.04;
+        break;
+      case '0108':
+        impuesto = 0.13;
+        break;
+      default:
+        impuesto = 0;
+        break;
     }
+    console.log('impuesto', impuesto);
+    console.log('exonerado', this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto ))
+    impuesto -= this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto )/100;
+    return impuesto < 0 ? 0 : impuesto;
   }
 
   async ingresaCantidad(){
