@@ -65,7 +65,15 @@
     <ion-item color="light" *ngIf="hayCheque">
       <ion-label>
         <ion-input inputmode="text" [(ngModel)]="cheque.numeroCheque">Numero Cheque:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="hayCheque">
+      <ion-label>
         <ion-input inputmode="text" [(ngModel)]="cheque.numeroCuenta">Numero Cuenta:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="hayCheque">
+      <ion-label>
         <ion-input inputmode="numeric" type="number" [(ngModel)]="cheque.monto">Monto...............:</ion-input>
       </ion-label>
     </ion-item>

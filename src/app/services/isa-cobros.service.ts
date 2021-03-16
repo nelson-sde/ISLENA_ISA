@@ -191,33 +191,36 @@ export class IsaCobrosService {
   }
 
   private postRecibo( recEncaBD: RecEncaBD ){
+    const URL = this.isa.getURL( environment.RecEncaURL, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
       }
     };
-    return this.http.post( environment.RecEncaURL, JSON.stringify(recEncaBD), options );
+    return this.http.post( URL, JSON.stringify(recEncaBD), options );
   }
 
   private postReciboDetalle( detalle: RecDetaBD[] ){
+    const URL = this.isa.getURL( environment.RecDetaURL, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
       }
     };
-    return this.http.post( environment.RecDetaURL, JSON.stringify(detalle), options );
+    return this.http.post( URL, JSON.stringify(detalle), options );
   }
 
   private postCheque( cheque: ChequeBD ){
+    const URL = this.isa.getURL( environment.ChequeURL, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
       }
     };
-    return this.http.post( environment.ChequeURL, JSON.stringify(cheque), options );
+    return this.http.post( URL, JSON.stringify(cheque), options );
   }
 
 }

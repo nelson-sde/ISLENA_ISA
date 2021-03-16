@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, PopoverController } from '@ionic/angular';
+import { AlertController, Platform, PopoverController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
 import { Email, IsaService } from 'src/app/services/isa.service';
 import { environment } from 'src/environments/environment';
 import { ClienteInfoPage } from '../cliente-info/cliente-info.page';
 import { ClientesPage } from '../clientes/clientes.page';
+import { Plugins } from '@capacitor/core';
+
+const { App } = Plugins;
 
 @Component({
   selector: 'app-rutero',
@@ -13,7 +16,6 @@ import { ClientesPage } from '../clientes/clientes.page';
   styleUrls: ['./rutero.page.scss'],
 })
 export class RuteroPage {
-
   texto: string = '';                          // Campo de busqueda del cliente
   direccion: string = '';                     // Direccion del cliente en el rutero
   dir: boolean = false;                      // Hay direccion = true
@@ -23,9 +25,14 @@ export class RuteroPage {
   constructor( private alertController: AlertController,
                private router: Router,
                public isa: IsaService,
-               private popoverCtrl: PopoverController ) {
+               private popoverCtrl: PopoverController,
+               private platform: Platform ) {
 
     this.isa.cargarClientes();
+    this.platform.backButton.subscribeWithPriority(10, () => {
+      console.log('Handler was called!');
+      this.presentAlertSalir();
+    });
   }
 
   abrirPedidos(){
@@ -170,6 +177,30 @@ export class RuteroPage {
       buttons: ['OK']
     });
 
+    await alert.present();
+  }
+
+  async presentAlertSalir() {
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Salir...',
+      message: 'Desea salir de la aplicación?... Si hay datos pendientes se perderán.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Si',
+          handler: () => {
+            App.exitApp();
+          }
+        }
+      ]
+    });
     await alert.present();
   }
 

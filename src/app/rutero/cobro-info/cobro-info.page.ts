@@ -8,7 +8,10 @@ import { IsaService } from 'src/app/services/isa.service';
 })
 export class CobroInfoPage {
 
+  listaPre: string = '';
+
   constructor( private isa: IsaService ) {
+    this.listaPre = this.isa.productos[0].nivelPrecio;
   }
 
 

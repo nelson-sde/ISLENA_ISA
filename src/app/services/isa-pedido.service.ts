@@ -121,8 +121,8 @@ export class IsaPedidoService {
       detalleBD = new PedDeta( i + 1, pedido.numPedido, 'ISLENA', pedido.detalle[i].codProducto.toString(), '0', null, pedido.detalle[i].precio, 
                         pedido.detalle[i].descuento * 100 / pedido.detalle[i].subTotal, pedido.detalle[i].subTotal, pedido.detalle[i].descuento,
                         pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, this.isa.clienteAct.listaPrecios, null, 0, fecha, rowPointer, 
-                        'ISA', 'ISA', fecha, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, 0, 0, tax, 0, 'N', 
-                        pedido.detalle[i].esCanastaBasica );
+                        'ISA', 'ISA', fecha, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
+                        pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
       arrDetBD.push(detalleBD);
     } 
     this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
@@ -155,34 +155,36 @@ export class IsaPedidoService {
   }
 
   private postPedidos( pedido: PedEnca ){
+    const URL = this.isa.getURL( environment.PedEncaURL, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
       }
     };
-    return this.http.post( environment.PedEncaURL, JSON.stringify(pedido), options );
+    return this.http.post( URL, JSON.stringify(pedido), options );
   }
 
   private postPedidoDetalle( detalle: PedDeta[] ){
+    const URL = this.isa.getURL( environment.PedDetaURL, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
       }
     };
-    return this.http.post( environment.PedDetaURL, JSON.stringify(detalle), options );
+    return this.http.post( URL, JSON.stringify(detalle), options );
   }
 
   calculaImpuesto( texto: string ){
     if (texto == '0101'){
       return 0;
     } else if (texto == '0102'){
-      return 0.1;
+      return 0.01;
     } else if (texto == '0103'){
-      return 0.2;
+      return 0.02;
     } else if (texto == '0104'){
-      return 0.4;
+      return 0.04;
     } else if (texto == '0108'){
       return 0.13;
     } else {

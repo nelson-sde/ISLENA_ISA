@@ -32,6 +32,8 @@ export class PedidosPage {
   nuevoDetalle: DetallePedido;      // Variable temporal con la nueva linea de pedido 
   j: number = -1;                  // j es el index de la linea que se esta modificando en el detalle
   impuesto: number = 0;
+  exonerado: number = 0;
+  montoExonerado: number = 0;
   hayCardex: boolean = false;               // True = se cargó como pedido un cardex del cliente
   mostrarListaProd: boolean = false;       // La seleccion de productos respondio multiples lineas
   mostrarProducto: boolean = false;       // True: Se ha seleccionado un producto para agregar al pedido
@@ -51,7 +53,6 @@ export class PedidosPage {
                private popoverController: PopoverController ) {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
-      //this.cliente = new Cliente(data.codCliente, data.nombreCliente, data.dirCliente, 0, 0);
       this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', false);
       const fecha = new Date();
       this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
@@ -73,9 +74,11 @@ export class PedidosPage {
         this.montoSub = result[i].cantPedido * prod[0].precio;
         this.montoDescLinea = this.montoSub * result[i].descuento / 100;
         this.montoIVA = this.montoSub * this.impuesto;
+        this.montoExonerado = this.montoSub * this.exonerado;
         this.montoTotal = this.montoSub + this.montoIVA;
         this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
-                                              this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100);
+                                              this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100, 
+                                              this.exonerado, this.montoExonerado);
         this.pedido.detalle.push( this.nuevoDetalle );
         this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
         this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
@@ -133,7 +136,7 @@ export class PedidosPage {
       const product = this.isaConfig.productos.find( e => e.id == this.texto );
       if ( product !== undefined ){
         this.busquedaProd.push(product);
-        this.productoSelect(0);
+        // this.productoSelect(0);
       }
     }
     if (this.busquedaProd.length == 0){                    // no hay coincidencias
@@ -172,10 +175,12 @@ export class PedidosPage {
         if ( this.existeEnDetalle(this.busquedaProd[x].id) < 0 ) {   // si el articulo no existe en el detalle se agrega
           this.impuesto = this.calculaImpuesto( this.busquedaProd[x].impuesto, this.busquedaProd[x].id );
           this.montoSub = 1 * this.busquedaProd[x].precio;
+          this.montoExonerado = this.montoSub * this.exonerado;
           this.montoIVA = this.montoSub * this.impuesto;
           this.montoTotal = this.montoSub + this.montoIVA;
           this.nuevoDetalle = new DetallePedido(this.busquedaProd[x].id, this.busquedaProd[x].nombre, this.busquedaProd[x].precio, 1, this.montoSub, this.montoIVA, 
-                                                0, 0, this.montoTotal, this.busquedaProd[x].impuesto, this.busquedaProd[x].canastaBasica, 0, this.impuesto*100);
+                                                0, 0, this.montoTotal, this.busquedaProd[x].impuesto, this.busquedaProd[x].canastaBasica, 0, this.impuesto*100, 
+                                                this.montoExonerado, this.exonerado);
           this.pedido.detalle.unshift( this.nuevoDetalle );
           this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
           this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
@@ -196,6 +201,8 @@ export class PedidosPage {
       this.montoSub = 0;
       this.montoTotal = 0;
       this.impuesto = 0;
+      this.exonerado = 0;
+      this.montoExonerado = 0;
       this.defaultCant = true;
     }
     this.busquedaProd = [];
@@ -224,20 +231,24 @@ export class PedidosPage {
     this.montoDescLinea = this.montoSub * this.descuento / 100;
     this.montoDescGen = (this.montoSub - this.montoDescLinea) * this.pedido.porcentajeDescGeneral / 100;
     this.montoIVA = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.impuesto;
+    this.montoExonerado = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.exonerado;
     this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea - this.montoDescGen;
 
     if (this.modificando){          // Si modificando = true se esta modificando una linea del detalle
       this.pedido.detalle[this.j].cantidad = this.cantidad;
       this.pedido.detalle[this.j].subTotal = this.montoSub;
       this.pedido.detalle[this.j].iva = this.montoIVA;
+      this.pedido.detalle[this.j].montoExonerado = this.montoExonerado;
       this.pedido.detalle[this.j].descuento = this.montoDescLinea;
+      this.pedido.detalle[this.j].porcenDescuento = this.descuento;
       this.pedido.detalle[this.j].descGeneral = this.montoDescGen;
       this.pedido.detalle[this.j].total = this.montoTotal;
       this.modificando = false;
       this.j = -1;
     } else {                        // SINO se esta creando una nueva linea de detalle
       this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
-                                  this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100);
+                                  this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100,
+                                  this.montoExonerado, this.exonerado);
       this.pedido.detalle.unshift( this.nuevoDetalle );
     }
     this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
@@ -258,6 +269,8 @@ export class PedidosPage {
     this.montoSub = 0;
     this.montoTotal = 0;
     this.impuesto = 0;
+    this.exonerado = 0;
+    this.montoExonerado = 0;
     this.defaultCant = true;
   }
 
@@ -296,6 +309,8 @@ export class PedidosPage {
       this.montoTotal = 0;
       this.defaultCant = true;
       this.impuesto = 0;
+      this.montoExonerado = 0;
+      this.exonerado = 0;
       this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', false);
     }
   }
@@ -412,6 +427,7 @@ export class PedidosPage {
     let montoDescGen: number;
     let montoIVA: number;
     let montoTotal: number;
+    let montoExo: number;
     let tax: number;
 
     if (this.pedido.detalle.length > 0){
@@ -419,11 +435,13 @@ export class PedidosPage {
         tax = this.calculaImpuesto(this.pedido.detalle[i].impuesto, this.pedido.detalle[i].codProducto );
         montoDescGen = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento) * this.pedido.porcentajeDescGeneral / 100;
         montoIVA = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento - montoDescGen) * tax;
+        montoExo = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento - montoDescGen) * this.exonerado;
         montoTotal = this.pedido.detalle[i].subTotal + montoIVA - this.pedido.detalle[i].descuento - montoDescGen;
         this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral + montoDescGen;
         this.pedido.detalle[i].descGeneral = montoDescGen;
         this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva + montoIVA;
         this.pedido.detalle[i].iva = montoIVA;
+        this.pedido.detalle[i].montoExonerado = montoExo;
         this.pedido.total = this.pedido.total - this.pedido.detalle[i].total + montoTotal;
         this.pedido.detalle[i].total = montoTotal;
       }
@@ -494,8 +512,9 @@ export class PedidosPage {
         break;
     }
     console.log('impuesto', impuesto);
-    console.log('exonerado', this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto ))
-    impuesto -= this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto )/100;
+    console.log('exonerado', this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto ));
+    this.exonerado = this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto )/100;
+    impuesto -= this.exonerado;
     return impuesto < 0 ? 0 : impuesto;
   }
 

@@ -21,9 +21,26 @@
       <ion-icon name="close-outline" [color]="danger" size="medium"></ion-icon>
     </ion-button>
   </ion-item>
-  <p></p>
   
   <ion-list>
+    <ion-item color="light">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <div class="ion-text-center">Fecha</div>
+          </ion-col>
+          <ion-col size="2">
+            <div>Tipo</div>
+          </ion-col>
+          <ion-col size="2">
+            <div>Desc</div>
+          </ion-col>
+          <ion-col size="2">
+            <div class="ion-text-center">Q</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
     <ion-item-sliding *ngFor="let item of cardexHistorico; let i = index" (click)="abrirCardex(i)">
       <ion-item>
         <ion-grid fixed>

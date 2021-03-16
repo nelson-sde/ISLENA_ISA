@@ -90,41 +90,49 @@ export class IsaService {
     localStorage.setItem('config', JSON.stringify(this.varConfig));
   }
 
+  getURL( api: string, id: string ){
+    let test: string = '';
+    if ( !environment.prdMode ) {
+      test = environment.TestURL;
+    }
+    const URL = environment.preURL + test + environment.postURL + api + id;
+    console.log(URL);
+    return URL;
+  }
+
   getRutas(){
-    return this.http.get<Ruta[]>( environment.rutasURL );
+    const URL = this.getURL( environment.rutasURL, '' );
+    return this.http.get<Ruta[]>( URL );
   }
 
   private getClientes(ruta: string){
-    const query: string = environment.clientesURL + ruta;
-    //const query: string = environment.clientesURL;
-    return this.http.get<ClienteBD[]>( query );
+    const URL = this.getURL( environment.clientesURL, ruta );
+    return this.http.get<ClienteBD[]>( URL );
   }
 
   private getProductos(ruta: string){
-    const query: string = environment.productosURL + ruta;
-    //const query: string = environment.clientesURL;
-    return this.http.get<ProductosBD[]>( query );
+    const URL = this.getURL( environment.productosURL, ruta );
+    return this.http.get<ProductosBD[]>( URL );
   }
 
   private getCardex( ruta: string ){
-    const query: string = environment.CardexURL + ruta;
-    //const query: string = environment.clientesURL;
-    return this.http.get<CardexBD[]>( query );
+    const URL = this.getURL( environment.CardexURL, ruta );
+    return this.http.get<CardexBD[]>( URL );
   }
 
   private getCxC( ruta: string ){
-    const query: string = environment.CxCURL + ruta;
-    //const query: string = environment.clientesURL;
-    return this.http.get<CxCBD[]>( query );
+    const URL = this.getURL( environment.CxCURL, ruta );
+    return this.http.get<CxCBD[]>( URL );
   }
 
   private getBancos(){
-    return this.http.get<BancosBD[]>(environment.BancosURL);
+    const URL = this.getURL( environment.BancosURL, '' );
+    return this.http.get<BancosBD[]>( URL );
   }
 
   private getExoneraciones(){
-    const query: string = environment.ExoneracionesURL + this.varConfig.numRuta;
-    return this.http.get<Exoneraciones[]>( query );
+    const URL = this.getURL( environment.ExoneracionesURL, this.varConfig.numRuta );
+    return this.http.get<Exoneraciones[]>( URL );
   }
 
   syncProductos( ruta: string ){
@@ -267,9 +275,9 @@ export class IsaService {
           }
         }
         consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-        return consulta;
       }
     }
+    return consulta;
   }
 
   syncCxC( ruta: string ){
