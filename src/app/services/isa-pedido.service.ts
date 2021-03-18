@@ -45,7 +45,40 @@ export class IsaPedidoService {
     }
   }
 
-  validaPedido( pedido: Pedido, tipo: string ) {       // Tipo = N pedido nuevo; R retransmitir
+  procesaPedido( pedido: Pedido, frio: boolean, seco: boolean ){
+    let pedidoSeco: Pedido;
+    let pedidoFrio: Pedido;
+
+    if ( frio && seco ){
+      pedidoFrio = this.separaPedido ( pedido, true );
+      this.validaPedido( pedidoFrio, 'N' );
+      this.isa.nextPedido();
+      pedido.numPedido = this.isa.varConfig.consecutivoPedidos;
+      pedidoSeco = this.separaPedido( pedido, false );
+      this.validaPedido( pedidoSeco, 'N' );
+    } else {
+      this.validaPedido( pedido, 'N' );
+    }
+  }
+
+  private separaPedido( pedido: Pedido, tipo: boolean ){
+    let pedidoNuevo: Pedido;
+
+    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, false );
+    pedido.detalle.forEach( d => {
+      if ( d.frio == tipo ) {
+        pedidoNuevo.detalle.push(d);
+        pedidoNuevo.subTotal += d.subTotal;
+        pedidoNuevo.iva +=  d.iva;
+        pedidoNuevo.descuento += d.descuento
+        pedidoNuevo.descGeneral += d.descGeneral; 
+        pedidoNuevo.total += d.total;
+      }
+    });
+    return pedidoNuevo;
+  }
+
+  private validaPedido( pedido: Pedido, tipo: string ) {       // Tipo = N pedido nuevo; R retransmitir
     let lineas = pedido.detalle.length;
     let pedidoAux: Pedido;
     let pedidoOriginal: Pedido;
@@ -60,9 +93,8 @@ export class IsaPedidoService {
         pedidoAux = this.nuevoPedido( pedidoOriginal );
         console.log('Nuevo Pedido', pedidoAux);
         lineas -= environment.cantLineasMaxPedido;
-        this.isa.varConfig.consecutivoPedidos = this.isa.nextConsecutivo( this.isa.varConfig.consecutivoPedidos );
+        this.isa.nextPedido();
         pedidoOriginal.numPedido = this.isa.varConfig.consecutivoPedidos;
-        this.isa.guardarVarConfig();
         this.transmitirPedido( pedidoAux, 'N');
       } else {
         console.log('Pedido final', pedidoOriginal);
@@ -94,7 +126,7 @@ export class IsaPedidoService {
     return pedidoNuevo;
   }
 
-  private transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
+  transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
     let detalleBD: PedDeta;
     let arrDetBD: PedDeta[] = [];
     let rowPointer: string = '';

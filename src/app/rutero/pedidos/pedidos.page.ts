@@ -40,6 +40,9 @@ export class PedidosPage {
   defaultCant: boolean = true;           // Boolean que nos indica si estamos agregando cantidades o descuentos
   pedidoSinSalvar: boolean = false;     // nos indica si hemos iniciado con un pedido
   modificando: boolean = false;        // Si es true se esta modificando una linea del pedido
+  frio: boolean = false;              // True = Pedido tiene líneas con productos categoría de Frio
+  seco: boolean = false;             // True = pedido tiene líneas de producto categoria seco.
+                                    // Si ambas variables son TRUE, el pedido debe partirse en dos por cada tipo de categoría
 
 
   @ViewChild('myList') ionList: IonList;
@@ -70,6 +73,7 @@ export class PedidosPage {
       this.hayCardex = true;
       for (let i = 0; i < result.length; i++) {
         prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
+        this.esFrio( prod[0].frio );
         this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
         this.montoSub = result[i].cantPedido * prod[0].precio;
         this.montoDescLinea = this.montoSub * result[i].descuento / 100;
@@ -78,7 +82,7 @@ export class PedidosPage {
         this.montoTotal = this.montoSub + this.montoIVA;
         this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
                                               this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100, 
-                                              this.exonerado, this.montoExonerado);
+                                              this.exonerado, this.montoExonerado, prod[0].frio );
         this.pedido.detalle.push( this.nuevoDetalle );
         this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
         this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
@@ -97,6 +101,14 @@ export class PedidosPage {
       this.montoSub = 0;
       this.montoTotal = 0;
       this.defaultCant = true;
+    }
+  }
+
+  esFrio( frio: boolean ){
+    if ( frio ){      // Encendemos el Flag de Frio o Seco
+      this.frio = true;
+    } else {
+      this.seco = true;
     }
   }
 
@@ -159,7 +171,7 @@ export class PedidosPage {
       this.texto = this.busquedaProd[i].nombre;
       this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto, this.busquedaProd[i].id );
       const j = this.existeEnDetalle(this.busquedaProd[i].id);
-      if (j >= 0){
+      if (j >= 0){          // Ya el Item había sido seleccionado anteriormente.
         this.cantidad = this.pedido.detalle[j].cantidad;
         this.descuento = this.pedido.detalle[j].descuento * 100 / this.pedido.detalle[j].subTotal;
         this.modificando = true;
@@ -173,6 +185,7 @@ export class PedidosPage {
     } else {      // Se seleccionaron varios articulos
       for (let x = 0; x < this.busquedaProd.length; x++) {
         if ( this.existeEnDetalle(this.busquedaProd[x].id) < 0 ) {   // si el articulo no existe en el detalle se agrega
+          this.esFrio( this.busquedaProd[x].frio );
           this.impuesto = this.calculaImpuesto( this.busquedaProd[x].impuesto, this.busquedaProd[x].id );
           this.montoSub = 1 * this.busquedaProd[x].precio;
           this.montoExonerado = this.montoSub * this.exonerado;
@@ -180,7 +193,7 @@ export class PedidosPage {
           this.montoTotal = this.montoSub + this.montoIVA;
           this.nuevoDetalle = new DetallePedido(this.busquedaProd[x].id, this.busquedaProd[x].nombre, this.busquedaProd[x].precio, 1, this.montoSub, this.montoIVA, 
                                                 0, 0, this.montoTotal, this.busquedaProd[x].impuesto, this.busquedaProd[x].canastaBasica, 0, this.impuesto*100, 
-                                                this.montoExonerado, this.exonerado);
+                                                this.montoExonerado, this.exonerado, this.busquedaProd[x].frio);
           this.pedido.detalle.unshift( this.nuevoDetalle );
           this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
           this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
@@ -246,9 +259,10 @@ export class PedidosPage {
       this.modificando = false;
       this.j = -1;
     } else {                        // SINO se esta creando una nueva linea de detalle
+      this.esFrio( this.producto.frio );
       this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
                                   this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100,
-                                  this.montoExonerado, this.exonerado);
+                                  this.montoExonerado, this.exonerado, this.producto.frio );
       this.pedido.detalle.unshift( this.nuevoDetalle );
     }
     this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
@@ -292,10 +306,9 @@ export class PedidosPage {
 
   carrito(){
     if (this.pedidoSinSalvar){
-      this.isaPedido.validaPedido( this.pedido, 'N' );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
+      this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
       this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
-      this.isaConfig.varConfig.consecutivoPedidos = this.isaConfig.nextConsecutivo( this.isaConfig.varConfig.consecutivoPedidos );
-      this.isaConfig.guardarVarConfig();
+      this.isaConfig.nextPedido();    // Incrementa el consecutivo de los pedidos
       this.pedidoSinSalvar = false;
       this.texto = '';
       this.mostrarListaProd = false;
@@ -328,7 +341,6 @@ export class PedidosPage {
     this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
     this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
     this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
-
     if (i > 0){
       data = this.pedido.detalle.slice(0, i);
     } 
@@ -336,6 +348,21 @@ export class PedidosPage {
       data = data.concat(this.pedido.detalle.slice(i+1, this.pedido.detalle.length));
     }
     this.pedido.detalle = data.slice(0);
+    if (this.pedido.detalle.length > 0){
+      this.validaFrio();
+    } else {
+      this.seco = false;
+      this.frio = false;
+    }
+  }
+
+  validaFrio(){
+    this.frio = false;
+    this.seco = false;
+
+    this.pedido.detalle.forEach( d => {
+      this.esFrio( d.frio );
+    })
   }
 
   editarDetalle( i: number ){

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
-import { Cardex } from 'src/app/models/cardex';
+import { Cardex, SugeridoBD } from 'src/app/models/cardex';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaService } from 'src/app/services/isa.service';
 import { ProductosPage } from '../productos/productos.page';
@@ -34,7 +34,7 @@ export class CardexPage {
       this.cargarCardex();
       console.log(this.codProducto);
       if (this.codProducto !== 'null'){
-        this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, null, this.descuento);
+        this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(), this.descuento);
         this.agregaLineaCardex();
       }
     });
@@ -44,6 +44,22 @@ export class CardexPage {
     if (this.isaCardex.cardex.length > 0){
       this.cardex = this.isaCardex.cardex.filter( d => d.codCliente == this.isa.clienteAct.id && d.aplicado == false );
     }
+  }
+
+  traerSugerido(){
+    let sugerido: number = 0;
+    let sugeridos: SugeridoBD[] = [];
+
+    if (localStorage.getItem('sugeridos')){
+      sugeridos = JSON.parse( localStorage.getItem('sugeridos'));
+    }
+    if ( sugeridos.length > 0 ){
+      const i = sugeridos.findIndex( d => d.cliente == this.isa.clienteAct.id && d.articulo == this.codProducto );
+      if ( i >= 0 ){
+        sugerido = sugeridos[i].canT_SUGERIDA;
+      }
+    }
+    return sugerido; 
   }
 
   agregaLineaCardex(){

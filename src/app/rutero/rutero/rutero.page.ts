@@ -154,6 +154,9 @@ export class RuteroPage {
         this.isa.modificarCliente( this.isa.clienteAct );
         this.enviarEmailCliente( this.isa.clienteAct );
       }
+      if ( data.geoReferencia ){
+        this.isa.salvarCoordenadas();
+      }
     }
   }
 

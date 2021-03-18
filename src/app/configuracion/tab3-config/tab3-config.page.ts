@@ -93,6 +93,7 @@ export class Tab3ConfigPage {
       this.isa.syncCxC(this.isa.varConfig.numRuta);
       this.isa.syncBancos();
       this.isa.syncExoneraciones();
+      this.isa.syncSugerido();
       this.isaPedidos.borrarPedidos();
       this.isaCobros.borrarRecibos();
       this.isaCardex.borrarCardex();

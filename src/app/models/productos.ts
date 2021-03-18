@@ -11,8 +11,10 @@ export class Productos {
     canastaBasica: string;
     imagen: string;
     seleccionado: boolean;
+    frio: boolean;
 
-    constructor ( id: string, nombre: string, lstPrc: number, nivelPrecio: string, precio: number, moneda: string, codBar: string, tax: string, canBas: string, img: string){
+    constructor ( id: string, nombre: string, lstPrc: number, nivelPrecio: string, precio: number, moneda: string, codBar: string, tax: string, canBas: string, img: string,
+                  frio: string ){
         this.id = id;
         this.nombre = nombre;
         this.listaPrecios = lstPrc;
@@ -24,6 +26,7 @@ export class Productos {
         this.canastaBasica = canBas;
         this.imagen = img;
         this.seleccionado = false;
+        this.frio = (frio == 'N' ? false : true);
     }
 }
 
@@ -37,5 +40,6 @@ export interface ProductosBD {
     des_Art: string,
     cod_Bar: string,
     impuesto: string,
-    canasta_Basica: string
+    canasta_Basica: string,
+    frio: string,
 }

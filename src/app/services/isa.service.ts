@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
 import { Bancos, BancosBD } from '../models/bancos';
-import { Cardex, CardexBD } from '../models/cardex';
-import { Cliente, ClienteBD } from '../models/cliente';
+import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
+import { Cliente, ClienteBD, ClienteRT } from '../models/cliente';
 import { CxCBD, Pen_Cobro } from '../models/cobro';
 import { Exoneraciones } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
@@ -77,7 +77,7 @@ export class IsaService {
                private toastCtrl: ToastController ) {
 
     this.cargaVarConfig();
-    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','');
+    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null);
   }
 
   private cargaVarConfig(){
@@ -135,6 +135,11 @@ export class IsaService {
     return this.http.get<Exoneraciones[]>( URL );
   }
 
+  private getSugerido(){
+    const URL = this.getURL( environment.SugeridoURL, this.varConfig.numRuta );
+    return this.http.get<SugeridoBD[]>( URL );
+  }
+
   syncProductos( ruta: string ){
     let producto: Productos;
     this.productos = [];
@@ -143,7 +148,7 @@ export class IsaService {
       resp => {
         console.log('SKUBD', resp );
         resp.forEach(e => {
-          producto = new Productos( e.articulo, e.des_Art, e.lst_Pre, e.nivel_Precio, e.precio, e.moneda, e.cod_Bar, e.impuesto, e.canasta_Basica, e.articulo+'.png')
+          producto = new Productos( e.articulo, e.des_Art, e.lst_Pre, e.nivel_Precio, e.precio, e.moneda, e.cod_Bar, e.impuesto, e.canasta_Basica, e.articulo+'.png', e.frio)
           this.productos.push( producto );
         });
         console.log( 'Arreglo', this.productos );
@@ -193,7 +198,7 @@ export class IsaService {
         resp.forEach(e => {
           cliente = new Cliente(e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
             e.nom_Cto, 0, e.lim_Cre, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
-            e.division_Geografica2, e.moroso, e.e_MAIL);
+            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud);
           this.clientes.push( cliente );
         });
         console.log( 'Arreglo', this.clientes );
@@ -367,6 +372,23 @@ export class IsaService {
     }
   }
 
+  syncSugerido(){
+    let sugeridos: SugeridoBD[] = [];
+
+    this.getSugerido().subscribe(
+      resp => {
+        console.log('Sugerido', resp );
+        sugeridos = resp;
+        if (localStorage.getItem('sugeridos')){
+          localStorage.removeItem('sugeridos');
+        }
+        localStorage.setItem('sugeridos', JSON.stringify(sugeridos));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
   consultarExoneracion( codCliente: string, codProducto: string ){
     if ( this.exoneraciones.length > 0 ){
       const exonera = this.exoneraciones.filter( d => d.codigO_ARTICULO == codProducto && d.cliente == codCliente );
@@ -414,6 +436,20 @@ export class IsaService {
     return consecutivo.slice(0, 4) + array + consec.toString(); 
   }
 
+  nextPedido(){
+    let consec: number;
+    let array: string;
+    const consecutivo = this.varConfig.consecutivoPedidos;
+
+    array = consecutivo[4];
+    consec = +consecutivo.slice(5) + 1;
+    for (let i = 0; i < 9 - consec.toString().length; i++) {
+      array = array + '0';
+    }
+    this.varConfig.consecutivoPedidos = consecutivo.slice(0, 4) + array + consec.toString();
+    this.guardarVarConfig();
+  }
+
   public generate(): string {
     let isUnique = false;
     let tempId = '';
@@ -454,6 +490,43 @@ export class IsaService {
       duration: 3500
     });
     toast.present();
+  }
+
+  private postCoordenadas( cliente: ClienteRT ){
+    const URL = this.getURL( environment.ClienteRTURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(cliente), options );
+  }
+
+  salvarCoordenadas(){
+    let clienteRT: ClienteRT = {
+      cliente : this.clienteAct.id,
+      nombre : this.clienteAct.nombre,
+      latitud : +this.clienteAct.latitud,
+      longitud :+ this.clienteAct.longitud,
+      altitud : null,
+      fechA_ACTUALIZACION_UBICACION : new Date(),
+      noteExistsFlag : 0,
+      recordDate : new Date(),
+      rowPointer : this.generate(),
+      createdBy : 'ISA',
+      updatedBy : 'ISA',
+      createDate : new Date()
+    }
+    this.postCoordenadas( clienteRT ).subscribe(                    // Transmite el encabezado del pedido al Api
+      resp => {
+        console.log('Success GeoReferencia...', resp);
+        this.presentaToast( 'GeoReferencia Actualizada...' );
+      }, error => {
+        console.log('Error GeoReferencia ', error);
+        this.presentaToast( 'Error actualizando GeoReferencia...' );
+      }
+    );
   }
 
   

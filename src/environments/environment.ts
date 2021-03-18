@@ -20,8 +20,11 @@ export const environment = {
   BancosURL: 'Bancos/',
   ChequeURL: 'Cheque/',
   ExoneracionesURL: 'Exoneraciones/',
+  ClienteRTURL: 'Cliente_RT/',
+  SugeridoURL: 'Sugerido/',
   cantLineasMaxPedido: 35,
   adminClave: '@dmin2021*',
+  aplicarNC: false,
   prdMode: false,
 };
 

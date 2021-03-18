@@ -16,9 +16,10 @@ export class DetallePedido {
     porcenIVA: number;
     montoExonerado: number;
     porcenExonerado: number;
+    frio: boolean;
 
     constructor( id: string, des: string, precio: number, cantidad: number, sub: number, iva: number, desc: number, descGen: number, total: number, impuesto: string, 
-                 esCanBa: string, pDescuento: number, pIVA: number, montoExo: number, pExo: number ){
+                 esCanBa: string, pDescuento: number, pIVA: number, montoExo: number, pExo: number, frio: boolean ){
         this.codProducto = id;
         this.descripcion = des;
         this.precio = precio;
@@ -34,6 +35,7 @@ export class DetallePedido {
         this.porcenIVA = pIVA;
         this.montoExonerado = montoExo;
         this.porcenExonerado = pExo;
+        this.frio = frio;
     }
 }
 
