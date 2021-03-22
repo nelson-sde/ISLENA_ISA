@@ -2,6 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { Email } from '../models/email';
 import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
 import { IsaService } from './isa.service';
 
@@ -12,9 +13,7 @@ export class IsaPedidoService {
 
 
   constructor( private isa: IsaService,
-               private http: HttpClient ) {
-
-  }
+               private http: HttpClient ) {}
 
   private guardarPedido( pedido: Pedido ){
     let pedidosLS: Pedido[] = [];
@@ -64,7 +63,7 @@ export class IsaPedidoService {
   private separaPedido( pedido: Pedido, tipo: boolean ){
     let pedidoNuevo: Pedido;
 
-    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, false );
+    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, pedido.fechaEntrega, false );
     pedido.detalle.forEach( d => {
       if ( d.frio == tipo ) {
         pedidoNuevo.detalle.push(d);
@@ -85,7 +84,7 @@ export class IsaPedidoService {
 
     console.log('Pedido original', pedido);
     pedidoOriginal = new Pedido( pedido.numPedido, pedido.codCliente, pedido.subTotal, pedido.iva, pedido.descuento, pedido.porcentajeDescGeneral, pedido.descGeneral,
-                                pedido.total, pedido.observaciones, false );
+                                pedido.total, pedido.observaciones, pedido.fechaEntrega, false );
     pedidoOriginal.detalle = pedido.detalle.slice(0);
 
     while ( lineas > 0 ) {
@@ -107,7 +106,7 @@ export class IsaPedidoService {
   private nuevoPedido( pedido: Pedido ){
     let pedidoNuevo: Pedido;
 
-    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, false );
+    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, pedido.fechaEntrega, false );
     for (let i = 0; i < environment.cantLineasMaxPedido; i++) {
       pedidoNuevo.detalle.push(pedido.detalle[i]);
       pedidoNuevo.subTotal += pedido.detalle[i].subTotal;
@@ -131,9 +130,11 @@ export class IsaPedidoService {
     let arrDetBD: PedDeta[] = [];
     let rowPointer: string = '';
     let tax: number;
+    let email: Email;
     const fecha = new Date();
     const numPedido = pedido.numPedido;
 
+    email = new Email( 'mauricio.herra@gmail.com', `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
     rowPointer = this.isa.generate();
 
     if ( tipo == 'N' ){
@@ -160,7 +161,7 @@ export class IsaPedidoService {
     this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {
         console.log('Success Encabezado...', resp);
-        this.agregarDetalle( numPedido, arrDetBD );
+        this.agregarDetalle( numPedido, arrDetBD, email );
       }, error => {
         console.log('Error Encabezado ', error);
         this.isa.presentaToast( 'Error de Envío...' );
@@ -171,12 +172,14 @@ export class IsaPedidoService {
     console.log('Detalle JSON ', JSON.stringify(arrDetBD));
   }
 
-  private agregarDetalle( numPedido: string, detalle: PedDeta[] ) {
+  private agregarDetalle( numPedido: string, detalle: PedDeta[], email: Email ) {
+
     console.log('Inicia detalle');
     this.postPedidoDetalle( detalle ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
         this.actualizaEstadoPedido( numPedido, true );
+        this.isa.enviarEmail( email );
         this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
       }, error => {
         console.log('Error Detalle ', error);
@@ -184,6 +187,46 @@ export class IsaPedidoService {
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
+  }
+
+  getBody( pedido: Pedido ){
+    let body: string[] = [];
+    let texto: string;
+
+    texto = `Fecha Pedido: ${this.getFecha(pedido.fecha)}<br/>`;
+    body.push(texto);
+    texto = `Fecha Entrega: ${this.getFecha(pedido.fechaEntrega)}<br/>`;
+    body.push(texto);
+    texto = `SubTotal: ${this.colones(pedido.subTotal)}<br/>`;
+    body.push(texto);
+    texto = `IVA...........:      ${this.colones(pedido.iva)}<br/>`;
+    body.push(texto);
+    texto = `Descuento: ${this.colones(pedido.descuento)}<br/>`;
+    body.push(texto);
+    texto = `<b>Total...........: ${this.colones(pedido.total)}</b><br/>`;
+    body.push(texto);
+    body.push('<br/>')
+    body.push('------------------- Detalle ----------------<br/>');
+    body.push('Item<br/>');
+    body.push('Cant - SubTotal -    IVA -   Desc -    Total<br/>');
+    body.push('--------------------------------------------<br/>');
+    pedido.detalle.forEach( d => {
+      texto = `${d.descripcion}<br/>`;
+      body.push(texto);
+      texto = `Q: ${d.cantidad} - ${this.colones(d.subTotal)} - ${this.colones(d.iva)} - ${this.colones(d.descuento)} - ${this.colones(d.total)}<br/>`;
+      body.push(texto);
+      
+    })
+
+    return body.join('');
+  }
+
+  private getFecha( fecha: Date ){
+    let day = fecha.getDate();
+    let month = fecha.getMonth()+1;
+    let year = fecha.getFullYear();
+
+    return `${day}-${month}-${year}`;
   }
 
   private postPedidos( pedido: PedEnca ){
@@ -228,6 +271,17 @@ export class IsaPedidoService {
     const query: string = environment.Existencias + codProducto;
 
     return this.http.get<Existencias[]>( query );
+  }
+
+  private colones (amount, decimalCount = 2, decimal = ".", thousands = ","){
+    decimalCount = Math.abs(decimalCount);
+    decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
+    const negativeSign = amount < 0 ? "-" : "";
+    let i = parseInt(amount = Math.abs(Number(amount) || 0).toFixed(decimalCount)).toString();
+    let j = (i.length > 3) ? i.length % 3 : 0;
+    return negativeSign + '¢' + (j ? i.substr(0, j) + thousands : '') + 
+      i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousands) + 
+      (decimalCount ? decimal + Math.abs(amount - Number(i)).toFixed(decimalCount).slice(2) : "");
   }
 
 }

@@ -18,12 +18,15 @@
       <h1>{{ isaConfig.clienteAct.nombre }}</h1>
     </ion-text>
   </ion-list>
-  <ion-item>
+  <ion-item *ngIf="!modificando">
     <ion-label position="floating">Producto</ion-label>
     <ion-input #input [(ngModel)]="texto" clearInput="true" (keyup.enter)="buscarProducto()"></ion-input>
     <ion-button (click)="buscarProducto()" slot="end" size="medium" color="light">
       <ion-icon slot="icon-only" name="search-outline"></ion-icon>
     </ion-button>
+  </ion-item>
+  <ion-item *ngIf="modificando">
+    <ion-label>{{texto}}</ion-label>
   </ion-item>
 
   <ion-list *ngIf="mostrarListaProd">
@@ -43,6 +46,7 @@
           <ion-img [src]="producto.imagen | noimage"></ion-img>
           <ion-card-content text-center (click)="ingresaCantidad()">
             <h2>Q: <strong>{{cantidad}}</strong>  Des: <strong>{{descuento}}%</strong></h2>
+            <div>Precio: {{producto.precio | colones}}</div>
           </ion-card-content>
         </ion-card>
       </ion-col>

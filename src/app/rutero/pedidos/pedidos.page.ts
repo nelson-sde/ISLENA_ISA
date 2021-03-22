@@ -56,8 +56,8 @@ export class PedidosPage {
                private popoverController: PopoverController ) {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
-      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', false);
       const fecha = new Date();
+      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
       this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
       this.validaSiCardex();
     });
@@ -305,7 +305,7 @@ export class PedidosPage {
   }
 
   carrito(){
-    if (this.pedidoSinSalvar){
+    if (this.pedidoSinSalvar && !this.modificando){
       this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
       this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
       this.isaConfig.nextPedido();    // Incrementa el consecutivo de los pedidos
@@ -324,7 +324,8 @@ export class PedidosPage {
       this.impuesto = 0;
       this.montoExonerado = 0;
       this.exonerado = 0;
-      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', false);
+      const fecha = new Date()
+      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
     }
   }
 
@@ -505,6 +506,7 @@ export class PedidosPage {
           handler: (data) => {
             this.pedido.observaciones = data.observacion;
             this.pedido.fechaEntrega = new Date(data.entrega);
+            this.pedido.fechaEntrega.setDate(this.pedido.fechaEntrega.getDate() + 1);
             console.log(data.entrega);
             console.log(this.pedido.fechaEntrega);
           }
@@ -583,6 +585,7 @@ export class PedidosPage {
             if (data.descuento.length > 0){
               this.descuento = +data.descuento;
             }
+            this.calculaLineaPedido();
           }
         }
       ]

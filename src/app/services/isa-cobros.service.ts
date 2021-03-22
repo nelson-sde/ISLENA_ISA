@@ -4,6 +4,7 @@ import { Pen_Cobro, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
 import { IsaService } from './isa.service';
 import { environment } from 'src/environments/environment';
 import { Cheque, ChequeBD } from '../models/cheques';
+import { Email } from '../models/email';
 
 @Injectable({
   providedIn: 'root'
@@ -80,6 +81,9 @@ export class IsaCobrosService {
 
     let rowPointer: string = '';
     this.detalleReciboBD = [];
+    let email: Email;
+
+    email = new Email( this.isa.varConfig.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo) );
 
     rowPointer = this.isa.generate();
 
@@ -129,7 +133,7 @@ export class IsaCobrosService {
     this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {
         console.log('Success RecEnca...', resp);
-        this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque );
+        this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque, email );
       }, error => {
         console.log('Error RecEnca ', error);
         this.isa.presentaToast( 'Error de Envío...' );
@@ -139,11 +143,12 @@ export class IsaCobrosService {
     console.log('Detalle JSON',JSON.stringify(this.detalleReciboBD));
   }
 
-  agregarDetalle( detalle: RecDetaBD[], cheque: Cheque, hayCheque: boolean ) {
+  agregarDetalle( detalle: RecDetaBD[], cheque: Cheque, hayCheque: boolean, email: Email ) {
     console.log('Inicia detalle');
     this.postReciboDetalle( detalle ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
+        this.isa.enviarEmail( email );
         if ( hayCheque ){
           this.transmitirCheque( cheque );
         }
@@ -154,6 +159,43 @@ export class IsaCobrosService {
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
+  }
+
+  private getBody ( recibo: Recibo ){
+    let body: string[] = [];
+
+    body.push(`Fecha: ${this.getFecha(recibo.fecha)}<br/>`);
+    body.push(`Cliente: ${recibo.codCliente} - ${this.isa.clienteAct.nombre}<br/>`)
+    body.push(`Monto: ${this.colones(recibo.montoLocal)}<br/>`);
+    body.push(`<br/>`);
+    body.push(`----------------------------- Detalle ----------------------------<br/>`);
+    recibo.detalle.forEach( d => {
+      body.push(`Documento: ${d.numeroDocumen} - Monto: ${this.colones(d.montoLocal)} - Abono: ${this.colones(d.abonoLocal)}. Saldo: ${this.colones(d.saldoLocal)}<br/>`);
+    });
+    body.push(`<br/>`);
+    body.push(`Atentamente<br/>`);
+    body.push(`Departamento de Crédito y Cobro.<br/>`);
+    body.push(`Distribuidora La Isleña.<br/>`);
+    return body.join('');
+  }
+
+  private getFecha( fecha: Date ){
+    let day = fecha.getDate();
+    let month = fecha.getMonth()+1;
+    let year = fecha.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  }
+
+  private colones (amount, decimalCount = 2, decimal = ".", thousands = ","){
+    decimalCount = Math.abs(decimalCount);
+    decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
+    const negativeSign = amount < 0 ? "-" : "";
+    let i = parseInt(amount = Math.abs(Number(amount) || 0).toFixed(decimalCount)).toString();
+    let j = (i.length > 3) ? i.length % 3 : 0;
+    return negativeSign + '¢' + (j ? i.substr(0, j) + thousands : '') + 
+      i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousands) + 
+      (decimalCount ? decimal + Math.abs(amount - Number(i)).toFixed(decimalCount).slice(2) : "");
   }
 
   transmitirCheque( cheque: Cheque ){

@@ -8,6 +8,7 @@ import { Cliente, ClienteBD, ClienteRT } from '../models/cliente';
 import { CxCBD, Pen_Cobro } from '../models/cobro';
 import { Exoneraciones } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
+import { Email } from '../models/email';
 
 export interface RutaConfig {
   numRuta: string;
@@ -20,6 +21,7 @@ export interface RutaConfig {
   consecutivoRecibos: string;
   consecutivoDevoluciones: string;
   bodega: number;
+  email: string;
 }
 
 export interface Ruta {
@@ -32,13 +34,7 @@ export interface Ruta {
   pedido: string;
   recibo: string;
   devolucion: string;
-}
-
-export interface Email {
-  to: string;
-  subject: string;
-  body: string;
-  isHtml: boolean;
+  emaiL_EJECUTIVA: string;
 }
 
 @Injectable({
@@ -57,6 +53,7 @@ export class IsaService {
     consecutivoRecibos: '',
     consecutivoDevoluciones: '',
     bodega: 0,
+    email: '',
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero
@@ -525,6 +522,29 @@ export class IsaService {
       }, error => {
         console.log('Error GeoReferencia ', error);
         this.presentaToast( 'Error actualizando GeoReferencia...' );
+      }
+    );
+  }
+
+  private postEmail( email: Email ){
+    const URL = this.getURL( environment.EmailURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    console.log(JSON.stringify(email));
+    return this.http.post( URL, JSON.stringify(email), options );
+  }
+
+  enviarEmail( email: Email ){
+    this.postEmail( email ).subscribe(
+      resp => {
+        console.log('Email enviado', );
+      }, error => {
+        console.log('Error en el envío del Email');
+        this.presentaToast('Error en el envío del Email');
       }
     );
   }

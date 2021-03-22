@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, Platform, PopoverController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
-import { Email, IsaService } from 'src/app/services/isa.service';
+import { IsaService } from 'src/app/services/isa.service';
 import { environment } from 'src/environments/environment';
 import { ClienteInfoPage } from '../cliente-info/cliente-info.page';
 import { ClientesPage } from '../clientes/clientes.page';
 import { Plugins } from '@capacitor/core';
+import { Email } from 'src/app/models/email';
 
 const { App } = Plugins;
 
@@ -161,14 +162,19 @@ export class RuteroPage {
   }
 
   enviarEmailCliente( cliente: Cliente ){
-    // let texto: string = 'Se modificó el cliente: ' + cliente.id + '. Telefono: ' + cliente.telefonoContacto + '. Contacto: ' + cliente.nombreContacto + '. Email: ' + cliente.email;
-    let email: Email = {
-      to: 'mauricio.herra@gmail.com',
-      subject: 'Actualizacion de Cliente',
-      body: 'texto',
-      isHtml: true,
-    }
-    // this.isa.enviarEmail(email);
+    let email: Email;
+    let texto: string[] = [];
+
+    email = new Email(this.isa.varConfig.email, `SOLICITUD PARA MODIFICAR CLIENTE RUTA ${this.isa.varConfig.numRuta}`, '');
+
+    texto.push(`CLIENTE: ${cliente.id} - ${cliente.nombre}<br/>`);
+    texto.push('<br/>');
+    texto.push(`Contacto: ${cliente.nombreContacto}<br/>`);
+    texto.push(`Telefono: ${cliente.telefonoContacto}<br/>`);
+    texto.push(`Email: ${cliente.email}<br/>`);
+    email.body = texto.join('');
+    console.log(email);
+    this.isa.enviarEmail( email );
   }
 
   async presentAlert( subtitulo: string, mensaje: string ) {

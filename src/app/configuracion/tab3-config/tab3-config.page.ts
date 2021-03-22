@@ -64,6 +64,7 @@ export class Tab3ConfigPage {
       this.isa.varConfig.consecutivoPedidos = this.isa.rutas[data.indice].pedido;
       this.isa.varConfig.consecutivoRecibos = this.isa.rutas[data.indice].recibo;
       this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[data.indice].devolucion;
+      this.isa.varConfig.email = this.isa.rutas[data.indice].emaiL_EJECUTIVA;
     }
   }
 
@@ -121,6 +122,10 @@ export class Tab3ConfigPage {
             this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
             this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
             this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
+            this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
+            this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
+            this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
+            this.isa.varConfig.email = this.isa.rutas[i].emaiL_EJECUTIVA;
           }
         }
       ]
