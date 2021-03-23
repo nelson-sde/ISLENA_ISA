@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Cardex } from '../models/cardex';
+import { IsaService } from './isa.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,18 +10,50 @@ export class IsaCardexService {
   cardex: Cardex[] = [];
   cardexSinSalvar: boolean = false;
 
-  constructor() {
-    this.cargarCardex();
-  }
+  constructor( private isa: IsaService ) {}
 
   agregarCardex(data: Cardex){     // Agrega una linea de producto al arreglo cardex
     this.cardex.push(data);
   }
 
-  cargarCardex(){
-    if (localStorage.getItem('cardexCliente')){
-      this.cardex = JSON.parse( localStorage.getItem('cardexCliente'));
+  cargarCardexCliente( codCliente: string ){
+    let cardexCliente: Cardex[] = [];
+    let cardex: Cardex[] = [];
+
+    if ( localStorage.getItem('cardexCliente') ){
+      cardexCliente = JSON.parse( localStorage.getItem('cardexCliente'));
+      cardex = cardexCliente.filter( d => d.codCliente == codCliente && d.aplicado == false);
+      if ( cardex == undefined ){
+        cardex = [];
+      }
     }
+    return cardex;
+  }
+
+  cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
+    let cardex: Cardex[] = [];
+    let cardex2: Cardex[] = [];
+    let consulta: Cardex[] = [];
+    let j: number;
+
+    if (localStorage.getItem('cardex')){
+      cardex = JSON.parse( localStorage.getItem('cardex'));
+      if ( texto == 'TODO' ){ 
+        cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id);
+      } else {
+        cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id && d.codProducto == texto );
+      }
+      if (cardex2.length > 0){
+        for (let i = 0; i < cardex2.length; i++) {
+          j = this.isa.productos.findIndex(d => d.id == cardex2[i].codProducto);
+          if (j >= 0){
+            cardex2[i].desProducto = this.isa.productos[j].nombre;
+          }
+        }
+        consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+      }
+    }
+    return consulta;
   }
 
                                                 // Consulta un id de Producto y devuelve el index en el arreglo, si no lo
@@ -43,9 +76,16 @@ export class IsaCardexService {
     localStorage.setItem('cardexCliente', JSON.stringify(this.cardex));
   }
 
-  guardarCardex(){                  // Guarda en arreglo en el Local Storage
+  guardarCardex( cardex: Cardex[]){                  // Guarda en arreglo en el Local Storage
+    let cardexLS: Cardex[] = [];
+    let arrayTemp: Cardex[] = [];
+
     if (localStorage.getItem('cardexCliente')){
-      localStorage.setItem('cardexCliente', JSON.stringify(this.cardex));
+      cardexLS = JSON.parse( localStorage.getItem('pedidos'));
+      arrayTemp = cardexLS.concat(cardex);
+      localStorage.setItem('cardexCliente', JSON.stringify(arrayTemp));
+    } else {
+      localStorage.setItem('cardexCliente', JSON.stringify(cardex));
     }
   }
 

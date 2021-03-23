@@ -83,7 +83,7 @@ export class IsaCobrosService {
     this.detalleReciboBD = [];
     let email: Email;
 
-    email = new Email( this.isa.varConfig.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo) );
+    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo) );
 
     rowPointer = this.isa.generate();
 
@@ -148,6 +148,8 @@ export class IsaCobrosService {
     this.postReciboDetalle( detalle ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
+        this.isa.enviarEmail( email );
+        email.toEmail = this.isa.varConfig.email;
         this.isa.enviarEmail( email );
         if ( hayCheque ){
           this.transmitirCheque( cheque );

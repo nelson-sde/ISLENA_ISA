@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, NavController } from '@ionic/angular';
+import { AlertController, ModalController, NavController } from '@ionic/angular';
 import { Cardex } from 'src/app/models/cardex';
 import { Productos } from 'src/app/models/productos';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaService } from 'src/app/services/isa.service';
+import { CardexPage } from '../cardex/cardex.page';
 
 @Component({
   selector: 'app-inventario',
@@ -16,12 +17,13 @@ export class InventarioPage {
 
   productos: Productos[] = [];
   cardexHistorico: Cardex [] = [];
+  cardex: Cardex[] = [];
   filtra: boolean = false;
 
-  constructor( public isa: IsaService,
-               public isaCardex: IsaCardexService,
+  constructor( private isa: IsaService,
+               private isaCardex: IsaCardexService,
+               private modalCtrl: ModalController,
                private navController: NavController,
-               private router: Router,
                private alertController: AlertController ) {
     this.reordenaHistorico();
   }
@@ -30,7 +32,7 @@ export class InventarioPage {
     let i = 0;
     let j = 1;
 
-    this.cardexHistorico = this.isa.cargarCardex('TODO');
+    this.cardexHistorico = this.isaCardex.cargarCardex('TODO');
     while (i < this.cardexHistorico.length && j < this.cardexHistorico.length) {
       if(new Date(this.cardexHistorico[j].fecha).getDate() == new Date(this.cardexHistorico[i].fecha).getDate()){
         this.cardexHistorico[j].fecha = null;
@@ -43,7 +45,7 @@ export class InventarioPage {
   }
 
   filtraItem( producto: string ){
-    this.cardexHistorico = this.isa.cargarCardex(producto);
+    this.cardexHistorico = this.isaCardex.cargarCardex(producto);
     this.filtra = true;
   }
 
@@ -51,16 +53,30 @@ export class InventarioPage {
     this.reordenaHistorico();
   }
 
-  abrirCardex( i: number ){
+  async abrirCardex( i: number ){
+    let codProducto: string = null;
+    let nombre: string = null;
+    let descuento: number = 0;
+
     if (i >= 0){
-      this.router.navigate(['/cardex', {
-        codProducto: this.cardexHistorico[i].codProducto,
-        nombreProd: this.cardexHistorico[i].desProducto,
-        descuento: this.cardexHistorico[i].descuento }]);
-    } else{
-      this.router.navigate(['/cardex', {
-        codProducto: null,
-        nombreProd: null }]);
+      codProducto = this.cardexHistorico[i].codProducto;
+      descuento = this.cardexHistorico[i].descuento;
+      nombre = this.cardexHistorico[i].desProducto;
+    }
+    const modal = await this.modalCtrl.create({
+      component: CardexPage,
+      componentProps: {
+        codProd: codProducto,
+        nombre: nombre,
+        desc: descuento,
+        cardex: this.cardex,
+      },
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+    const {data} = await modal.onWillDismiss();
+    if ( data !== undefined){
+      this.cardex = data.cardex.slice(0);
     }
   }
 

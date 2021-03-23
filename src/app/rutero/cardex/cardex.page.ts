@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ModalController, NavController } from '@ionic/angular';
+import { ModalController, NavController, NavParams } from '@ionic/angular';
 import { Cardex, SugeridoBD } from 'src/app/models/cardex';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaService } from 'src/app/services/isa.service';
@@ -24,25 +24,18 @@ export class CardexPage {
   constructor( private activatedRoute: ActivatedRoute,
                public isa: IsaService,
                private modalCtrl: ModalController,
+               private navParams: NavParams,
                private navController: NavController,
                public isaCardex: IsaCardexService) {
 
-    this.activatedRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
-      this.codProducto = data.codProducto;
-      this.nomProducto = data.nombreProd;
-      this.descuento = data.descuento;
-      this.cargarCardex();
-      console.log(this.codProducto);
-      if (this.codProducto !== 'null'){
-        this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(), this.descuento);
-        this.agregaLineaCardex();
-      }
-    });
-  }
-
-  cargarCardex(){
-    if (this.isaCardex.cardex.length > 0){
-      this.cardex = this.isaCardex.cardex.filter( d => d.codCliente == this.isa.clienteAct.id && d.aplicado == false );
+    this.codProducto = this.navParams.get('codProd');
+    this.descuento = this.navParams.get('desc');
+    this.cardex = this.navParams.get('cardex');
+    this.nomProducto = this.navParams.get('nombre');
+    console.log(this.codProducto);
+    if (this.codProducto !== null){
+      this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(), this.descuento);
+      this.agregaLineaCardex();
     }
   }
 
@@ -73,8 +66,7 @@ export class CardexPage {
   }
 
   regresar(){
-    this.isaCardex.guardarCardex();
-    this.navController.back();
+    this.modalCtrl.dismiss({cardex: this.cardex});
   }
 
   async agregarProducto(){
@@ -92,16 +84,15 @@ export class CardexPage {
   }
 
   guardarCardex(){
-    this.isaCardex.guardarCardex();
+    this.isaCardex.guardarCardex( this.cardex );
     this.isaCardex.cardexSinSalvar = false;
-    this.navController.back();
+    this.modalCtrl.dismiss();
     this.navController.back();
   }
 
   borrarLinea( i: number ){
     let data: Cardex[] = [];
 
-    this.isaCardex.borrarLinea( this.cardex[i].codProducto, this.cardex[i].codCliente );
     if (i > 0){
       data = this.cardex.slice(0, i);
     } 

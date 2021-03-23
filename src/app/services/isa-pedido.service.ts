@@ -134,7 +134,7 @@ export class IsaPedidoService {
     const fecha = new Date();
     const numPedido = pedido.numPedido;
 
-    email = new Email( 'mauricio.herra@gmail.com', `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
+    email = new Email( this.isa.clienteAct.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
     rowPointer = this.isa.generate();
 
     if ( tipo == 'N' ){

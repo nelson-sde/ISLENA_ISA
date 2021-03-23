@@ -256,7 +256,7 @@ export class IsaService {
     );
   }
 
-  cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
+  /*cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
     let cardex: Cardex[] = [];
     let cardex2: Cardex[] = [];
     let consulta: Cardex[] = [];
@@ -280,7 +280,7 @@ export class IsaService {
       }
     }
     return consulta;
-  }
+  }*/
 
   syncCxC( ruta: string ){
     let cxc: Pen_Cobro;

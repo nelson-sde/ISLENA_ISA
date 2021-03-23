@@ -67,8 +67,7 @@ export class PedidosPage {
     let prod: Productos[] = [];
     let result: Cardex[] = [];
 
-    this.isaCardex.cargarCardex();
-    result = this.isaCardex.cardex.filter( d => d.codCliente == this.isaConfig.clienteAct.id && d.aplicado == false )
+    result = this.isaCardex.cargarCardexCliente(this.isaConfig.clienteAct.id);
     if ( result.length > 0 ){
       this.hayCardex = true;
       for (let i = 0; i < result.length; i++) {
@@ -77,17 +76,17 @@ export class PedidosPage {
         this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
         this.montoSub = result[i].cantPedido * prod[0].precio;
         this.montoDescLinea = this.montoSub * result[i].descuento / 100;
-        this.montoIVA = this.montoSub * this.impuesto;
+        this.montoIVA = (this.montoSub - this.montoDescLinea) * this.impuesto;
         this.montoExonerado = this.montoSub * this.exonerado;
-        this.montoTotal = this.montoSub + this.montoIVA;
+        this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea;
         this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
                                               this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100, 
                                               this.exonerado, this.montoExonerado, prod[0].frio );
         this.pedido.detalle.push( this.nuevoDetalle );
-        this.pedido.subTotal = this.pedido.subTotal + this.nuevoDetalle.subTotal;
-        this.pedido.iva = this.pedido.iva + this.nuevoDetalle.iva;
-        this.pedido.descuento = this.pedido.descuento + this.nuevoDetalle.descuento;
-        this.pedido.total = this.pedido.total + this.nuevoDetalle.total;
+        this.pedido.subTotal += this.nuevoDetalle.subTotal;
+        this.pedido.iva += this.nuevoDetalle.iva;
+        this.pedido.descuento += this.nuevoDetalle.descuento;
+        this.pedido.total += this.nuevoDetalle.total;
         this.pedidoSinSalvar = true;
       }
       this.texto = '';
