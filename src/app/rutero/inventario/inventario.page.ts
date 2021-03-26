@@ -25,6 +25,7 @@ export class InventarioPage {
                private modalCtrl: ModalController,
                private navController: NavController,
                private alertController: AlertController ) {
+    this.cardex = this.isaCardex.cargarCardexCliente( this.isa.clienteAct.id );
     this.reordenaHistorico();
   }
 

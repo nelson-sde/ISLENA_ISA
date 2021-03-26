@@ -81,7 +81,9 @@ export class IsaCardexService {
     let arrayTemp: Cardex[] = [];
 
     if (localStorage.getItem('cardexCliente')){
-      cardexLS = JSON.parse( localStorage.getItem('pedidos'));
+      cardexLS = JSON.parse( localStorage.getItem('cardexCliente'));
+      console.log(cardexLS);
+      console.log(cardex);
       arrayTemp = cardexLS.concat(cardex);
       localStorage.setItem('cardexCliente', JSON.stringify(arrayTemp));
     } else {

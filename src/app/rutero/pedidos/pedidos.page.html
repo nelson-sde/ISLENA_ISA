@@ -31,7 +31,7 @@
 
   <ion-list *ngIf="mostrarListaProd">
     <ion-item *ngFor="let item of busquedaProd; let i = index">
-      <ion-label>{{item.nombre}}</ion-label>
+      <ion-label>{{item.id}}-{{item.nombre}}</ion-label>
       <ion-checkbox [(ngModel)]="item.seleccionado"></ion-checkbox>
     </ion-item>
   </ion-list>
@@ -121,7 +121,7 @@
             </ion-col>
             <ion-col size="12">
               <div> 
-                <ion-text color="primary"> {{ item.descripcion }}({{item.frio}})</ion-text>
+                <ion-text color="primary"> {{ item.descripcion }} ({{item.frio | cambiaBool }})</ion-text>
               </div>
             </ion-col>
           </ion-row>

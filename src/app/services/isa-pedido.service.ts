@@ -193,6 +193,7 @@ export class IsaPedidoService {
     let body: string[] = [];
     let texto: string;
 
+    body.push( `Cliente: ${pedido.codCliente} - ${this.isa.clienteAct.nombre}<br/>` );
     texto = `Fecha Pedido: ${this.getFecha(pedido.fecha)}<br/>`;
     body.push(texto);
     texto = `Fecha Entrega: ${this.getFecha(pedido.fechaEntrega)}<br/>`;

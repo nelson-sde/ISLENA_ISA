@@ -6,6 +6,7 @@ import { IsaPedidoService } from '../../services/isa-pedido.service';
 import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
 import { IsaCobrosService } from '../../services/isa-cobros.service';
 import { IsaCardexService } from '../../services/isa-cardex.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-tab3-config',
@@ -16,6 +17,7 @@ import { IsaCardexService } from '../../services/isa-cardex.service';
 export class Tab3ConfigPage {
 
   texto:string;
+  ambiente: string = '';
 
   constructor( public isa: IsaService,
                private isaPedidos: IsaPedidoService,
@@ -25,6 +27,11 @@ export class Tab3ConfigPage {
                private navControler: NavController,
                private popoverCtrl: PopoverController ) {
 
+    if (environment.prdMode){
+      this.ambiente = 'PRD';
+    } else {
+      this.ambiente = 'DEV';
+    }
     if (this.isa.rutas.length == 0) {
       this.isa.presentaLoading('Sincronizando Rutas...');
       this.isa.getRutas().subscribe(
