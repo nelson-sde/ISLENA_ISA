@@ -18,6 +18,7 @@ export class Tab3ConfigPage {
 
   texto:string;
   ambiente: string = '';
+  version: string = '';
 
   constructor( public isa: IsaService,
                private isaPedidos: IsaPedidoService,
@@ -32,6 +33,7 @@ export class Tab3ConfigPage {
     } else {
       this.ambiente = 'DEV';
     }
+    this.version = environment.version;
     if (this.isa.rutas.length == 0) {
       this.isa.presentaLoading('Sincronizando Rutas...');
       this.isa.getRutas().subscribe(

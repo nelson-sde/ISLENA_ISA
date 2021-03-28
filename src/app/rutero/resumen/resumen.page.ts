@@ -47,11 +47,17 @@ export class ResumenPage {
   }
 
   cargarPedidos(){
+    let pedidos: Pedido[] = [];
+    const hoy: Date = new Date();
+
     if (localStorage.getItem('pedidos')){
-      this.pedidos = JSON.parse( localStorage.getItem('pedidos'));
-      this.pedidos.forEach(e => {
-        this.totalPedidos += e.total;
-      });
+      pedidos = JSON.parse( localStorage.getItem('pedidos'));
+      this.pedidos = pedidos.filter( d => new Date(d.fecha).getDate() === new Date(hoy).getDate() );
+      if (this.pedidos){
+        this.pedidos.forEach(e => {
+          this.totalPedidos += e.total;
+        });
+      }
     }
   }
 

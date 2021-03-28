@@ -4,6 +4,7 @@ import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
 import { IsaService } from 'src/app/services/isa.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-tab3-datos',
@@ -12,12 +13,16 @@ import { IsaService } from 'src/app/services/isa.service';
 })
 export class Tab3DatosPage {
 
+  version: string = '';
+
   constructor( private navController: NavController,
                private alertCtrl: AlertController,
                private isa: IsaService,
                private isaPedidos: IsaPedidoService,
                private isaCobros: IsaCobrosService,
-               private isaCardex: IsaCardexService ) { }
+               private isaCardex: IsaCardexService ) { 
+    this.version = environment.version;
+  }
 
 
   async sincronizar(){
