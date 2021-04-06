@@ -9,6 +9,7 @@ import { CxCBD, Pen_Cobro } from '../models/cobro';
 import { Exoneraciones } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
+import { IsaLSService } from './isa-ls.service';
 
 export interface RutaConfig {
   numRuta: string;
@@ -71,7 +72,8 @@ export class IsaService {
   constructor( public alertController: AlertController, 
                private http: HttpClient,
                private loadingCtrl: LoadingController,
-               private toastCtrl: ToastController ) {
+               private toastCtrl: ToastController,
+               private isaLS: IsaLSService ) {
 
     this.cargaVarConfig();
     this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null);
@@ -149,13 +151,11 @@ export class IsaService {
           this.productos.push( producto );
         });
         console.log( 'Arreglo', this.productos );
-        if (localStorage.getItem('productos')){
-          localStorage.removeItem('productos');
-        }
-        localStorage.setItem('productos', JSON.stringify(this.productos));
+        
+        this.isaLS.guardarSKUS( this.productos );
         this.loadingDissmiss();
         this.presentaToast('Sincronización Finalizada.');
-        this.cargarProductos();
+        // this.cargarProductos();
       }, error => {
         console.log(error.message);
       }
@@ -168,12 +168,10 @@ export class IsaService {
     }
   }
 
-  cargaListaPrecios(){
+  async cargaListaPrecios(){
     let productos: Productos[];
 
-    if (localStorage.getItem('productos')){
-       productos = JSON.parse( localStorage.getItem('productos'));
-    }
+    productos = await this.isaLS.getSKUS();
     this.productos = [];
     this.productos = productos.filter( p => p.listaPrecios == this.clienteAct.listaPrecios);
     if (this.productos.length !== 0){
@@ -245,42 +243,13 @@ export class IsaService {
           cardexArr.push(cardex);
         });
         console.log('Arreglo', cardexArr);
-        if (localStorage.getItem('cardex')){
-          localStorage.removeItem('cardex');
-        }
-        localStorage.setItem('cardex', JSON.stringify(cardexArr));
+        this.isaLS.guardarHistVentas(cardexArr);
       }, error => {
         console.log(error.message);
         this.loadingDissmiss();
       }
     );
   }
-
-  /*cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
-    let cardex: Cardex[] = [];
-    let cardex2: Cardex[] = [];
-    let consulta: Cardex[] = [];
-    let j: number;
-
-    if (localStorage.getItem('cardex')){
-      cardex = JSON.parse( localStorage.getItem('cardex'));
-      if ( texto == 'TODO' ){ 
-        cardex2 = cardex.filter(d => d.codCliente == this.clienteAct.id);
-      } else {
-        cardex2 = cardex.filter(d => d.codCliente == this.clienteAct.id && d.codProducto == texto );
-      }
-      if (cardex2.length > 0){
-        for (let i = 0; i < cardex2.length; i++) {
-          j = this.productos.findIndex(d => d.id == cardex2[i].codProducto);
-          if (j >= 0){
-            cardex2[i].desProducto = this.productos[j].nombre;
-          }
-        }
-        consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-      }
-    }
-    return consulta;
-  }*/
 
   syncCxC( ruta: string ){
     let cxc: Pen_Cobro;

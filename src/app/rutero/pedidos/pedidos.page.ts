@@ -335,25 +335,31 @@ export class PedidosPage {
   borrarDetalle( i: number ){
     let data: DetallePedido[] = [];
 
-    this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
-    const descGen = this.pedido.subTotal * this.pedido.porcentajeDescGeneral / 100;
-    this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
-    this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
-    this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
-    this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
-    if (i > 0){
-      data = this.pedido.detalle.slice(0, i);
-    } 
-    if (i+1 < this.pedido.detalle.length){
-      data = data.concat(this.pedido.detalle.slice(i+1, this.pedido.detalle.length));
-    }
-    this.pedido.detalle = data.slice(0);
-    if (this.pedido.detalle.length > 0){
-      this.validaFrio();
+    if ( !this.modificando ){
+      this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
+      const descGen = this.pedido.subTotal * this.pedido.porcentajeDescGeneral / 100;
+      this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
+      this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
+      this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
+      this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
+      if (i > 0){
+        data = this.pedido.detalle.slice(0, i);
+      } 
+      if (i+1 < this.pedido.detalle.length){
+        data = data.concat(this.pedido.detalle.slice(i+1, this.pedido.detalle.length));
+      }
+      this.pedido.detalle = data.slice(0);
+      if (this.pedido.detalle.length > 0){
+        this.validaFrio();
+      } else {
+        this.seco = false;
+        this.frio = false;
+      }
     } else {
-      this.seco = false;
-      this.frio = false;
+      this.isaConfig.presentAlertW( 'Borrado', 'No se puede borrar una línea si se estaba editando otra.');
+      this.ionList.closeSlidingItems();
     }
+    
   }
 
   validaFrio(){
@@ -366,21 +372,27 @@ export class PedidosPage {
   }
 
   editarDetalle( i: number ){
-    this.cantidad = this.pedido.detalle[i].cantidad;
-    this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
-    this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
-    this.texto = this.producto.nombre;
-    this.impuesto = this.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
-    this.mostrarListaProd = false;
-    this.mostrarProducto = true;
-    this.modificando = true;
-    this.j = i;
-    this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
-    this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
-    this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
-    this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
-    this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
-    this.ionList.closeSlidingItems();
+    if ( !this.modificando ){      // Valida si se está editando una línea... en ese caso no se puede editar.
+      this.cantidad = this.pedido.detalle[i].cantidad;
+      this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
+      this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
+      this.texto = this.producto.nombre;
+      this.impuesto = this.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
+      this.mostrarListaProd = false;
+      this.mostrarProducto = true;
+      this.modificando = true;
+      this.j = i;
+      this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
+      this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
+      this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
+      this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
+      this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
+      this.ionList.closeSlidingItems();
+    } else {
+      this.isaConfig.presentAlertW( 'Edición', 'No se puede editar una línea si se estaba editando otra.');
+      this.ionList.closeSlidingItems();
+    }
+    
   }
 
   async presentAlertSalir() {

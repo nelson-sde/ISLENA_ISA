@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Cardex } from '../models/cardex';
+import { IsaLSService } from './isa-ls.service';
 import { IsaService } from './isa.service';
 
 @Injectable({
@@ -10,7 +11,8 @@ export class IsaCardexService {
   cardex: Cardex[] = [];
   cardexSinSalvar: boolean = false;
 
-  constructor( private isa: IsaService ) {}
+  constructor( private isa: IsaService,
+               private isaLS: IsaLSService ) {}
 
   agregarCardex(data: Cardex){     // Agrega una linea de producto al arreglo cardex
     this.cardex.push(data);
@@ -30,29 +32,28 @@ export class IsaCardexService {
     return cardex;
   }
 
-  cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
-    let cardex: Cardex[] = [];
+  async cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
+    // let cardex: Cardex[] = [];
     let cardex2: Cardex[] = [];
     let consulta: Cardex[] = [];
     let j: number;
 
-    if (localStorage.getItem('cardex')){
-      cardex = JSON.parse( localStorage.getItem('cardex'));
-      if ( texto == 'TODO' ){ 
-        cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id);
-      } else {
-        cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id && d.codProducto == texto );
-      }
-      if (cardex2.length > 0){
-        for (let i = 0; i < cardex2.length; i++) {
-          j = this.isa.productos.findIndex(d => d.id == cardex2[i].codProducto);
-          if (j >= 0){
-            cardex2[i].desProducto = this.isa.productos[j].nombre;
-          }
-        }
-        consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-      }
+    const cardex = await this.isaLS.getHistVentas();
+    if ( texto == 'TODO' ){ 
+      cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id);
+    } else {
+      cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id && d.codProducto == texto );
     }
+    if (cardex2.length > 0){
+      for (let i = 0; i < cardex2.length; i++) {
+        j = this.isa.productos.findIndex(d => d.id == cardex2[i].codProducto);
+        if (j >= 0){
+          cardex2[i].desProducto = this.isa.productos[j].nombre;
+        }
+      }
+      consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+    }
+    
     return consulta;
   }
 
@@ -82,10 +83,11 @@ export class IsaCardexService {
 
     if (localStorage.getItem('cardexCliente')){
       cardexLS = JSON.parse( localStorage.getItem('cardexCliente'));
+      arrayTemp = cardexLS.filter( d => d.codCliente !== this.isa.clienteAct.id && !d.aplicado )
       console.log(cardexLS);
       console.log(cardex);
-      arrayTemp = cardexLS.concat(cardex);
-      localStorage.setItem('cardexCliente', JSON.stringify(arrayTemp));
+      cardexLS = arrayTemp.concat(cardex);
+      localStorage.setItem('cardexCliente', JSON.stringify(cardexLS));
     } else {
       localStorage.setItem('cardexCliente', JSON.stringify(cardex));
     }

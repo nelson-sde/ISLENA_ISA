@@ -7,6 +7,7 @@ import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
 import { IsaCobrosService } from '../../services/isa-cobros.service';
 import { IsaCardexService } from '../../services/isa-cardex.service';
 import { environment } from 'src/environments/environment';
+import { IsaLSService } from 'src/app/services/isa-ls.service';
 
 @Component({
   selector: 'app-tab3-config',
@@ -24,6 +25,7 @@ export class Tab3ConfigPage {
                private isaPedidos: IsaPedidoService,
                private isaCobros: IsaCobrosService,
                private isaCardex: IsaCardexService,
+               private isaLS: IsaLSService,
                private alertCtrl: AlertController,
                private navControler: NavController,
                private popoverCtrl: PopoverController ) {

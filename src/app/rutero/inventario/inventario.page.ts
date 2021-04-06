@@ -29,11 +29,11 @@ export class InventarioPage {
     this.reordenaHistorico();
   }
 
-  reordenaHistorico(){
+  async reordenaHistorico(){
     let i = 0;
     let j = 1;
 
-    this.cardexHistorico = this.isaCardex.cargarCardex('TODO');
+    this.cardexHistorico = await this.isaCardex.cargarCardex('TODO');
     while (i < this.cardexHistorico.length && j < this.cardexHistorico.length) {
       if(new Date(this.cardexHistorico[j].fecha).getDate() == new Date(this.cardexHistorico[i].fecha).getDate()){
         this.cardexHistorico[j].fecha = null;
@@ -45,8 +45,8 @@ export class InventarioPage {
     }
   }
 
-  filtraItem( producto: string ){
-    this.cardexHistorico = this.isaCardex.cargarCardex(producto);
+  async filtraItem( producto: string ){
+    this.cardexHistorico = await this.isaCardex.cargarCardex(producto);
     this.filtra = true;
   }
 
