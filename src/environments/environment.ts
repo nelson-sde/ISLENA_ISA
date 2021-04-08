@@ -25,7 +25,7 @@ export const environment = {
   EmailURL: 'Email/',
   cantLineasMaxPedido: 35,
   adminClave: '@dmin2021*',
-  version: '1.0.6',
+  version: '1.1.0',
   aplicarNC: false,
   prdMode: true,
 };

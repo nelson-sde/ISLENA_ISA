@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Productos } from 'src/app/models/productos';
 import { IsaService } from 'src/app/services/isa.service';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @Component({
   selector: 'app-productos',
@@ -16,7 +17,8 @@ export class ProductosPage {
   texto: string;
 
   constructor( private modalCtrl: ModalController,
-               private isa: IsaService ) {
+               private isa: IsaService,
+               private barcodeScanner: BarcodeScanner ) {
     this.productos = this.isa.productos.slice(0);
   }
 
@@ -46,6 +48,25 @@ export class ProductosPage {
 
   productoSelect( i: number ){
     this.modalCtrl.dismiss({codProducto: this.busquedaProd[i].id, desProducto: this.busquedaProd[i].nombre});
+  }
+
+  barcode(){
+    let texto: string;
+
+    this.barcodeScanner.scan().then(barcodeData => {
+      console.log('Barcode data', barcodeData);
+      if ( !barcodeData.cancelled ){
+        texto = barcodeData.text;
+        const item = this.isa.productos.find( d => d.codigoBarras == texto )
+        if ( item ){
+          this.texto = '#' + item.id;
+        } else {
+          this.isa.presentAlertW('Scan', 'Producto no existe' + texto);
+        }
+      } 
+      }).catch(err => {
+          console.log('Error', err);
+      });
   }
 
   regresar(){

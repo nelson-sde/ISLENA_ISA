@@ -6,10 +6,11 @@ import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
 import { Cliente, ClienteBD, ClienteRT } from '../models/cliente';
 import { CxCBD, Pen_Cobro } from '../models/cobro';
-import { Exoneraciones } from '../models/pedido';
+import { Exoneraciones, Existencias } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
+import { Bitacora } from '../models/bitacora';
 
 export interface RutaConfig {
   numRuta: string;
@@ -64,7 +65,8 @@ export class IsaService {
   clientes: Cliente[] = [];                   // Variable Global con la lista de Clientes de la ruta
   exoneraciones: Exoneraciones[] = [];       // Variable Global con las exoneraciones de impuestos
   ids: string[] = [];
-  // historico: Cardex[] = [];
+  existencias: Existencias[] = [];
+  bitacora: Bitacora[] = [];
   userLogged: boolean = false;
 
   loading: HTMLIonLoadingElement;
@@ -75,11 +77,13 @@ export class IsaService {
                private toastCtrl: ToastController,
                private isaLS: IsaLSService ) {
 
-    this.cargaVarConfig();
+    this.cargarVarConfig();
+    this.cargarExistencias();
+    this.cargarBitacora();
     this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null);
   }
 
-  private cargaVarConfig(){
+  private cargarVarConfig(){
     if (localStorage.getItem('config')){
       this.varConfig = JSON.parse( localStorage.getItem('config'));
     } 
@@ -87,6 +91,22 @@ export class IsaService {
 
   guardarVarConfig(){
     localStorage.setItem('config', JSON.stringify(this.varConfig));
+  }
+
+  private guardarBitacora(){
+    localStorage.setItem( 'Bitacora', JSON.stringify(this.bitacora));
+  }
+
+  private cargarBitacora(){
+    if (localStorage.getItem('Bitacora')){
+      this.bitacora = JSON.parse( localStorage.getItem('Bitacora'));
+    }
+  }
+
+  addBitacora( status: boolean, movimiento:string, linea: string ){
+    const bitacora = new Bitacora( status, movimiento, linea);
+    this.bitacora.unshift( bitacora );
+    this.guardarBitacora();
   }
 
   getURL( api: string, id: string ){
@@ -139,6 +159,28 @@ export class IsaService {
     return this.http.get<SugeridoBD[]>( URL );
   }
 
+  private getExistencias(){
+    const URL = this.getURL( environment.Existencias, '' );
+    return this.http.get<Existencias[]>( URL );
+  }
+
+  syncExistencias(){
+    let existencias: Existencias;
+    let arr: Existencias[] = [];
+
+    this.getExistencias().subscribe(
+      resp => {
+        console.log('Existencias', resp );
+        arr = resp.slice(0);
+        console.log('Arreglo', arr);
+        this.isaLS.guardarExistencias( arr );
+      }, error => {
+        console.log(error.message);
+        this.loadingDissmiss();
+      }
+    );
+  }
+
   syncProductos( ruta: string ){
     let producto: Productos;
     this.productos = [];
@@ -151,7 +193,9 @@ export class IsaService {
           this.productos.push( producto );
         });
         console.log( 'Arreglo', this.productos );
-        
+        if (localStorage.getItem('productos')){
+          localStorage.removeItem('productos');
+        }
         this.isaLS.guardarSKUS( this.productos );
         this.loadingDissmiss();
         this.presentaToast('Sincronización Finalizada.');
@@ -162,11 +206,11 @@ export class IsaService {
     );
   }
 
-  cargarProductos(){
+  /*cargarProductos(){
     if (localStorage.getItem('productos')){
       this.productos = JSON.parse( localStorage.getItem('productos'));
     }
-  }
+  }*/
 
   async cargaListaPrecios(){
     let productos: Productos[];
@@ -180,6 +224,14 @@ export class IsaService {
       this.presentAlertW( 'Productos', 'El cliente no tiene cargada la lista de precios...');
       this.nivelPrecios = '';
     }
+  }
+
+  async cargarExistencias(){
+    let existencias: Existencias[] = [];
+
+    existencias = await this.isaLS.getExistencias();
+    this.existencias = existencias.filter( d => d.bodega == this.varConfig.bodega.toString() );
+    console.log(this.existencias);
   }
 
   syncClientes( ruta: string ){
@@ -243,6 +295,9 @@ export class IsaService {
           cardexArr.push(cardex);
         });
         console.log('Arreglo', cardexArr);
+        if (localStorage.getItem('cardex')){
+          localStorage.removeItem('cardex');
+        }
         this.isaLS.guardarHistVentas(cardexArr);
       }, error => {
         console.log(error.message);

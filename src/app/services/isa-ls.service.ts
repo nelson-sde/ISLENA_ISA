@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import { Cardex } from '../models/cardex';
+import { Existencias } from '../models/pedido';
 import { Productos } from '../models/productos';
 
 @Injectable({
@@ -20,6 +21,10 @@ export class IsaLSService {
     this.storage.set( 'Productos', productos );
   }
 
+  guardarExistencias( arr: Existencias[] ){
+    this.storage.set( 'Existencias', arr );
+  }
+
   async getHistVentas(){
     let cardex: Cardex[] = [];
 
@@ -34,6 +39,14 @@ export class IsaLSService {
     const prod = await this.storage.get( 'Productos' );
     productos = prod;
     return productos;
+  }
+
+  async getExistencias(){
+    let existencias: Existencias[] = [];
+
+    const item = await this.storage.get( 'Existencias' );
+    existencias = item;
+    return existencias;
   }
 
   async crearBD(){

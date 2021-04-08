@@ -81,11 +81,11 @@ export class IsaCardexService {
     let cardexLS: Cardex[] = [];
     let arrayTemp: Cardex[] = [];
 
+    this.isa.addBitacora( true, 'INSERT', `Se inserta en el Cardex, Cliente: ${cardex[0].codCliente}`);
+
     if (localStorage.getItem('cardexCliente')){
       cardexLS = JSON.parse( localStorage.getItem('cardexCliente'));
       arrayTemp = cardexLS.filter( d => d.codCliente !== this.isa.clienteAct.id && !d.aplicado )
-      console.log(cardexLS);
-      console.log(cardex);
       cardexLS = arrayTemp.concat(cardex);
       localStorage.setItem('cardexCliente', JSON.stringify(cardexLS));
     } else {

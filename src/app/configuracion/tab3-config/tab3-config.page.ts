@@ -106,6 +106,7 @@ export class Tab3ConfigPage {
       this.isa.syncBancos();
       this.isa.syncExoneraciones();
       this.isa.syncSugerido();
+      this.isa.syncExistencias();
       this.isaPedidos.borrarPedidos();
       this.isaCobros.borrarRecibos();
       this.isaCardex.borrarCardex();

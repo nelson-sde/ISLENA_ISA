@@ -6,6 +6,7 @@ import { Email } from '../models/email';
 import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
 import { IsaService } from './isa.service';
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,16 +50,21 @@ export class IsaPedidoService {
     let pedidoFrio: Pedido;
 
     if ( frio && seco ){
+      this.isa.addBitacora( true, 'INSERT', `Separa los pedidos de Frio y Seco.  Frio: ${pedido.numPedido}`);
       pedidoFrio = this.separaPedido ( pedido, true );
       this.validaPedido( pedidoFrio, 'N' );
       this.isa.nextPedido();
       pedido.numPedido = this.isa.varConfig.consecutivoPedidos;
+      this.isa.addBitacora( true, 'INSERT', `Separa los pedidos de Frio y Seco.  Seco: ${pedido.numPedido}`);
       pedidoSeco = this.separaPedido( pedido, false );
       this.validaPedido( pedidoSeco, 'N' );
     } else {
       this.validaPedido( pedido, 'N' );
     }
   }
+
+   // separaPedidos *******************
+  // Separa los pedidos en Frio y Seco.  Si Tipo = true crea un nuevo pedido con los productos de Frio.  Si Tipo = false con los productos de Seco.
 
   private separaPedido( pedido: Pedido, tipo: boolean ){
     let pedidoNuevo: Pedido;
@@ -91,12 +97,14 @@ export class IsaPedidoService {
       if ( lineas > environment.cantLineasMaxPedido ){
         pedidoAux = this.nuevoPedido( pedidoOriginal );
         console.log('Nuevo Pedido', pedidoAux);
+        this.isa.addBitacora( true, 'INSERT', `Separa Pedido: ${pedidoAux.numPedido}, por cantidad de lineas.`);
         lineas -= environment.cantLineasMaxPedido;
         this.isa.nextPedido();
         pedidoOriginal.numPedido = this.isa.varConfig.consecutivoPedidos;
         this.transmitirPedido( pedidoAux, 'N');
       } else {
         console.log('Pedido final', pedidoOriginal);
+        this.isa.addBitacora( true, 'INSERT', `Inserta Pedido: ${pedidoOriginal.numPedido}.`);
         lineas = 0;
         this.transmitirPedido( pedidoOriginal, 'N');
       }
@@ -161,9 +169,11 @@ export class IsaPedidoService {
     this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {
         console.log('Success Encabezado...', resp);
+        this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
         this.agregarDetalle( numPedido, arrDetBD, email );
       }, error => {
         console.log('Error Encabezado ', error);
+        this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error}`);
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
@@ -178,12 +188,13 @@ export class IsaPedidoService {
     this.postPedidoDetalle( detalle ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
+        this.isa.addBitacora( true, 'TR', `Pedido: ${numPedido}, transmitido Detalle con exito`);
         this.actualizaEstadoPedido( numPedido, true );
         this.isa.enviarEmail( email );
         this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
       }, error => {
         console.log('Error Detalle ', error);
-        console.log('debemos borrar el enca del pedido...');
+        this.isa.addBitacora( false, 'TR', `Pedido: ${numPedido}, falla en TR Detalle. ${error}`);
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
@@ -194,18 +205,13 @@ export class IsaPedidoService {
     let texto: string;
 
     body.push( `Cliente: ${pedido.codCliente} - ${this.isa.clienteAct.nombre}<br/>` );
-    texto = `Fecha Pedido: ${this.getFecha(pedido.fecha)}<br/>`;
-    body.push(texto);
-    texto = `Fecha Entrega: ${this.getFecha(pedido.fechaEntrega)}<br/>`;
-    body.push(texto);
-    texto = `SubTotal: ${this.colones(pedido.subTotal)}<br/>`;
-    body.push(texto);
-    texto = `IVA...........:      ${this.colones(pedido.iva)}<br/>`;
-    body.push(texto);
-    texto = `Descuento: ${this.colones(pedido.descuento)}<br/>`;
-    body.push(texto);
-    texto = `<b>Total...........: ${this.colones(pedido.total)}</b><br/>`;
-    body.push(texto);
+    body.push(`Fecha Pedido: ${this.getFecha(pedido.fecha)}<br/>`);
+    body.push(`Fecha Entrega: ${this.getFecha(pedido.fechaEntrega)}<br/>`);
+    body.push(`SubTotal: ${this.colones(pedido.subTotal)}<br/>`);
+    body.push(`IVA...........:      ${this.colones(pedido.iva)}<br/>`);
+    body.push(`Descuento x Línea: ${this.colones(pedido.descuento)}<br/>`);
+    body.push(`Descuento General: ${this.colones(pedido.descGeneral)}<br/>`);
+    body.push(`<b>Total...........: ${this.colones(pedido.total)}</b><br/>`);
     body.push('<br/>')
     body.push('------------------- Detalle ----------------<br/>');
     body.push('Item<br/>');

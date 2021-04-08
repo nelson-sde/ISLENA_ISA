@@ -16,13 +16,21 @@
   <ion-list>
     <ion-item color="light">
       <ion-label>
-        <h2><strong>Fecha: {{pedido.fecha | date: 'short'}}</strong></h2>
+        <h2><strong>Fecha...: {{pedido.fecha | date: 'short'}}</strong></h2>
+        <p><strong>Entrega:</strong> {{pedido.fechaEntrega | date: 'short' }}</p>
         <p><strong>Cliente:</strong> {{pedido.codCliente}} - {{pedido.codCliente | cliente }}</p>
         <p></p>
-        <p><strong>SubTotal...:</strong> {{pedido.subTotal | colones}}</p>
-        <p><strong>Descuento:</strong> {{pedido.descuento | colones}}</p>
-        <p><strong>IVA............:</strong> {{pedido.iva | colones}}</p>
-        <p><strong>Total..........:</strong> {{pedido.total | colones}}</p>
+        <p><strong>SubTotal.........:</strong> {{pedido.subTotal | colones}}</p>
+        <p><strong>Descuento......:</strong> {{pedido.descuento | colones}}</p>
+        <p><strong>Desc. General:</strong> {{pedido.descGeneral | colones}}</p>
+        <p><strong>IVA..................:</strong> {{pedido.iva | colones}}</p>
+        <p><strong>Total................: {{pedido.total | colones}}</strong></p>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>
+        <h2><strong>Observaciones:</strong></h2>
+        <p>{{pedido.observaciones}}</p>
       </ion-label>
     </ion-item>
     <p></p>

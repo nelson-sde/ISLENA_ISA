@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ModalController, NavController } from '@ionic/angular';
 import { Recibo } from 'src/app/models/cobro';
 import { Pedido } from 'src/app/models/pedido';
+import { IsaService } from 'src/app/services/isa.service';
 import { ResumenPedPage } from '../resumen-ped/resumen-ped.page';
 
 @Component({
@@ -19,9 +20,11 @@ export class ResumenPage {
   mostrarPedidos: boolean = true;
   mostrarRecibos: boolean = false;
   mostrarDevol: boolean = false;
+  mostrarBitacora: boolean = false;
 
   constructor( private navController: NavController,
-               private modalCtrl: ModalController ) {
+               private modalCtrl: ModalController,
+               private isa: IsaService ) {
     this.cargarPedidos();
     this.cargarRecibos();
     this.total = this.totalPedidos;
@@ -33,15 +36,25 @@ export class ResumenPage {
       this.mostrarPedidos = true;
       this.mostrarDevol = false;
       this.mostrarRecibos = false;
+      this.mostrarBitacora = false;
     } else if (ev.detail.value == 'Recibos'){
       this.total = this.totalRecibos;
       this.mostrarPedidos = false;
       this.mostrarDevol = false;
       this.mostrarRecibos = true;
-    } else {
+      this.mostrarBitacora = false;
+    } else if (ev.detail.value == 'Devoluciones'){
+      this.total = 0;
       this.mostrarPedidos = false;
       this.mostrarDevol = true;
       this.mostrarRecibos = false;
+      this.mostrarBitacora = false;
+    } else if (ev.detail.value == 'Bitacora'){ 
+      this.total = 0;
+      this.mostrarPedidos = false;
+      this.mostrarDevol = false;
+      this.mostrarRecibos = false;
+      this.mostrarBitacora = true;
     }
     console.log('Segment changed', ev);
   }

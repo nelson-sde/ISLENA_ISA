@@ -2,13 +2,14 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Productos } from 'src/app/models/productos';
-import { DetallePedido, Existencias, Pedido } from 'src/app/models/pedido';
+import { DetallePedido, Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { AlertController, IonList, NavController, PopoverController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
 import { Cardex } from 'src/app/models/cardex';
 import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class PedidosPage {
   producto: Productos;                     // Producto seleccionado de la busqueda     
   texto: string = '';                             // campo de busqueda de productos
   cantidad: number = 6;                        // variable temporal con la cantidad de Items a agregar en el pedido
+  cantBodega: number = 0;
   descuento: number = 0;                      // variable temporal con el % del descuento
   montoIVA: number;                          // variable temporal con el monto del IVA
   montoDescLinea: number;                // variable temporal con el monto del descuento de la línea del pedido
@@ -53,12 +55,14 @@ export class PedidosPage {
                private isaCardex: IsaCardexService,
                private alertController: AlertController,
                private navController: NavController,
-               private popoverController: PopoverController ) {
+               private popoverController: PopoverController,
+               private barcodeScanner: BarcodeScanner ) {
 
     this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
       const fecha = new Date();
       this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
       this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
+      this.isaConfig.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isaConfig.clienteAct.nombre}`);
       this.validaSiCardex();
     });
   }
@@ -168,6 +172,7 @@ export class PedidosPage {
       this.busquedaProd[i].seleccionado = false;
       this.producto = this.busquedaProd[i];
       this.texto = this.busquedaProd[i].nombre;
+      this.cantBodega = this.cantidadBodega( this.producto.id );
       this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto, this.busquedaProd[i].id );
       const j = this.existeEnDetalle(this.busquedaProd[i].id);
       if (j >= 0){          // Ya el Item había sido seleccionado anteriormente.
@@ -227,6 +232,16 @@ export class PedidosPage {
     } else {
       return -1;
     }
+  }
+
+  cantidadBodega( codProducto: string ){
+    const cant = this.isaConfig.existencias.find( d => d.articulo == codProducto );
+    if ( cant !== undefined ){
+      return cant.existencia;
+    } else {
+      return 0;
+    }
+    
   }
 
   accionPedido( event: any ){          // Segmento de IONIC que determina si la cantidad a ingresar es Q o Descuentos
@@ -377,6 +392,7 @@ export class PedidosPage {
       this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
       this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
       this.texto = this.producto.nombre;
+      this.cantBodega = this.cantidadBodega( this.producto.id );
       this.impuesto = this.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
       this.mostrarListaProd = false;
       this.mostrarProducto = true;
@@ -605,7 +621,7 @@ export class PedidosPage {
     await alert.present();
   }
 
-  existencia(){
+  /*existencia(){
     console.log(this.producto);
     this.isaPedido.getExistencias( this.producto.id ).subscribe(
       resp => {
@@ -621,6 +637,28 @@ export class PedidosPage {
   mostrarExistencias( existe: Existencias[] ){
     const str = 'Cantidad: ' + existe[0].existencia.toString();
     this.isaConfig.presentAlertW(this.producto.nombre, str);
+  }*/
+
+  barcode(){
+    let texto: string;
+
+    if ( !this.modificando ){
+      this.barcodeScanner.scan().then(barcodeData => {
+        console.log('Barcode data', barcodeData);
+        if ( !barcodeData.cancelled ){
+          texto = barcodeData.text;
+          const item = this.isaConfig.productos.find( d => d.codigoBarras == texto )
+          if ( item ){
+            this.texto = item.id;
+          } else {
+            this.isaConfig.presentAlertW('Scan', 'Producto no existe' + texto);
+          }
+        } 
+       }).catch(err => {
+           console.log('Error', err);
+       });
+      
+    }
   }
 
   regresar(){
