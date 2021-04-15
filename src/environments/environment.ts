@@ -24,8 +24,9 @@ export const environment = {
   SugeridoURL: 'Sugerido/',
   EmailURL: 'Email/',
   cantLineasMaxPedido: 35,
+  maxchar: 107,
   adminClave: '@dmin2021*',
-  version: '1.1.0',
+  version: '1.1.3',
   aplicarNC: false,
   prdMode: true,
 };

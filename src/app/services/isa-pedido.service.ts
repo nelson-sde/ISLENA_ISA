@@ -139,7 +139,8 @@ export class IsaPedidoService {
     let rowPointer: string = '';
     let tax: number;
     let email: Email;
-    const fecha = new Date();
+    const fechaPedido = this.getFecha( new Date(), 'JSON');
+    const fechaEntrega = this.getFecha( pedido.fechaEntrega, 'JSON');
     const numPedido = pedido.numPedido;
 
     email = new Email( this.isa.clienteAct.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
@@ -148,12 +149,13 @@ export class IsaPedidoService {
     if ( tipo == 'N' ){
       this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
     }
-
-    const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', fecha, fecha, pedido.fechaEntrega, fecha, pedido.iva,
+debugger
+    const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', new Date(fechaPedido), new Date(fechaPedido), 
+                                  new Date(fechaEntrega), new Date(fechaPedido), pedido.iva,
                                   0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, pedido.detalle.length, this.isa.clienteAct.listaPrecios, 
                                   pedido.observaciones, null, 'N', this.isa.clienteAct.diasCredito.toString(), this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', 
-                                  pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, this.isa.nivelPrecios, 'L', 0, fecha, 
-                                  rowPointer, 'ISA', 'ISA', fecha, null, this.isa.clienteAct.divGeografica1, this.isa.clienteAct.divGeografica2, null, null, null, 
+                                  pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, this.isa.nivelPrecios, 'L', 0, new Date(fechaPedido), 
+                                  rowPointer, 'ISA', 'ISA', new Date(fechaPedido), null, this.isa.clienteAct.divGeografica1, this.isa.clienteAct.divGeografica2, null, null, null, 
                                   '512211');
 
     for (let i = 0; i < pedido.detalle.length; i++) {
@@ -161,8 +163,8 @@ export class IsaPedidoService {
       rowPointer = this.isa.generate();
       detalleBD = new PedDeta( i + 1, pedido.numPedido, 'ISLENA', pedido.detalle[i].codProducto.toString(), '0', null, pedido.detalle[i].precio, 
                         pedido.detalle[i].descuento * 100 / pedido.detalle[i].subTotal, pedido.detalle[i].subTotal, pedido.detalle[i].descuento,
-                        pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, this.isa.clienteAct.listaPrecios, null, 0, fecha, rowPointer, 
-                        'ISA', 'ISA', fecha, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
+                        pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, this.isa.clienteAct.listaPrecios, null, 0, new Date(fechaPedido), rowPointer, 
+                        'ISA', 'ISA', new Date(fechaPedido), pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
                         pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
       arrDetBD.push(detalleBD);
     } 
@@ -172,8 +174,8 @@ export class IsaPedidoService {
         this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
         this.agregarDetalle( numPedido, arrDetBD, email );
       }, error => {
-        console.log('Error Encabezado ', error);
-        this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error}`);
+        console.log('Error Encabezado ', error.message );
+        this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
@@ -193,8 +195,8 @@ export class IsaPedidoService {
         this.isa.enviarEmail( email );
         this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
       }, error => {
-        console.log('Error Detalle ', error);
-        this.isa.addBitacora( false, 'TR', `Pedido: ${numPedido}, falla en TR Detalle. ${error}`);
+        console.log('Error Detalle ', error.message);
+        this.isa.addBitacora( false, 'TR', `Pedido: ${numPedido}, falla en TR Detalle. ${error.message}`);
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
@@ -228,12 +230,21 @@ export class IsaPedidoService {
     return body.join('');
   }
 
-  private getFecha( fecha: Date ){
-    let day = fecha.getDate();
-    let month = fecha.getMonth()+1;
-    let year = fecha.getFullYear();
+  private getFecha( fecha: Date, tipo?: string ){
+    let day = new Date(fecha).getDate();
+    let month = new Date(fecha).getMonth() + 1;
+    let year = new Date(fecha).getFullYear();
 
-    return `${day}-${month}-${year}`;
+    if (tipo === 'JSON'){
+      if ( month >= 0 && month <= 9){
+        return `${year}-0${month}-${day}T12:00`;
+      } else {
+        return `${year}-${month}-${day}T12:00`;
+      }
+    } else {
+      return `${day}-${month}-${year}`;
+      
+    }
   }
 
   private postPedidos( pedido: PedEnca ){

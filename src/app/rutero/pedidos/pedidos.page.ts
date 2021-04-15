@@ -10,6 +10,8 @@ import { Cardex } from 'src/app/models/cardex';
 import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { environment } from 'src/environments/environment';
+
 
 
 @Component({
@@ -76,22 +78,24 @@ export class PedidosPage {
       this.hayCardex = true;
       for (let i = 0; i < result.length; i++) {
         prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
-        this.esFrio( prod[0].frio );
-        this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
-        this.montoSub = result[i].cantPedido * prod[0].precio;
-        this.montoDescLinea = this.montoSub * result[i].descuento / 100;
-        this.montoIVA = (this.montoSub - this.montoDescLinea) * this.impuesto;
-        this.montoExonerado = this.montoSub * this.exonerado;
-        this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea;
-        this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
-                                              this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100, 
-                                              this.exonerado, this.montoExonerado, prod[0].frio );
-        this.pedido.detalle.push( this.nuevoDetalle );
-        this.pedido.subTotal += this.nuevoDetalle.subTotal;
-        this.pedido.iva += this.nuevoDetalle.iva;
-        this.pedido.descuento += this.nuevoDetalle.descuento;
-        this.pedido.total += this.nuevoDetalle.total;
-        this.pedidoSinSalvar = true;
+        if (prod.length > 0){ 
+          this.esFrio( prod[0].frio );
+          this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
+          this.montoSub = result[i].cantPedido * prod[0].precio;
+          this.montoDescLinea = this.montoSub * result[i].descuento / 100;
+          this.montoIVA = (this.montoSub - this.montoDescLinea) * this.impuesto;
+          this.montoExonerado = this.montoSub * this.exonerado;
+          this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea;
+          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
+                                                this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100, 
+                                                this.exonerado, this.montoExonerado, prod[0].frio );
+          this.pedido.detalle.push( this.nuevoDetalle );
+          this.pedido.subTotal += this.nuevoDetalle.subTotal;
+          this.pedido.iva += this.nuevoDetalle.iva;
+          this.pedido.descuento += this.nuevoDetalle.descuento;
+          this.pedido.total += this.nuevoDetalle.total;
+          this.pedidoSinSalvar = true;
+        }
       }
       this.texto = '';
       this.mostrarListaProd = false;
@@ -235,6 +239,7 @@ export class PedidosPage {
   }
 
   cantidadBodega( codProducto: string ){
+
     const cant = this.isaConfig.existencias.find( d => d.articulo == codProducto );
     if ( cant !== undefined ){
       return cant.existencia;
@@ -504,23 +509,25 @@ export class PedidosPage {
   }
 
   async observaciones(){
+    const maxchar = environment.maxchar;
+    let diaSemana: string = 'ND'; 
+
     const alert = await this.alertController.create({
       cssClass: 'my-custom-class',
       header: 'Observaciones',
       inputs: [
         {
           name: 'observacion',
+          value: this.pedido.observaciones,
           id: 'paragraph',
           type: 'textarea',
           placeholder: 'Texto',
-          value: this.pedido.observaciones
         },
         {
           name: 'entrega',
           id: 'entrega',
           type: 'date',
           placeholder: 'Fecha entrega',
-          value: new Date(this.pedido.fechaEntrega)
         },
       ],
       buttons: [
@@ -532,10 +539,46 @@ export class PedidosPage {
           text: 'Ok',
           handler: (data) => {
             this.pedido.observaciones = data.observacion;
-            this.pedido.fechaEntrega = new Date(data.entrega);
-            this.pedido.fechaEntrega.setDate(this.pedido.fechaEntrega.getDate() + 1);
-            console.log(data.entrega);
-            console.log(this.pedido.fechaEntrega);
+            if ( this.pedido.observaciones.length > maxchar ){
+              const arr = this.pedido.observaciones.slice( 0, maxchar );
+              this.pedido.observaciones = arr;
+              console.log(arr);
+            }
+            if (data.entrega !== ""){ 
+              this.pedido.fechaEntrega = new Date(data.entrega);
+              this.pedido.fechaEntrega.setDate(this.pedido.fechaEntrega.getDate() + 1);
+              const mes = new Date(this.pedido.fechaEntrega).getMonth() + 1;
+              const dia = new Date(this.pedido.fechaEntrega).getDay();
+              switch (dia) {
+                case 0:
+                  diaSemana = 'Dom';
+                  break;
+                case 1:
+                  diaSemana = 'Lun';
+                    break;
+                case 2:
+                  diaSemana = 'Mar';
+                    break;
+                case 3:
+                  diaSemana = 'Mie';
+                    break;
+                case 4:
+                  diaSemana = 'Jue';
+                    break;
+                case 5:
+                  diaSemana = 'Vie';
+                    break;
+                case 6:
+                  diaSemana = 'Sab';
+                    break;
+                default:
+                  diaSemana = 'ND';
+                    break;
+              }
+              const fecha = `${new Date(this.pedido.fechaEntrega).getDate().toString()}/${mes.toString()}/${new Date(this.pedido.fechaEntrega).getFullYear().toString()}`;
+              this.pedido.observaciones = `${this.pedido.observaciones} ${diaSemana}: ${fecha}`;
+              console.log(fecha);
+            }
           }
         }
       ]

@@ -136,9 +136,9 @@ export class PedEnca {
         this.COD_CLT = COD_CLT;
         this.TIP_DOC = TIP_DOC;
         this.HOR_FIN = HOR_FIN;
-        this.FEC_PED = FEC_PED;
-        this.FEC_DES = FEC_DES;
-        this.HOR_INI = HOR_INI;
+        this.FEC_PED = new Date(FEC_PED);
+        this.FEC_DES = new Date(FEC_DES);
+        this.HOR_INI = new Date(HOR_INI);
         this.MON_IMP_VT = MON_IMP_VT;
         this.MON_IMP_CS = MON_IMP_CS;
         this.MON_CIV = MON_CIV;

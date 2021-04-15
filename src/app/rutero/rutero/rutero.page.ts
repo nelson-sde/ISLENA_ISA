@@ -101,6 +101,9 @@ export class RuteroPage {
         this.isa.clienteAct = this.buscarClientes[0];
         this.isa.cargaListaPrecios();
         this.isa.cargarExoneraciones();
+        if (this.isa.existencias.length === 0){
+          this.isa.cargarExistencias();
+        }
       } else {                                                           // Se debe abrir el modal para busqueda de clientes
         this.clientesPopover( ev );
       }
@@ -130,7 +133,9 @@ export class RuteroPage {
         this.dir = true;
         this.isa.cargaListaPrecios();
         this.isa.cargarExoneraciones();
-        console.log(this.isa.productos);
+        if (this.isa.existencias.length === 0){
+          this.isa.cargarExistencias();
+        }
       } else {
         this.codigoCliente = '';
         this.texto = '';

@@ -45,8 +45,10 @@ export class IsaLSService {
     let existencias: Existencias[] = [];
 
     const item = await this.storage.get( 'Existencias' );
-    existencias = item;
-    return existencias;
+    if (item !== null){ 
+      existencias = item;
+      return existencias;
+    }
   }
 
   async crearBD(){

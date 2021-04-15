@@ -230,8 +230,10 @@ export class IsaService {
     let existencias: Existencias[] = [];
 
     existencias = await this.isaLS.getExistencias();
-    this.existencias = existencias.filter( d => d.bodega == this.varConfig.bodega.toString() );
-    console.log(this.existencias);
+    if (existencias){ 
+      this.existencias = existencias.filter( d => d.bodega == this.varConfig.bodega.toString() );
+      console.log(this.existencias);
+    }
   }
 
   syncClientes( ruta: string ){
@@ -563,14 +565,28 @@ export class IsaService {
   }
 
   enviarEmail( email: Email ){
-    this.postEmail( email ).subscribe(
-      resp => {
-        console.log('Email enviado', );
-      }, error => {
-        console.log('Error en el envío del Email');
-        this.presentaToast('Error en el envío del Email');
-      }
-    );
+    if ( this.validaEmail( email.toEmail )){
+      this.postEmail( email ).subscribe(
+        resp => {
+          console.log('Email enviado', );
+        }, error => {
+          console.log('Error en el envío del Email');
+          this.presentaToast('Error en el envío del Email');
+        }
+      );
+    } else {
+      this.presentaToast('El Cliente no posee Email válido.');
+    }
+    
+  }
+
+  validaEmail( direccion: string ){
+    /*if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3,4})+$/.test(direccion)){
+      return true;
+     } else {
+      return false;
+     }*/
+     return true;
   }
 
   
