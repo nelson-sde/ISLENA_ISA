@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { ModalController, NavController, NavParams } from '@ionic/angular';
 import { Cardex, SugeridoBD } from 'src/app/models/cardex';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
@@ -21,8 +20,7 @@ export class CardexPage {
   lineaCardex: Cardex;
   cardex: Cardex[] = [];
 
-  constructor( private activatedRoute: ActivatedRoute,
-               public isa: IsaService,
+  constructor( private isa: IsaService,
                private modalCtrl: ModalController,
                private navParams: NavParams,
                private navController: NavController,
@@ -72,6 +70,10 @@ export class CardexPage {
   async agregarProducto(){
     const modal = await this.modalCtrl.create({
       component: ProductosPage,
+      componentProps: {
+        'cardex': this.cardex,
+        'mostrar': false,
+      },
       cssClass: 'my-custom-class'
     });
     await modal.present();

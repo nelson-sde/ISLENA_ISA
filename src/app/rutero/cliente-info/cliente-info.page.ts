@@ -17,10 +17,15 @@ export class ClienteInfoPage {
                private geolocation: Geolocation ) {}
 
   guardar(){
-    debugger
+
     if ( this.isa.clienteAct.email.length > 0 ){
       if ( !this.isa.validaEmail( this.isa.clienteAct.email )){
         this.isa.presentAlertW( 'Email', 'El Email ingresado no es valido.');
+      } else {
+        this.popoverCtrl.dismiss({
+          modificado: true,
+          geoReferencia: this.geoReferencia,
+        });
       }
     } else {
       this.popoverCtrl.dismiss({

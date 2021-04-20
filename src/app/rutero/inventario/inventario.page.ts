@@ -6,6 +6,7 @@ import { Productos } from 'src/app/models/productos';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaService } from 'src/app/services/isa.service';
 import { CardexPage } from '../cardex/cardex.page';
+import { ProductosPage } from '../productos/productos.page';
 
 @Component({
   selector: 'app-inventario',
@@ -15,7 +16,7 @@ import { CardexPage } from '../cardex/cardex.page';
 
 export class InventarioPage {
 
-  productos: Productos[] = [];
+  productos: Cardex[] = [];
   cardexHistorico: Cardex [] = [];
   cardex: Cardex[] = [];
   filtra: boolean = false;
@@ -43,15 +44,48 @@ export class InventarioPage {
         j++;
       }
     }
+    this.cargarProductos();
   }
 
-  async filtraItem( producto: string ){
-    this.cardexHistorico = await this.isaCardex.cargarCardex(producto);
-    this.filtra = true;
+  cargarProductos(){
+    let i: number;
+
+    this.cardexHistorico.forEach( d => {
+      i = this.productos.findIndex( f => f.codProducto === d.codProducto );
+      if ( i === -1 ){
+        this.productos.push( d );
+      }
+    });
+    if (this.productos.length > 0){
+      this.productos.sort( function(a,b){
+        if (a.desProducto > b.desProducto){
+          return 1;
+        }
+        if (a.desProducto < b.desProducto){
+          return -1;
+        }
+        return 0;
+      });
+    }
+    console.log('Productos:', this.productos);
   }
 
-  cancelarFiltro(){
-    this.reordenaHistorico();
+  async filtraProductos(){
+    const modal = await this.modalCtrl.create({
+      component: ProductosPage,
+      componentProps: {
+        'cardex': this.productos,
+        'mostrar': true,
+      },
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+
+    const {data} = await modal.onDidDismiss();
+    if (data.codProducto !== null){
+      const i = this.cardexHistorico.findIndex( d => d.codProducto === data.codProducto );
+      this.abrirCardex( i );
+    }
   }
 
   async abrirCardex( i: number ){

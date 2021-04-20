@@ -1,9 +1,10 @@
 
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Productos } from 'src/app/models/productos';
 import { IsaService } from 'src/app/services/isa.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { Cardex } from 'src/app/models/cardex';
 
 @Component({
   selector: 'app-productos',
@@ -12,20 +13,34 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 })
 export class ProductosPage {
 
+  @Input() cardex: Cardex[];
+  @Input() mostrar: boolean;
+
   productos: Productos[] = [];
+  producto: Productos;
   busquedaProd: Productos[] = [];
   texto: string;
 
   constructor( private modalCtrl: ModalController,
                private isa: IsaService,
                private barcodeScanner: BarcodeScanner ) {
-    this.productos = this.isa.productos.slice(0);
+
+    
   }
 
   buscarProducto(){
-    if (this.texto.length == 0) {    
-      this.busquedaProd = this.productos.slice(0);
-    } else if (this.texto[0] == '#') {                     // Se buscará por código de producto
+
+    if ( this.productos.length === 0 ){    // Es la primer vez que se ejecuta buscar, llena el arreglo productos.
+      if (this.mostrar){
+        this.cardex.forEach( d => {
+          this.producto = new Productos( d.codProducto, d.desProducto, 0, '', 0, '', '', '', '', '', '' );
+          this.productos.push( this.producto );
+        });
+      } else {
+        this.productos = this.isa.productos.slice(0);
+      }
+    }
+    if (this.texto[0] == '#') {                     // Se buscará por código de producto
       this.busquedaProd = [];
       const idProduct = this.texto.slice(1);
       const product = this.productos.find( e => e.id == idProduct );
@@ -43,11 +58,23 @@ export class ProductosPage {
     if (this.busquedaProd.length == 0){                    // no hay coincidencias
       this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
       this.texto = '';
-    }                                             
+    } else {
+      this.actualizaCardex();
+    }
+  }
+
+  actualizaCardex(){
+    let item: Cardex;
+
+    this.cardex = [];
+    this.busquedaProd.forEach( d => {
+      item = new Cardex( '', d.id, d.nombre, '', null, 0, 0, 0);
+      this.cardex.push(item);
+    })
   }
 
   productoSelect( i: number ){
-    this.modalCtrl.dismiss({codProducto: this.busquedaProd[i].id, desProducto: this.busquedaProd[i].nombre});
+    this.modalCtrl.dismiss({codProducto: this.cardex[i].codProducto, desProducto: this.cardex[i].desProducto});
   }
 
   barcode(){

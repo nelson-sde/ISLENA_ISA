@@ -149,7 +149,6 @@ export class IsaPedidoService {
     if ( tipo == 'N' ){
       this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
     }
-debugger
     const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', new Date(fechaPedido), new Date(fechaPedido), 
                                   new Date(fechaEntrega), new Date(fechaPedido), pedido.iva,
                                   0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, pedido.detalle.length, this.isa.clienteAct.listaPrecios, 

@@ -80,6 +80,12 @@ export class PedidosPage {
         prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
         if (prod.length > 0){ 
           this.esFrio( prod[0].frio );
+          if ( result[i].cantPedido === 0 || result[i].cantPedido === null ){
+            result[i].cantPedido = 1;
+          }
+          if ( result[i].descuento == null ){
+            result[i].descuento = 0;
+          }
           this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
           this.montoSub = result[i].cantPedido * prod[0].precio;
           this.montoDescLinea = this.montoSub * result[i].descuento / 100;
@@ -152,10 +158,17 @@ export class PedidosPage {
         }
       }
     } else {                      // la busqueda es por codigo de producto
-      const product = this.isaConfig.productos.find( e => e.id == this.texto );
-      if ( product !== undefined ){
-        this.busquedaProd.push(product);
-        // this.productoSelect(0);
+      const codigo = this.texto.toString();
+      if ( codigo.length <= environment.maxCharCodigoProd ){    // Busca por código de Producto Isleña
+        const product = this.isaConfig.productos.find( e => e.id == this.texto );
+        if ( product !== undefined ){
+          this.busquedaProd.push(product);
+        }
+      } else {     // busca por código de barras
+        const product = this.isaConfig.productos.find( e => e.codigoBarras == this.texto );
+        if ( product !== undefined ){
+          this.busquedaProd.push(product);
+        }
       }
     }
     if (this.busquedaProd.length == 0){                    // no hay coincidencias
@@ -259,52 +272,56 @@ export class PedidosPage {
   }
 
   calculaLineaPedido(){           // Boton de aceptar la linea de pedido
-    this.montoSub = this.cantidad * this.producto.precio;
-    this.montoDescLinea = this.montoSub * this.descuento / 100;
-    this.montoDescGen = (this.montoSub - this.montoDescLinea) * this.pedido.porcentajeDescGeneral / 100;
-    this.montoIVA = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.impuesto;
-    this.montoExonerado = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.exonerado;
-    this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea - this.montoDescGen;
+    if ( this.cantidad > 0 ){ 
+      this.montoSub = this.cantidad * this.producto.precio;
+      this.montoDescLinea = this.montoSub * this.descuento / 100;
+      this.montoDescGen = (this.montoSub - this.montoDescLinea) * this.pedido.porcentajeDescGeneral / 100;
+      this.montoIVA = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.impuesto;
+      this.montoExonerado = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.exonerado;
+      this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea - this.montoDescGen;
 
-    if (this.modificando){          // Si modificando = true se esta modificando una linea del detalle
-      this.pedido.detalle[this.j].cantidad = this.cantidad;
-      this.pedido.detalle[this.j].subTotal = this.montoSub;
-      this.pedido.detalle[this.j].iva = this.montoIVA;
-      this.pedido.detalle[this.j].montoExonerado = this.montoExonerado;
-      this.pedido.detalle[this.j].descuento = this.montoDescLinea;
-      this.pedido.detalle[this.j].porcenDescuento = this.descuento;
-      this.pedido.detalle[this.j].descGeneral = this.montoDescGen;
-      this.pedido.detalle[this.j].total = this.montoTotal;
-      this.modificando = false;
-      this.j = -1;
-    } else {                        // SINO se esta creando una nueva linea de detalle
-      this.esFrio( this.producto.frio );
-      this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
-                                  this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100,
-                                  this.montoExonerado, this.exonerado, this.producto.frio );
-      this.pedido.detalle.unshift( this.nuevoDetalle );
+      if (this.modificando){          // Si modificando = true se esta modificando una linea del detalle
+        this.pedido.detalle[this.j].cantidad = this.cantidad;
+        this.pedido.detalle[this.j].subTotal = this.montoSub;
+        this.pedido.detalle[this.j].iva = this.montoIVA;
+        this.pedido.detalle[this.j].montoExonerado = this.montoExonerado;
+        this.pedido.detalle[this.j].descuento = this.montoDescLinea;
+        this.pedido.detalle[this.j].porcenDescuento = this.descuento;
+        this.pedido.detalle[this.j].descGeneral = this.montoDescGen;
+        this.pedido.detalle[this.j].total = this.montoTotal;
+        this.modificando = false;
+        this.j = -1;
+      } else {                        // SINO se esta creando una nueva linea de detalle
+        this.esFrio( this.producto.frio );
+        this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
+                                    this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100,
+                                    this.montoExonerado, this.exonerado, this.producto.frio );
+        this.pedido.detalle.unshift( this.nuevoDetalle );
+      }
+      this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
+      this.pedido.iva = this.pedido.iva + this.montoIVA;
+      this.pedido.descuento = this.pedido.descuento + this.montoDescLinea;
+      this.pedido.descGeneral = this.pedido.descGeneral + this.montoDescGen;
+      this.pedido.total = this.pedido.total + this.montoTotal;
+      
+      this.pedidoSinSalvar = true;
+      this.texto = '';
+      this.mostrarListaProd = false;
+      this.mostrarProducto = false;
+      this.cantidad = 6;
+      this.descuento = 0;
+      this.montoIVA = 0;
+      this.montoDescLinea = 0;
+      this.montoDescGen = 0;
+      this.montoSub = 0;
+      this.montoTotal = 0;
+      this.impuesto = 0;
+      this.exonerado = 0;
+      this.montoExonerado = 0;
+      this.defaultCant = true;
+    } else {
+      this.isaConfig.presentAlertW( 'Cantidad', 'La cantidad no puede ser 0');
     }
-    this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
-    this.pedido.iva = this.pedido.iva + this.montoIVA;
-    this.pedido.descuento = this.pedido.descuento + this.montoDescLinea;
-    this.pedido.descGeneral = this.pedido.descGeneral + this.montoDescGen;
-    this.pedido.total = this.pedido.total + this.montoTotal;
-    
-    this.pedidoSinSalvar = true;
-    this.texto = '';
-    this.mostrarListaProd = false;
-    this.mostrarProducto = false;
-    this.cantidad = 6;
-    this.descuento = 0;
-    this.montoIVA = 0;
-    this.montoDescLinea = 0;
-    this.montoDescGen = 0;
-    this.montoSub = 0;
-    this.montoTotal = 0;
-    this.impuesto = 0;
-    this.exonerado = 0;
-    this.montoExonerado = 0;
-    this.defaultCant = true;
   }
 
   masFunction(){
