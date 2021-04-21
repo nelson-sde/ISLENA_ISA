@@ -99,6 +99,7 @@ export class Tab3ConfigPage {
          this.isa.varConfig.clave.length > 0 &&
          this.isa.varConfig.usuario.length > 0) {
       this.isa.guardarVarConfig();                              // Actualiza la informacion de entorno
+      this.isa.clienteAct.id = '';
       this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
       this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos
       this.isa.syncCardex(this.isa.varConfig.numRuta);

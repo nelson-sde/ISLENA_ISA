@@ -37,6 +37,7 @@ export class RuteroPage {
   }
 
   abrirPedidos(){
+    this.codigoCliente = this.isa.clienteAct.id;
     if (this.codigoCliente !== '' && this.texto.length !== 0){
       this.router.navigate(['/pedidos', {
                             codCliente: this.codigoCliente,
@@ -49,6 +50,7 @@ export class RuteroPage {
   }
 
   abrirInventario(){
+    this.codigoCliente = this.isa.clienteAct.id;
     if (this.codigoCliente !== '' && this.texto.length !== 0){
       this.router.navigate(['/inventario']);
     } else {
@@ -57,6 +59,7 @@ export class RuteroPage {
   }
 
   abrirCobro(){
+    this.codigoCliente = this.isa.clienteAct.id;
     if (this.codigoCliente !== '' && this.texto.length !== 0){
       this.router.navigate(['/pen-cobro']);
     } else {

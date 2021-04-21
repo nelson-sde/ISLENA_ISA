@@ -142,45 +142,50 @@ export class IsaPedidoService {
     const fechaPedido = this.getFecha( new Date(), 'JSON');
     const fechaEntrega = this.getFecha( pedido.fechaEntrega, 'JSON');
     const numPedido = pedido.numPedido;
+    const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
 
-    email = new Email( this.isa.clienteAct.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
-    rowPointer = this.isa.generate();
+    if ( cliente !== undefined ){ 
 
-    if ( tipo == 'N' ){
-      this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
-    }
-    const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', new Date(fechaPedido), new Date(fechaPedido), 
-                                  new Date(fechaEntrega), new Date(fechaPedido), pedido.iva,
-                                  0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, pedido.detalle.length, this.isa.clienteAct.listaPrecios, 
-                                  pedido.observaciones, null, 'N', this.isa.clienteAct.diasCredito.toString(), this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', 
-                                  pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, this.isa.nivelPrecios, 'L', 0, new Date(fechaPedido), 
-                                  rowPointer, 'ISA', 'ISA', new Date(fechaPedido), null, this.isa.clienteAct.divGeografica1, this.isa.clienteAct.divGeografica2, null, null, null, 
-                                  '512211');
-
-    for (let i = 0; i < pedido.detalle.length; i++) {
-      tax = this.calculaImpuesto( pedido.detalle[i].impuesto ) * 100;
+      email = new Email( this.isa.clienteAct.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
       rowPointer = this.isa.generate();
-      detalleBD = new PedDeta( i + 1, pedido.numPedido, 'ISLENA', pedido.detalle[i].codProducto.toString(), '0', null, pedido.detalle[i].precio, 
-                        pedido.detalle[i].descuento * 100 / pedido.detalle[i].subTotal, pedido.detalle[i].subTotal, pedido.detalle[i].descuento,
-                        pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, this.isa.clienteAct.listaPrecios, null, 0, new Date(fechaPedido), rowPointer, 
-                        'ISA', 'ISA', new Date(fechaPedido), pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
-                        pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
-      arrDetBD.push(detalleBD);
-    } 
-    this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
-      resp => {
-        console.log('Success Encabezado...', resp);
-        this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
-        this.agregarDetalle( numPedido, arrDetBD, email );
-      }, error => {
-        console.log('Error Encabezado ', error.message );
-        this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);
-        this.isa.presentaToast( 'Error de Envío...' );
+
+      if ( tipo == 'N' ){
+        this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
       }
-    );
-    
-    console.log('Encabezado JSON',JSON.stringify(pedidoBD));
-    console.log('Detalle JSON ', JSON.stringify(arrDetBD));
+      const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', new Date(fechaPedido), new Date(fechaPedido), 
+                                    new Date(fechaEntrega), new Date(fechaPedido), pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, 
+                                    pedido.detalle.length, cliente.listaPrecios, pedido.observaciones, null, 'N', cliente.diasCredito.toString(), 
+                                    this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, 
+                                    this.isa.nivelPrecios, 'L', 0, new Date(fechaPedido), rowPointer, 'ISA', 'ISA', new Date(fechaPedido), null, cliente.divGeografica1, 
+                                    cliente.divGeografica2, null, null, null, '512211');
+
+      for (let i = 0; i < pedido.detalle.length; i++) {
+        tax = this.calculaImpuesto( pedido.detalle[i].impuesto ) * 100;
+        rowPointer = this.isa.generate();
+        detalleBD = new PedDeta( i + 1, pedido.numPedido, 'ISLENA', pedido.detalle[i].codProducto.toString(), '0', null, pedido.detalle[i].precio, 
+                          pedido.detalle[i].descuento * 100 / pedido.detalle[i].subTotal, pedido.detalle[i].subTotal, pedido.detalle[i].descuento,
+                          pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, cliente.listaPrecios, null, 0, new Date(fechaPedido), rowPointer, 
+                          'ISA', 'ISA', new Date(fechaPedido), pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
+                          pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
+        arrDetBD.push(detalleBD);
+      } 
+      this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
+        resp => {
+          console.log('Success Encabezado...', resp);
+          this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
+          this.agregarDetalle( numPedido, arrDetBD, email );
+        }, error => {
+          console.log('Error Encabezado ', error.message );
+          this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);
+          this.isa.presentaToast( 'Error de Envío...' );
+        }
+      );
+      
+      console.log('Encabezado JSON',JSON.stringify(pedidoBD));
+      console.log('Detalle JSON ', JSON.stringify(arrDetBD));
+    } else {
+      this.isa.presentAlertW( 'Transmitir Pedido', 'Imposible transmitir pedido. Datos del cliente inconsistentes');
+    }
   }
 
   private agregarDetalle( numPedido: string, detalle: PedDeta[], email: Email ) {

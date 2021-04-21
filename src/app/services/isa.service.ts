@@ -67,7 +67,7 @@ export class IsaService {
   ids: string[] = [];
   existencias: Existencias[] = [];
   bitacora: Bitacora[] = [];
-  userLogged: boolean = false;
+  userLogged: boolean = true;
 
   loading: HTMLIonLoadingElement;
 
@@ -107,6 +107,12 @@ export class IsaService {
     const bitacora = new Bitacora( status, movimiento, linea);
     this.bitacora.unshift( bitacora );
     this.guardarBitacora();
+  }
+
+  borrarBitacora(){
+    if (localStorage.getItem('Bitacora')){
+      localStorage.removeItem('Bitacora');
+    }
   }
 
   getURL( api: string, id: string ){

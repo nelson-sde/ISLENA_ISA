@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Pedido, Pendientes } from '../models/pedido';
-import { IsaPedidoService } from '../services/isa-pedido.service';
 import { IsaService } from '../services/isa.service';
 
 @Component({
@@ -16,9 +14,8 @@ export class Tab3Page {
 
   numRuta: string;
 
-  constructor( public isa: IsaService,
-               private isaPedido: IsaPedidoService,
-               private router: Router ) {
+  constructor( private router: Router,
+               private isa: IsaService ) {
   }
 
   configRuta(){
