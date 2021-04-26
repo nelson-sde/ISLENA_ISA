@@ -46,6 +46,7 @@ export class IsaCobrosService {
     recordDate : new Date(),
     rowPointer : '',
     updatedBy : 'ISA',
+    APLICACION : '',
   }
 
   detalleReciboBD: RecDetaBD[] = [];
@@ -77,7 +78,7 @@ export class IsaCobrosService {
     localStorage.setItem('recibos', JSON.stringify(recibosLS));
   }
 
-  transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean ){
+  transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
 
     let rowPointer: string = '';
     this.detalleReciboBD = [];
@@ -101,6 +102,7 @@ export class IsaCobrosService {
     this.reciboBD.moN_DEP_LOCAL = recibo.montoDepositoL;
     this.reciboBD.moN_DEP_DOLAR = recibo.montoDepositoD;
     this.reciboBD.rowPointer = rowPointer;
+    this.reciboBD.APLICACION = recibo.observaciones;
 
     for (let i = 0; i < recibo.detalle.length; i++) {
       rowPointer = this.isa.generate();
@@ -128,7 +130,9 @@ export class IsaCobrosService {
       this.detalleReciboBD.push(this.detalleRec);
     } 
 
-    this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
+    if (nuevo) {
+      this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
+    }
 
     this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {

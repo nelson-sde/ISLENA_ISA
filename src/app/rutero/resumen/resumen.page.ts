@@ -30,6 +30,14 @@ export class ResumenPage {
     this.total = this.totalPedidos;
   }
 
+  refrescar(){
+    this.totalPedidos = 0;
+    this.totalRecibos = 0;
+    this.cargarPedidos();
+    this.cargarRecibos();
+    this.total = this.totalPedidos;
+  }
+
   segmentChanged(ev: any) {
     if (ev.detail.value == 'Pedidos'){
       this.total = this.totalPedidos;

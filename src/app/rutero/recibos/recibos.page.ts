@@ -41,7 +41,7 @@ export class RecibosPage {
     
     let det: Det_Recibo;
 
-    this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, new Date(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+    this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, new Date(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '' );
     this.docsPagar = this.isaCobros.cxc.filter( d => d.pago );
     if ( this.docsPagar.length > 0 ){
       this.docsPagar.forEach( e => {
@@ -205,7 +205,7 @@ export class RecibosPage {
           cxc[j].saldoDolar = this.recibo.detalle[i].saldoDolar;
         }
         localStorage.setItem('cxc', JSON.stringify(cxc));                                     // Actualiza CxC en el Local Storage
-        this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque );
+        this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque, true );
         this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
         this.isa.guardarVarConfig();
         this.navController.back();

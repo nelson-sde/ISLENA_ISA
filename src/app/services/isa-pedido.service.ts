@@ -52,13 +52,16 @@ export class IsaPedidoService {
     if ( frio && seco ){
       this.isa.addBitacora( true, 'INSERT', `Separa los pedidos de Frio y Seco.  Frio: ${pedido.numPedido}`);
       pedidoFrio = this.separaPedido ( pedido, true );
+      this.isa.transmitiendo.push(pedidoFrio.numPedido);
       this.validaPedido( pedidoFrio, 'N' );
       this.isa.nextPedido();
       pedido.numPedido = this.isa.varConfig.consecutivoPedidos;
       this.isa.addBitacora( true, 'INSERT', `Separa los pedidos de Frio y Seco.  Seco: ${pedido.numPedido}`);
       pedidoSeco = this.separaPedido( pedido, false );
+      this.isa.transmitiendo.push(pedidoSeco.numPedido);
       this.validaPedido( pedidoSeco, 'N' );
     } else {
+      this.isa.transmitiendo.push(pedido.numPedido);
       this.validaPedido( pedido, 'N' );
     }
   }
@@ -101,11 +104,14 @@ export class IsaPedidoService {
         lineas -= environment.cantLineasMaxPedido;
         this.isa.nextPedido();
         pedidoOriginal.numPedido = this.isa.varConfig.consecutivoPedidos;
+        this.isa.transmitiendo.push(pedidoOriginal.numPedido);
+        console.log('Transmite: ',this.isa.transmitiendo);
         this.transmitirPedido( pedidoAux, 'N');
       } else {
         console.log('Pedido final', pedidoOriginal);
         this.isa.addBitacora( true, 'INSERT', `Inserta Pedido: ${pedidoOriginal.numPedido}.`);
         lineas = 0;
+        console.log('Transmite: ',this.isa.transmitiendo);
         this.transmitirPedido( pedidoOriginal, 'N');
       }
     }
@@ -177,6 +183,8 @@ export class IsaPedidoService {
         }, error => {
           console.log('Error Encabezado ', error.message );
           this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);
+          this.isa.transmitiendo.pop();
+          console.log('Transmitió: ', this.isa.transmitiendo);
           this.isa.presentaToast( 'Error de Envío...' );
         }
       );
@@ -196,11 +204,15 @@ export class IsaPedidoService {
         console.log('Success Detalle...', resp2);
         this.isa.addBitacora( true, 'TR', `Pedido: ${numPedido}, transmitido Detalle con exito`);
         this.actualizaEstadoPedido( numPedido, true );
+        this.isa.transmitiendo.pop();
+          console.log('Transmitió: ', this.isa.transmitiendo);
         this.isa.enviarEmail( email );
         this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
       }, error => {
         console.log('Error Detalle ', error.message);
         this.isa.addBitacora( false, 'TR', `Pedido: ${numPedido}, falla en TR Detalle. ${error.message}`);
+        this.isa.transmitiendo.pop();
+          console.log('Transmitió: ', this.isa.transmitiendo);
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );

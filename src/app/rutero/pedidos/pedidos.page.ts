@@ -341,7 +341,7 @@ export class PedidosPage {
   }
 
   carrito(){
-    if (this.pedidoSinSalvar && !this.modificando){
+    if (this.pedidoSinSalvar && !this.modificando && !this.mostrarListaProd && this.isaConfig.transmitiendo.length === 0 ){
       this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
       this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
       this.isaConfig.nextPedido();    // Incrementa el consecutivo de los pedidos
@@ -362,6 +362,8 @@ export class PedidosPage {
       this.exonerado = 0;
       const fecha = new Date()
       this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
+    } else {
+      this.isaConfig.presentAlertW('Salvar Pedido', 'No se puede enviar el pedido en este momento.');
     }
   }
 

@@ -68,6 +68,7 @@ export class IsaService {
   existencias: Existencias[] = [];
   bitacora: Bitacora[] = [];
   userLogged: boolean = true;
+  transmitiendo: string[] = []; 
 
   loading: HTMLIonLoadingElement;
 

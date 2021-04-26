@@ -18,11 +18,17 @@ export class ResumenPedPage {
                private isa: IsaService ) { }
 
   transmitirPedido(){
-    if ( !this.pedido.envioExitoso ) {
+
+    if ( !this.pedido.envioExitoso && this.isa.transmitiendo.length === 0 ) {
+      this.isa.transmitiendo.push(this.pedido.numPedido);
       console.log('Retransmitiendo pedido');
       this.isa.addBitacora( true, 'START', `Retransmite Pedido: ${this.pedido.numPedido}`);
       this.isaPedidos.transmitirPedido( this.pedido, 'R' );
       this.regresar();
+    } else {
+      if ( this.isa.transmitiendo ){
+        this.isa.presentAlertW('Retransmitir', 'No se puede transmitir el pedido.  Hay otro en proceso.  Por favor espere.');
+      }
     }
   }
 
