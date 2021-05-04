@@ -60,10 +60,10 @@
             <div>{{ item.cantidad }}</div>
           </ion-col>
           <ion-col size="3">
-            <div class="ion-text-end">{{ item.iva | colones:1 :"." :"" :"" }}</div>
+            <div class="ion-text-end">{{ item.porcenIVA }}%</div>
           </ion-col>
           <ion-col size="3">
-            <div class="ion-text-end">{{ item.descuento | colones:1 :"." :"" :"" }}</div>
+            <div class="ion-text-end">{{ item.porcenDescuento }}%</div>
           </ion-col>
           <ion-col size="4">
             <div class="ion-text-end">{{ item.total | colones:1 :"." :"," }}</div>

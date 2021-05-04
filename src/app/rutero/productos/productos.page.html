@@ -21,9 +21,17 @@
     </ion-button>
   </ion-item>
   <ion-list>
-    <ion-item *ngFor="let item of cardex; let i = index" (click)="productoSelect(i)">
-      <ion-label>{{item.codProducto}} - {{item.desProducto}}</ion-label>
+    <ion-item *ngFor="let item of busquedaProd; let i = index" (click)="productoSelect(i)">
+      <ion-label>{{item.id}} - {{item.nombre}}</ion-label>
       <ion-icon color="dark" slot="end" size="small" name="chevron-forward-outline"></ion-icon>
     </ion-item>
   </ion-list>
+
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando mas datos...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
 </ion-content>

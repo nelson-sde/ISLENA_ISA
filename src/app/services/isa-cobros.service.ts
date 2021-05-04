@@ -78,6 +78,29 @@ export class IsaCobrosService {
     localStorage.setItem('recibos', JSON.stringify(recibosLS));
   }
 
+  private guardarCheque( cheque: Cheque ){
+    let chequesLS: Cheque[] = [];
+
+    if (localStorage.getItem('cheques')){
+      chequesLS = JSON.parse( localStorage.getItem('cheques'));
+    }
+    chequesLS.push( cheque );
+    localStorage.setItem('cheques', JSON.stringify(chequesLS));
+  }
+
+  consultarCheque( numRecibo: string ){
+    let cheques: Cheque[] = [];
+    let cheque: Cheque
+
+    if (localStorage.getItem('cheques')){
+      cheques = JSON.parse( localStorage.getItem('cheques'));
+    }
+    if (cheques.length > 0){
+      cheque = cheques.find(d => d.numeroRecibo === numRecibo);
+    }
+    return cheque;
+  }
+
   transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
 
     let rowPointer: string = '';
@@ -132,6 +155,9 @@ export class IsaCobrosService {
 
     if (nuevo) {
       this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
+      if (hayCheque){
+        this.guardarCheque( cheque );
+      }
     }
 
     this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
@@ -152,9 +178,11 @@ export class IsaCobrosService {
     this.postReciboDetalle( detalle ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
+        this.actualizaEstadoRecibo(detalle[0].nuM_DOC, true);
         this.isa.enviarEmail( email );
         email.toEmail = this.isa.varConfig.email;
         this.isa.enviarEmail( email );
+        this.isa.transmitiendo.pop();
         if ( hayCheque ){
           this.transmitirCheque( cheque );
         }
@@ -162,9 +190,23 @@ export class IsaCobrosService {
       }, error => {
         console.log('Error en Recibo ', error);
         console.log('debemos borrar el enca del recibo...');
+        this.isa.transmitiendo.pop();
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
+  }
+
+  private actualizaEstadoRecibo( numRecibo: string, estado: boolean ){
+    let recibosLS: Recibo[] = [];
+
+    if (localStorage.getItem('recibos')){
+      recibosLS = JSON.parse( localStorage.getItem('recibos'));
+      const i = recibosLS.findIndex( data => data.numeroRecibo == numRecibo );
+      if (i >= 0){
+        recibosLS[i].envioExitoso = estado;
+        localStorage.setItem('recibos', JSON.stringify(recibosLS));
+      }
+    }
   }
 
   private getBody ( recibo: Recibo ){
@@ -186,9 +228,9 @@ export class IsaCobrosService {
   }
 
   private getFecha( fecha: Date ){
-    let day = fecha.getDate();
-    let month = fecha.getMonth()+1;
-    let year = fecha.getFullYear();
+    let day = new Date(fecha).getDate();
+    let month = new Date(fecha).getMonth()+1;
+    let year = new Date(fecha).getFullYear();
 
     return `${day}-${month}-${year}`;
   }

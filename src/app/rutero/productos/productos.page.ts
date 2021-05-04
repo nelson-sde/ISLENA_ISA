@@ -1,6 +1,6 @@
 
-import { Component, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, ViewChild } from '@angular/core';
+import { IonInfiniteScroll, ModalController, NavParams } from '@ionic/angular';
 import { Productos } from 'src/app/models/productos';
 import { IsaService } from 'src/app/services/isa.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
@@ -11,70 +11,97 @@ import { Cardex } from 'src/app/models/cardex';
   templateUrl: './productos.page.html',
   styleUrls: ['./productos.page.scss'],
 })
-export class ProductosPage {
+export class ProductosPage { 
 
-  @Input() cardex: Cardex[];
-  @Input() mostrar: boolean;
-
-  productos: Productos[] = [];
-  producto: Productos;
   busquedaProd: Productos[] = [];
-  texto: string;
+  cardexIn: Cardex[] = [];
+  texto: string = '';
+  mostrar: boolean;
+  tamPagina: number = 30;            // Cantidad de registros a mostrar en la pagina 
+  paginaIni: number = 0;
+  paginaFin: number = 30;
+
+  @ViewChild ( IonInfiniteScroll ) infiniteScroll: IonInfiniteScroll;
 
   constructor( private modalCtrl: ModalController,
                private isa: IsaService,
-               private barcodeScanner: BarcodeScanner ) {
-
+               private barcodeScanner: BarcodeScanner,
+               private navParams: NavParams ) {
+    
+    this.mostrar = this.navParams.get('mostrar');
+    this.cardexIn = this.navParams.get('cardex');
+    if ( this.mostrar ){
+      this.incrementaPagina();
+    }
     
   }
 
-  buscarProducto(){
+  incrementaPagina(){
+    let producto: Productos;
+    let productos: Productos[] = [];
 
-    if ( this.productos.length === 0 ){    // Es la primer vez que se ejecuta buscar, llena el arreglo productos.
-      if (this.mostrar){
-        this.cardex.forEach( d => {
-          this.producto = new Productos( d.codProducto, d.desProducto, 0, '', 0, '', '', '', '', '', '' );
-          this.productos.push( this.producto );
-        });
-      } else {
-        this.productos = this.isa.productos.slice(0);
-      }
+    const array = this.cardexIn.slice( this.paginaIni, this.paginaFin );
+    array.forEach( d => {
+      producto = new Productos( d.codProducto, d.desProducto, 0, '', 0, '', '', '', '', '', '' );
+      productos.push( producto );
+    })
+    this.busquedaProd = this.busquedaProd.concat( productos );
+    this.paginaIni += this.tamPagina;
+    this.paginaFin += this.tamPagina;
+  }
+
+  loadData( event ){
+    if (this.mostrar && this.texto.length === 0){ 
+      setTimeout(() => { 
+          if (this.paginaFin >= this.cardexIn.length ) {
+            this.infiniteScroll.complete();
+            this.infiniteScroll.disabled = true;
+            return;
+          }
+          this.incrementaPagina();
+          this.infiniteScroll.complete();
+      }, 500);
+    } else {
+      this.infiniteScroll.complete();
+      this.infiniteScroll.disabled = true;
     }
-    if (this.texto[0] == '#') {                     // Se buscará por código de producto
+  }
+
+  buscarProducto(){
+    let array: Productos[] = [];
+
+    if ( this.texto.length === 0 ){
+      this.paginaIni = 0;
+      this.paginaFin = 30;
       this.busquedaProd = [];
+      this.infiniteScroll.disabled = false;
+      this.incrementaPagina();
+    } else if (this.texto[0] == '#') {                     // Se buscará por código de producto
       const idProduct = this.texto.slice(1);
-      const product = this.productos.find( e => e.id == idProduct );
+      const product = this.isa.productos.find( e => e.id == idProduct );
       if ( product !== undefined ){
+        this.busquedaProd = [];
         this.busquedaProd.push(product);
+      } else {
+        this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
       }
     } else {                       // Se recorre el arreglo para buscar coincidencias
+      array = this.busquedaProd.slice(0);
       this.busquedaProd = [];
-      for (let i = 0; i < this.productos.length; i++) {
-        if (this.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-            this.busquedaProd.push(this.productos[i]);
+      for (let i = 0; i < this.isa.productos.length; i++) {
+        if (this.isa.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+            this.busquedaProd.push(this.isa.productos[i]);
         }
       }
     }
-    if (this.busquedaProd.length == 0){                    // no hay coincidencias
+    if (this.busquedaProd.length === 0){                    // no hay coincidencias
+      this.busquedaProd = array.slice(0);
       this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
-      this.texto = '';
-    } else {
-      this.actualizaCardex();
-    }
-  }
-
-  actualizaCardex(){
-    let item: Cardex;
-
-    this.cardex = [];
-    this.busquedaProd.forEach( d => {
-      item = new Cardex( '', d.id, d.nombre, '', null, 0, 0, 0);
-      this.cardex.push(item);
-    })
+    } 
   }
 
   productoSelect( i: number ){
-    this.modalCtrl.dismiss({codProducto: this.cardex[i].codProducto, desProducto: this.cardex[i].desProducto});
+    this.modalCtrl.dismiss({codProducto: this.busquedaProd[i].id, desProducto: this.busquedaProd[i].nombre});
   }
 
   barcode(){

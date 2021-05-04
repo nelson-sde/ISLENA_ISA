@@ -19,6 +19,7 @@ export class CardexPage {
   i:          number;               // La posicion en el arreglo de Cardex donde esta el producto (-1 si no se halla)
   lineaCardex: Cardex;
   cardex: Cardex[] = [];
+  productos: Cardex[] = [];
 
   constructor( private isa: IsaService,
                private modalCtrl: ModalController,
@@ -30,14 +31,15 @@ export class CardexPage {
     this.descuento = this.navParams.get('desc');
     this.cardex = this.navParams.get('cardex');
     this.nomProducto = this.navParams.get('nombre');
+    this.productos = this.navParams.get('productos');
     console.log(this.codProducto);
     if (this.codProducto !== null){
-      this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(), this.descuento);
+      this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(this.codProducto), this.descuento);
       this.agregaLineaCardex();
     }
   }
 
-  traerSugerido(){
+  traerSugerido( codProducto: string ){
     let sugerido: number = 0;
     let sugeridos: SugeridoBD[] = [];
 
@@ -45,7 +47,7 @@ export class CardexPage {
       sugeridos = JSON.parse( localStorage.getItem('sugeridos'));
     }
     if ( sugeridos.length > 0 ){
-      const i = sugeridos.findIndex( d => d.cliente == this.isa.clienteAct.id && d.articulo == this.codProducto );
+      const i = sugeridos.findIndex( d => d.cliente === this.isa.clienteAct.id && d.articulo === codProducto );
       if ( i >= 0 ){
         sugerido = sugeridos[i].canT_SUGERIDA;
       }
@@ -71,8 +73,8 @@ export class CardexPage {
     const modal = await this.modalCtrl.create({
       component: ProductosPage,
       componentProps: {
-        'cardex': this.cardex,
-        'mostrar': false,
+        'cardex': this.productos,
+        'mostrar': true,
       },
       cssClass: 'my-custom-class'
     });
@@ -80,7 +82,7 @@ export class CardexPage {
 
     const {data} = await modal.onDidDismiss();
     if (data.codProducto !== null){
-      this.lineaCardex = new Cardex(this.isa.clienteAct.id, data.codProducto, data.desProducto, 'Pedido', new Date(), null, null, 0);
+      this.lineaCardex = new Cardex(this.isa.clienteAct.id, data.codProducto, data.desProducto, 'Pedido', new Date(), null, this.traerSugerido(data.codProducto), 0);
       this.agregaLineaCardex();
     }
   }
@@ -102,6 +104,7 @@ export class CardexPage {
       data = data.concat(this.cardex.slice(i+1, this.cardex.length));
     }
     this.cardex = data.slice(0);
+    this.isaCardex.cardexSinSalvar = true;
   }
 
 }

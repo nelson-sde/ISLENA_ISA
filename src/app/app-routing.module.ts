@@ -73,6 +73,10 @@ const routes: Routes = [
   {
     path: 'login',
     loadChildren: () => import('./configuracion/login/login.module').then( m => m.LoginPageModule)
+  },
+  {
+    path: 'resumen-rec',
+    loadChildren: () => import('./rutero/resumen-rec/resumen-rec.module').then( m => m.ResumenRecPageModule)
   }
 ];
 @NgModule({

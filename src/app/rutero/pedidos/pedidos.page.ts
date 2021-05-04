@@ -47,6 +47,7 @@ export class PedidosPage {
   frio: boolean = false;              // True = Pedido tiene líneas con productos categoría de Frio
   seco: boolean = false;             // True = pedido tiene líneas de producto categoria seco.
                                     // Si ambas variables son TRUE, el pedido debe partirse en dos por cada tipo de categoría
+  numLineas: number = 0;
 
 
   @ViewChild('myList') ionList: IonList;
@@ -103,6 +104,7 @@ export class PedidosPage {
           this.pedidoSinSalvar = true;
         }
       }
+      this.numLineas = this.pedido.detalle.length;
       this.texto = '';
       this.mostrarListaProd = false;
       this.mostrarProducto = false;
@@ -240,6 +242,7 @@ export class PedidosPage {
       this.defaultCant = true;
     }
     this.busquedaProd = [];
+    this.numLineas = this.pedido.detalle.length;
   }
 
   existeEnDetalle( id: string ){
@@ -297,6 +300,7 @@ export class PedidosPage {
                                     this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100,
                                     this.montoExonerado, this.exonerado, this.producto.frio );
         this.pedido.detalle.unshift( this.nuevoDetalle );
+        this.numLineas = this.pedido.detalle.length;
       }
       this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
       this.pedido.iva = this.pedido.iva + this.montoIVA;
@@ -362,6 +366,7 @@ export class PedidosPage {
       this.exonerado = 0;
       const fecha = new Date()
       this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
+      this.numLineas = this.pedido.detalle.length;
     } else {
       this.isaConfig.presentAlertW('Salvar Pedido', 'No se puede enviar el pedido en este momento.');
     }
@@ -394,6 +399,7 @@ export class PedidosPage {
         this.seco = false;
         this.frio = false;
       }
+      this.numLineas = this.pedido.detalle.length;
     } else {
       this.isaConfig.presentAlertW( 'Borrado', 'No se puede borrar una línea si se estaba editando otra.');
       this.ionList.closeSlidingItems();
@@ -682,24 +688,6 @@ export class PedidosPage {
 
     await alert.present();
   }
-
-  /*existencia(){
-    console.log(this.producto);
-    this.isaPedido.getExistencias( this.producto.id ).subscribe(
-      resp => {
-        console.log('Success Existencias...', resp);
-        this.mostrarExistencias( resp );
-      }, error => {
-        console.log('Error Existencias ', error);
-        this.isaConfig.presentaToast( 'Error Leyendo Datos...' );
-      }
-    );
-  }
-
-  mostrarExistencias( existe: Existencias[] ){
-    const str = 'Cantidad: ' + existe[0].existencia.toString();
-    this.isaConfig.presentAlertW(this.producto.nombre, str);
-  }*/
 
   barcode(){
     let texto: string;

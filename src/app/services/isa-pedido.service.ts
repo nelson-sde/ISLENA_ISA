@@ -250,16 +250,20 @@ export class IsaPedidoService {
     let day = new Date(fecha).getDate();
     let month = new Date(fecha).getMonth() + 1;
     let year = new Date(fecha).getFullYear();
+    let dia: string = day.toString();
+    let mes: string = month.toString();
+
+    if ( month >= 0 && month <= 9 ) {
+      mes = `0${month}`;
+    }
+    if ( day >= 0 && day <= 9 ){
+      dia = `0${day}`;
+    }
 
     if (tipo === 'JSON'){
-      if ( month >= 0 && month <= 9){
-        return `${year}-0${month}-${day}T12:00`;
-      } else {
-        return `${year}-${month}-${day}T12:00`;
-      }
+        return `${year}-${mes}-${dia}T12:00`;
     } else {
-      return `${day}-${month}-${year}`;
-      
+      return `${dia}-${mes}-${year}`;
     }
   }
 

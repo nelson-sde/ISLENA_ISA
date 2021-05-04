@@ -4,6 +4,7 @@ import { Recibo } from 'src/app/models/cobro';
 import { Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { ResumenPedPage } from '../resumen-ped/resumen-ped.page';
+import { ResumenRecPage } from '../resumen-rec/resumen-rec.page';
 
 @Component({
   selector: 'app-resumen',
@@ -91,16 +92,27 @@ export class ResumenPage {
     }
   }
 
-  async abrirDetalle( i: number ){
+  async abrirDetallePedido( i: number ){
     const modal = await this.modalCtrl.create({
-    component: ResumenPedPage,
-    componentProps: {
-      'pedido': this.pedidos[i]
-    },
-    cssClass: 'my-custom-class'
-  });
-  return await modal.present();
-}
+      component: ResumenPedPage,
+      componentProps: {
+        'pedido': this.pedidos[i]
+      },
+      cssClass: 'my-custom-class'
+    });
+    return await modal.present();
+  }
+
+  async abrirDetalleRecibo( i: number ){
+    const modal = await this.modalCtrl.create({
+      component: ResumenRecPage,
+      componentProps: {
+        'recibo': this.recibos[i]
+      },
+      cssClass: 'my-custom-class'
+    });
+    return await modal.present();
+  }
 
   regresar(){
     this.navController.back();

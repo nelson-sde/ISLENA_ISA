@@ -15,7 +15,8 @@ export class ResumenPedPage {
 
   constructor( private modalCtrl: ModalController,
                private isaPedidos: IsaPedidoService,
-               private isa: IsaService ) { }
+               private isa: IsaService ){}
+
 
   transmitirPedido(){
 

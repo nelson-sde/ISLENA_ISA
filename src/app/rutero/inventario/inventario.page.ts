@@ -130,6 +130,7 @@ export class InventarioPage {
         nombre: nombre,
         desc: descuento,
         cardex: this.cardex,
+        productos: this.productos,
       },
       cssClass: 'my-custom-class'
     });
