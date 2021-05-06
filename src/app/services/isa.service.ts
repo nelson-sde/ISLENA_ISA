@@ -11,33 +11,7 @@ import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
-
-export interface RutaConfig {
-  numRuta: string;
-  descripcion: string;
-  codVendedor: number;
-  nomVendedor: string;
-  usuario: string;
-  clave: string;
-  consecutivoPedidos: string;
-  consecutivoRecibos: string;
-  consecutivoDevoluciones: string;
-  bodega: number;
-  email: string;
-}
-
-export interface Ruta {
-  ruta: string;
-  handHeld: string;
-  grupo_Articulo: string;
-  compania: string;
-  bodega: number;
-  agente: string;
-  pedido: string;
-  recibo: string;
-  devolucion: string;
-  emaiL_EJECUTIVA: string;
-}
+import { Cuota, Ruta, RutaConfig } from '../models/ruta';
 
 @Injectable({
   providedIn: 'root'
@@ -151,6 +125,11 @@ export class IsaService {
     return this.http.get<CxCBD[]>( URL );
   }
 
+  private getCuota( ruta: string ){
+    const URL = this.getURL( environment.CuotaURL, ruta );
+    return this.http.get<Cuota[]>( URL );
+  }
+
   private getBancos(){
     const URL = this.getURL( environment.BancosURL, '' );
     return this.http.get<BancosBD[]>( URL );
@@ -212,12 +191,6 @@ export class IsaService {
       }
     );
   }
-
-  /*cargarProductos(){
-    if (localStorage.getItem('productos')){
-      this.productos = JSON.parse( localStorage.getItem('productos'));
-    }
-  }*/
 
   async cargaListaPrecios(){
     let productos: Productos[];
@@ -336,6 +309,33 @@ export class IsaService {
         console.log(error.message);
       }
     );
+  }
+
+  syncCuota( ruta: string ){
+    let cuotaArray: Cuota[] = [];
+
+    this.getCuota(ruta).subscribe(
+      resp => {
+        console.log('Cuota Ventas', resp );
+        cuotaArray = resp.slice(0);
+        console.log( 'Arreglo', cuotaArray );
+        if (localStorage.getItem('cuota')){
+          localStorage.removeItem('cuota');
+        }
+        localStorage.setItem('cuota', JSON.stringify(cuotaArray));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
+  cargarCuota(){
+    let cuota: Cuota[] = [];
+
+    if (localStorage.getItem('cuota')){
+      cuota = JSON.parse( localStorage.getItem('cuota'));
+    }
+    return cuota;
   }
 
   syncBancos(){

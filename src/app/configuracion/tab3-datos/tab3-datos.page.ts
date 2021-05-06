@@ -97,6 +97,7 @@ export class Tab3DatosPage {
     this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos
     this.isa.syncCardex(this.isa.varConfig.numRuta);
     this.isa.syncCxC(this.isa.varConfig.numRuta);
+    this.isa.syncCuota( this.isa.varConfig.numRuta );
     this.isa.syncBancos();
     this.isa.syncExoneraciones();
     this.isa.syncSugerido();

@@ -71,6 +71,10 @@ export class RuteroPage {
     this.router.navigate(['/resumen']);
   }
 
+  abrirCuota(){
+    this.router.navigate(['/cuota']);
+  }
+
   buscarCliente( ev: any ){
     if ( this.isa.userLogged || !environment.prdMode ){            // Valida si el vendedor hizo login
       if (this.texto.length == 0) {                               // Se busca en todos los cliente

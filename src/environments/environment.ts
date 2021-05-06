@@ -22,14 +22,15 @@ export const environment = {
   ExoneracionesURL: 'Exoneraciones/',
   ClienteRTURL: 'Cliente_RT/',
   SugeridoURL: 'Sugerido/',
+  CuotaURL: 'Cuota/',
   EmailURL: 'Email/',
   cantLineasMaxPedido: 35,
   maxchar: 107,
   maxCharCodigoProd: 6,
   adminClave: '@dmin2021*',
-  version: '1.1.7',
+  version: '1.1.8',
   aplicarNC: false,
-  prdMode: false,
+  prdMode: true,
 };
 
 /*

@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-title align-text-center>Cumplimiento de Ventas {{isa.varConfig.numRuta}}</ion-title>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item color="light">
+    <ion-label>Mes</ion-label>
+    <ion-select [(ngModel)]="cuota">
+      <ion-select-option *ngFor="let item of cuotas" [value]="cuota">{{item.mes}}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <p></p>
+  <ion-item>
+    <ion-label>Cuota</ion-label>
+    <div>{{ cuota.cuota | colones }}</div>
+  </ion-item>
+  <ion-item>
+    <ion-label>Venta Bruta</ion-label>
+    <div>{{ cuota.venta_Bruta | colones }}</div>
+  </ion-item>
+  <ion-item>
+    <ion-label>Devoluciones</ion-label>
+    <div>{{ cuota.devoluciones | colones }}</div>
+  </ion-item>
+  <ion-item>
+    <ion-label>%</ion-label>
+    <div>{{ cuota.c__Devoluciones }}%</div>
+  </ion-item>
+  <ion-item>
+    <ion-label>Venta Neta</ion-label>
+    <div>{{ cuota.venta_Neta | colones }}</div>
+  </ion-item>
+  <canvas #doughnutCanvas style="position: relative"></canvas>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar color="dark">
+    <ion-title slot="end">Alcance {{cuota.c__Alcance}}%</ion-title>
+  </ion-toolbar>
+</ion-footer>

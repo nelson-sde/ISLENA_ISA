@@ -77,6 +77,10 @@ const routes: Routes = [
   {
     path: 'resumen-rec',
     loadChildren: () => import('./rutero/resumen-rec/resumen-rec.module').then( m => m.ResumenRecPageModule)
+  },
+  {
+    path: 'cuota',
+    loadChildren: () => import('./rutero/cuota/cuota.module').then( m => m.CuotaPageModule)
   }
 ];
 @NgModule({

@@ -1,7 +1,8 @@
 
 import { Component } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { IsaService, Ruta } from '../../services/isa.service';
+import { Ruta } from 'src/app/models/ruta';
+import { IsaService } from '../../services/isa.service';
 
 @Component({
   selector: 'app-tab3-pop',
