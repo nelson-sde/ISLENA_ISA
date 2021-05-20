@@ -10,7 +10,8 @@ export interface RutaConfig {
     consecutivoRecibos: string;
     consecutivoDevoluciones: string;
     bodega: number;
-    email: string;
+    emailCxC: string;
+    emailVendedor: string
 }
   
 export interface Ruta {
@@ -38,5 +39,6 @@ export interface Cuota {
     c__Devoluciones: number;
     venta_Neta:      number;
     c__Alcance:      number;
+    c__Margen:       number;
 }
 

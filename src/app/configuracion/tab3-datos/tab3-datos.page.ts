@@ -60,7 +60,7 @@ export class Tab3DatosPage {
       this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
       this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
       this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
-      this.isa.varConfig.email = this.isa.rutas[i].emaiL_EJECUTIVA;
+      this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
       this.isa.guardarVarConfig();
       this.actualizar = true;
     }

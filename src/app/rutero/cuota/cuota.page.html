@@ -12,8 +12,8 @@
 <ion-content class="ion-padding">
   <ion-item color="light">
     <ion-label>Mes</ion-label>
-    <ion-select [(ngModel)]="cuota">
-      <ion-select-option *ngFor="let item of cuotas" [value]="cuota">{{item.mes}}</ion-select-option>
+    <ion-select [(ngModel)]="cuota" (ionChange)="refrescar()">
+      <ion-select-option *ngFor="let item of cuotas" [value]="item">{{item.mes}}</ion-select-option>
     </ion-select>
   </ion-item>
   <p></p>
@@ -43,6 +43,7 @@
 
 <ion-footer>
   <ion-toolbar color="dark">
+    <ion-title slot="start">Margen {{cuota.c__Margen}}%</ion-title>
     <ion-title slot="end">Alcance {{cuota.c__Alcance}}%</ion-title>
   </ion-toolbar>
 </ion-footer>

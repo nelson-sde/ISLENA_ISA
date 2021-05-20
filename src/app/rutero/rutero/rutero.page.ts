@@ -177,7 +177,7 @@ export class RuteroPage {
     let email: Email;
     let texto: string[] = [];
 
-    email = new Email(this.isa.varConfig.email, `SOLICITUD PARA MODIFICAR CLIENTE RUTA ${this.isa.varConfig.numRuta}`, '');
+    email = new Email(this.isa.varConfig.emailCxC, `SOLICITUD PARA MODIFICAR CLIENTE RUTA ${this.isa.varConfig.numRuta}`, '');
 
     texto.push(`CLIENTE: ${cliente.id} - ${cliente.nombre}<br/>`);
     texto.push('<br/>');

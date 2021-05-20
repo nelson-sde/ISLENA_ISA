@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ModalController, NavController } from '@ionic/angular';
 import { Recibo } from 'src/app/models/cobro';
-import { Pedido } from 'src/app/models/pedido';
+import { PedEnca, Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { ResumenPedPage } from '../resumen-ped/resumen-ped.page';
 import { ResumenRecPage } from '../resumen-rec/resumen-rec.page';
@@ -37,6 +37,36 @@ export class ResumenPage {
     this.cargarPedidos();
     this.cargarRecibos();
     this.total = this.totalPedidos;
+    this.refrescarRojos();
+  }
+
+  refrescarRojos(){
+    if (this.pedidos.length > 0){
+      for (let i = 0; i < this.pedidos.length; i++) {
+        if (!this.pedidos[i].envioExitoso){
+          this.buscarPedido(i);
+        }
+      }
+    }
+  }
+
+  buscarPedido( i: number ){
+    let pedidoBD: PedEnca;
+
+    this.isa.getPedido( this.pedidos[i].numPedido ).subscribe(
+      resp => {
+        console.log('Pedido', resp );
+        pedidoBD = resp;
+        if ( this.pedidos[i].codCliente === pedidoBD.COD_CLT ){
+          this.pedidos[i].envioExitoso = true;
+          console.log('Pedido Encontrado');
+        } else {
+          console.log('Pedido no en BD');
+        }
+      }, error => {
+        console.log('Error conexión: ', error.message);
+      }
+    );
   }
 
   segmentChanged(ev: any) {

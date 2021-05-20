@@ -205,9 +205,13 @@ export class IsaPedidoService {
         this.isa.addBitacora( true, 'TR', `Pedido: ${numPedido}, transmitido Detalle con exito`);
         this.actualizaEstadoPedido( numPedido, true );
         this.isa.transmitiendo.pop();
-          console.log('Transmitió: ', this.isa.transmitiendo);
-        this.isa.enviarEmail( email );
+        console.log('Transmitió: ', this.isa.transmitiendo);
         this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
+        if (email.toEmail.length > 0) {
+          this.isa.enviarEmail( email );
+        }
+        email.toEmail = this.isa.varConfig.emailVendedor;
+        this.isa.enviarEmail( email );
       }, error => {
         console.log('Error Detalle ', error.message);
         this.isa.addBitacora( false, 'TR', `Pedido: ${numPedido}, falla en TR Detalle. ${error.message}`);
@@ -225,20 +229,22 @@ export class IsaPedidoService {
     body.push( `Cliente: ${pedido.codCliente} - ${this.isa.clienteAct.nombre}<br/>` );
     body.push(`Fecha Pedido: ${this.getFecha(pedido.fecha)}<br/>`);
     body.push(`Fecha Entrega: ${this.getFecha(pedido.fechaEntrega)}<br/>`);
-    body.push(`SubTotal: ${this.colones(pedido.subTotal)}<br/>`);
-    body.push(`IVA...........:      ${this.colones(pedido.iva)}<br/>`);
-    body.push(`Descuento x Línea: ${this.colones(pedido.descuento)}<br/>`);
-    body.push(`Descuento General: ${this.colones(pedido.descGeneral)}<br/>`);
-    body.push(`<b>Total...........: ${this.colones(pedido.total)}</b><br/>`);
-    body.push('<br/>')
-    body.push('------------------- Detalle ----------------<br/>');
+    body.push('<br/>');
+    body.push(`SubTotal:...: ${this.colones(pedido.subTotal)}<br/>`);
+    body.push(`IVA...............: ${this.colones(pedido.iva)}<br/>`);
+    body.push(`Desc x Línea: ${this.colones(pedido.descuento)}<br/>`);
+    body.push(`Desc General: ${this.colones(pedido.descGeneral)}<br/>`);
+    body.push('<br/>');
+    body.push(`<b>Total............: ${this.colones(pedido.total)}</b><br/>`);
+    body.push('<br/>');
+    body.push('------------------- Detalle -------------------<br/>');
     body.push('Item<br/>');
     body.push('Cant - SubTotal -    IVA -   Desc -    Total<br/>');
-    body.push('--------------------------------------------<br/>');
+    body.push('-------------------------------------------------<br/>');
     pedido.detalle.forEach( d => {
       texto = `${d.descripcion}<br/>`;
       body.push(texto);
-      texto = `Q: ${d.cantidad} - ${this.colones(d.subTotal)} - ${this.colones(d.iva)} - ${this.colones(d.descuento)} - ${this.colones(d.total)}<br/>`;
+      texto = `Q: ${d.cantidad} - ${this.colones(d.subTotal)} - ${d.porcenIVA}% - ${d.porcenDescuento}% - ${this.colones(d.total)}<br/>`;
       body.push(texto);
       
     })

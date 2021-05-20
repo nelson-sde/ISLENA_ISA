@@ -152,14 +152,12 @@ export class IsaCobrosService {
       this.detalleRec.rowPointer = rowPointer;
       this.detalleReciboBD.push(this.detalleRec);
     } 
-
     if (nuevo) {
       this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
       if (hayCheque){
         this.guardarCheque( cheque );
       }
     }
-
     this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
       resp => {
         console.log('Success RecEnca...', resp);
@@ -180,7 +178,7 @@ export class IsaCobrosService {
         console.log('Success Detalle...', resp2);
         this.actualizaEstadoRecibo(detalle[0].nuM_DOC, true);
         this.isa.enviarEmail( email );
-        email.toEmail = this.isa.varConfig.email;
+        email.toEmail = this.isa.varConfig.emailCxC;
         this.isa.enviarEmail( email );
         this.isa.transmitiendo.pop();
         if ( hayCheque ){
@@ -194,6 +192,16 @@ export class IsaCobrosService {
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
+  }
+
+  reciboSimple( recibo: Recibo ){
+    let email: Email;
+
+    console.log('Creando un recibo de Transferencia');
+    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO POR TRANSFERENCIA RUTA: ${recibo.numeroRuta}`, this.getBody(recibo) );
+    this.isa.enviarEmail( email );
+    email.toEmail = this.isa.varConfig.emailCxC;
+    this.isa.enviarEmail( email );
   }
 
   private actualizaEstadoRecibo( numRecibo: string, estado: boolean ){
@@ -215,6 +223,8 @@ export class IsaCobrosService {
     body.push(`Fecha: ${this.getFecha(recibo.fecha)}<br/>`);
     body.push(`Cliente: ${recibo.codCliente} - ${this.isa.clienteAct.nombre}<br/>`)
     body.push(`Monto: ${this.colones(recibo.montoLocal)}<br/>`);
+    body.push(`<br/>`);
+    body.push(`Concepto: ${recibo.observaciones}<br/>`);
     body.push(`<br/>`);
     body.push(`----------------------------- Detalle ----------------------------<br/>`);
     recibo.detalle.forEach( d => {

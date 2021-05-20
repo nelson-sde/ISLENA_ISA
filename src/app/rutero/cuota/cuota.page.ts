@@ -3,6 +3,7 @@ import { NavController } from '@ionic/angular';
 import { Cuota } from 'src/app/models/ruta';
 import { IsaService } from 'src/app/services/isa.service';
 import { Chart, registerables  } from 'chart.js';
+import { destroyView } from '@ionic/angular/directives/navigation/stack-utils';
 Chart.register(...registerables);
 
 @Component({
@@ -25,6 +26,7 @@ export class CuotaPage {
     c__Devoluciones: 0,
     venta_Neta:      0,
     c__Alcance:      0,
+    c__Margen:       0,
   };
   meta: number;
   doughnutChart: any;
@@ -32,11 +34,18 @@ export class CuotaPage {
   constructor( private navController: NavController,
                private isa: IsaService ) { 
     this.cuotas = this.isa.cargarCuota();
-    this.cuota = this.cuotas[0];
-    this.meta = this.cuota.c__Alcance / 100;
+    if (this.cuotas.length !== 0 ){ 
+      this.cuota = this.cuotas[this.cuotas.length-1];
+      this.meta = this.cuota.c__Alcance / 100;
+    }
   }
 
   ngAfterViewInit() {
+    this.doughnutChartMethod();
+  }
+
+  refrescar(){
+    this.doughnutChart.destroy();
     this.doughnutChartMethod();
   }
 

@@ -205,9 +205,13 @@ export class RecibosPage {
           cxc[j].saldoDolar = this.recibo.detalle[i].saldoDolar;
         }
         localStorage.setItem('cxc', JSON.stringify(cxc));                                     // Actualiza CxC en el Local Storage
-        this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque, true );
-        this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
-        this.isa.guardarVarConfig();
+        if (this.recibo.montoEfectivoL > 0 || this.recibo.montoChequeL > 0) {
+          this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque, true );
+          this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
+          this.isa.guardarVarConfig();
+        } else {
+          this.isaCobros.reciboSimple( this.recibo );
+        }
         this.navController.back();
         this.navController.back();
       } else {

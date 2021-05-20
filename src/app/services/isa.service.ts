@@ -6,7 +6,7 @@ import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
 import { Cliente, ClienteBD, ClienteRT } from '../models/cliente';
 import { CxCBD, Pen_Cobro } from '../models/cobro';
-import { Exoneraciones, Existencias } from '../models/pedido';
+import { Exoneraciones, Existencias, PedEnca, Pedido } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
@@ -29,7 +29,8 @@ export class IsaService {
     consecutivoRecibos: '',
     consecutivoDevoluciones: '',
     bodega: 0,
-    email: '',
+    emailCxC: '',
+    emailVendedor: '',
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero
@@ -105,6 +106,11 @@ export class IsaService {
     return this.http.get<Ruta[]>( URL );
   }
 
+  getPedido( numPedido: string ){
+    const URL = this.getURL( environment.PedEncaURL, numPedido );
+    return this.http.get<PedEnca>( URL );
+  }
+
   private getClientes(ruta: string){
     const URL = this.getURL( environment.clientesURL, ruta );
     return this.http.get<ClienteBD[]>( URL );
@@ -151,7 +157,6 @@ export class IsaService {
   }
 
   syncExistencias(){
-    let existencias: Existencias;
     let arr: Existencias[] = [];
 
     this.getExistencias().subscribe(
