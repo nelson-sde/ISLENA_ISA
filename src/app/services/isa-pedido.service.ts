@@ -26,9 +26,18 @@ export class IsaPedidoService {
     localStorage.setItem('pedidos', JSON.stringify(pedidosLS));
   }
 
-  borrarPedidos(){
+  borrarPedidos( completo: boolean ){    // Si completo = true, borra todos los pedidos de la tabla Pedidos
+                                        // de lo contrario solo borra los que envioExitoso = true
+    let pedidosLS: Pedido[] = [];
+
     if (localStorage.getItem('pedidos')){
-      localStorage.removeItem('pedidos');
+      pedidosLS = JSON.parse( localStorage.getItem('pedidos'));
+      const pedidos = pedidosLS.filter( d => !d.envioExitoso );
+      if ( pedidos.length > 0 && !completo ){
+        localStorage.setItem('pedidos', JSON.stringify(pedidos));
+      } else {
+        localStorage.removeItem('pedidos');
+      }
     }
   }
 

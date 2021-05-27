@@ -68,6 +68,7 @@ export class PedidosPage {
       this.isaConfig.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isaConfig.clienteAct.nombre}`);
       this.validaSiCardex();
     });
+    this.isaConfig.transmitiendo = [];
   }
 
   validaSiCardex(){

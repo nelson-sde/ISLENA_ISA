@@ -109,7 +109,7 @@ export class Tab3ConfigPage {
       this.isa.syncExoneraciones();
       this.isa.syncSugerido();
       this.isa.syncExistencias();
-      this.isaPedidos.borrarPedidos();
+      this.isaPedidos.borrarPedidos( true );    // Se borra por completo la tabla pedidos
       this.isaCobros.borrarRecibos();
       this.isaCardex.borrarCardex();
       this.regresar();

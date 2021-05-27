@@ -99,12 +99,8 @@ export class ResumenPage {
   }
 
   cargarPedidos(){
-    let pedidos: Pedido[] = [];
-    const hoy: Date = new Date();
-
     if (localStorage.getItem('pedidos')){
-      pedidos = JSON.parse( localStorage.getItem('pedidos'));
-      this.pedidos = pedidos.filter( d => new Date(d.fecha).getDate() === new Date(hoy).getDate() );
+      this.pedidos = JSON.parse( localStorage.getItem('pedidos'));
       if (this.pedidos){
         this.pedidos.forEach(e => {
           this.totalPedidos += e.total;

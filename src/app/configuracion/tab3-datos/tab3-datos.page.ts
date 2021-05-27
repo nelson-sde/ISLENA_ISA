@@ -102,7 +102,7 @@ export class Tab3DatosPage {
     this.isa.syncExoneraciones();
     this.isa.syncSugerido();
     this.isa.syncExistencias();
-    this.isaPedidos.borrarPedidos();
+    this.isaPedidos.borrarPedidos( false );   // Si hay pedidos sin transmitir no son borrados
     this.isaCobros.borrarRecibos();
     this.isaCardex.borrarCardex();
     this.isa.borrarBitacora();
