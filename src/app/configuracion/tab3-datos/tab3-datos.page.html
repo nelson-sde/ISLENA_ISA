@@ -17,6 +17,7 @@
         <h2><strong>Numero de Ruta: {{isa.varConfig.numRuta}}</strong></h2>
         <p>Nombre del Vendedor: {{isa.varConfig.codVendedor}} - {{isa.varConfig.nomVendedor}}</p>
         <p>Nombre de Usuario: {{isa.varConfig.usuario}}</p>
+        <p>Email Vendedor: {{ isa.varConfig.emailVendedor }}</p>
         <p>Consecutivo Pedidos: {{isa.varConfig.consecutivoPedidos}}</p>
         <p>Consecutivo Recibos: {{isa.varConfig.consecutivoRecibos}}</p>
         <p>Consecutivo Devoluciones: : {{isa.varConfig.consecutivoDevoluciones}}</p>
@@ -24,12 +25,10 @@
     </ion-item>
     <p></p>
     <ion-item color="light">
-      <ion-label>Consecutivo Pedidos: </ion-label>
-      <ion-input type="text" [(ngModel)]="isa.varConfig.consecutivoPedidos"></ion-input>
+      <ion-label>Consecutivo Pedidos: {{ isa.varConfig.consecutivoPedidos }}</ion-label>
     </ion-item>
     <ion-item color="light">
-      <ion-label>Consecutivo Recibos: </ion-label>
-      <ion-input type="text" [(ngModel)]="isa.varConfig.consecutivoRecibos"></ion-input>
+      <ion-label>Consecutivo Recibos: {{ isa.varConfig.consecutivoRecibos }}</ion-label>
     </ion-item>
     <ion-item color="light">
       <ion-label>Usuario: </ion-label>

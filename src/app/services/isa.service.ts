@@ -31,6 +31,7 @@ export class IsaService {
     bodega: 0,
     emailCxC: '',
     emailVendedor: '',
+    usaRecibos: false,
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero

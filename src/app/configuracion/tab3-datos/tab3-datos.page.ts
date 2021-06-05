@@ -61,6 +61,12 @@ export class Tab3DatosPage {
       this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
       this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
       this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
+      this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+      if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
+        this.isa.varConfig.usaRecibos = true;
+      } else {
+        this.isa.varConfig.usaRecibos = false;
+      }
       this.isa.guardarVarConfig();
       this.actualizar = true;
     }

@@ -161,7 +161,7 @@ export class IsaPedidoService {
 
     if ( cliente !== undefined ){ 
 
-      email = new Email( this.isa.clienteAct.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
+      email = new Email( cliente.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
       rowPointer = this.isa.generate();
 
       if ( tipo == 'N' ){
@@ -256,7 +256,13 @@ export class IsaPedidoService {
       texto = `Q: ${d.cantidad} - ${this.colones(d.subTotal)} - ${d.porcenIVA}% - ${d.porcenDescuento}% - ${this.colones(d.total)}<br/>`;
       body.push(texto);
       
-    })
+    });
+    body.push('<br/>');
+    body.push('Este correo ha sido enviado de forma automática con carácter informativo.<br/>');
+    body.push('Favor no responder o escribir a esta cuenta, cualquier consulta pueden dirigirse con Servicio al Cliente ');
+    body.push('al 2293-0609 o servicioalcliente@di.cr <br/>');
+    body.push('<br/>');
+    body.push('Distribuidora Isleña de Alimentos<br/>');
 
     return body.join('');
   }

@@ -32,7 +32,11 @@ export class PenCobroPage {
   }
 
   abrirRecibos(){
-    this.router.navigate(['/recibos']);
+    if (this.isa.varConfig.usaRecibos) {
+      this.router.navigate(['/recibos']);
+    } else {
+      this.isa.presentAlertW('Recibos Dinero', 'No tiene habilitada la opción de registrar recibos de Dinero.');
+    }
   }
 
   async cobroInfoPopover(ev: any) {

@@ -1,6 +1,6 @@
 
-import { Component } from '@angular/core';
-import { AlertController, NavController, PopoverController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { AlertController, LoadingController, NavController, PopoverController } from '@ionic/angular';
 import { IsaService } from '../../services/isa.service';
 import { IsaPedidoService } from '../../services/isa-pedido.service';
 import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
@@ -15,21 +15,25 @@ import { IsaLSService } from 'src/app/services/isa-ls.service';
   styleUrls: ['./tab3-config.page.scss'],
 })
  
-export class Tab3ConfigPage {
+export class Tab3ConfigPage implements OnInit{
 
   texto:string;
   ambiente: string = '';
   version: string = '';
+  loading: HTMLIonLoadingElement;
 
-  constructor( public isa: IsaService,
+  constructor( private isa: IsaService,
                private isaPedidos: IsaPedidoService,
                private isaCobros: IsaCobrosService,
                private isaCardex: IsaCardexService,
                private isaLS: IsaLSService,
                private alertCtrl: AlertController,
                private navControler: NavController,
-               private popoverCtrl: PopoverController ) {
+               private popoverCtrl: PopoverController,
+               private loadingCtrl: LoadingController ) {
+  }
 
+  ngOnInit(){
     if (environment.prdMode){
       this.ambiente = 'PRD';
     } else {
@@ -37,22 +41,33 @@ export class Tab3ConfigPage {
     }
     this.version = environment.version;
     if (this.isa.rutas.length == 0) {
-      this.isa.presentaLoading('Sincronizando Rutas...');
+      //this.presentaLoading('Sincronizando Rutas...');
       this.isa.getRutas().subscribe(
         resp => {
           console.log('RutasBD', resp );
           this.isa.rutas = resp;
-          this.isa.loadingDissmiss();
+          //this.loadingDissmiss();
           this.isa.presentaToast('Rutas cargadas...');
           console.log( 'Arreglo', this.isa.rutas );
         }, error => {
           console.log(error.message);
-          this.isa.loadingDissmiss();
+          //this.loadingDissmiss();
           this.isa.presentAlertW('Cargando Rutas', error.message);
+          this.isa.presentaToast('ERROR cargando Rutas...');
         }
       );                                // Actualiza la lista de rutas en ISA
     }
-    
+  }
+
+  async presentaLoading( mensaje: string ){
+    this.loading = await this.loadingCtrl.create({
+      message: mensaje,
+    });
+    await this.loading.present();
+  }
+
+  loadingDissmiss(){
+    this.loading.dismiss();
   }
 
   async rutasPoppover(ev: any) {
@@ -76,22 +91,17 @@ export class Tab3ConfigPage {
       this.isa.varConfig.consecutivoRecibos = this.isa.rutas[data.indice].recibo;
       this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[data.indice].devolucion;
       this.isa.varConfig.emailCxC = this.isa.rutas[data.indice].emaiL_EJECUTIVA;
+      this.isa.varConfig.emailVendedor = this.isa.rutas[data.indice].emaiL_VENDEDOR;
+      if ( this.isa.rutas[data.indice].usA_RECIBOS === 'S') {
+        this.isa.varConfig.usaRecibos = true;
+      } else {
+        this.isa.varConfig.usaRecibos = false;
+      }
     }
   }
 
   rutaEnter( ruta: string ){
-    const i = this.isa.rutas.findIndex( r => r.ruta == ruta );
-    if ( i >= 0 && this.texto !== this.isa.varConfig.numRuta){
-      this.presentAlertConfirm( i );
-    } else if ( i < 0 ){
-      console.log('Ruta no existe');
-      this.isa.presentAlertW(this.texto, 'La ruta no existe');
-      this.texto = '';
-      this.isa.varConfig.numRuta = '';         
-      this.isa.varConfig.nomVendedor = '';
-      this.isa.varConfig.usuario = '';
-      this.isa.varConfig.clave = '';
-    }
+    this.rutasPoppover( null );
   }
 
   cargaConfig(){
