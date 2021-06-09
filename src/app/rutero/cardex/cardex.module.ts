@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { CardexPageRoutingModule } from './cardex-routing.module';
+import { ColonesPipe } from 'src/app/pipes/colones';
 
 import { CardexPage } from './cardex.page';
 
@@ -15,6 +16,6 @@ import { CardexPage } from './cardex.page';
     IonicModule,
     CardexPageRoutingModule
   ],
-  declarations: [CardexPage]
+  declarations: [CardexPage, ColonesPipe]
 })
 export class CardexPageModule {}

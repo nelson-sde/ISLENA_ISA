@@ -82,27 +82,23 @@ export class PedidosPage {
         prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
         if (prod.length > 0){ 
           this.esFrio( prod[0].frio );
-          if ( result[i].cantPedido === 0 || result[i].cantPedido === null ){
-            result[i].cantPedido = 1;
+          if ( result[i].cantPedido > 0 ){
+            this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
+            this.montoSub = result[i].cantPedido * prod[0].precio;
+            this.montoDescLinea = this.montoSub * result[i].descuento / 100;
+            this.montoIVA = (this.montoSub - this.montoDescLinea) * this.impuesto;
+            this.montoExonerado = this.montoSub * this.exonerado;
+            this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea;
+            this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
+                                                  this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100, 
+                                                  this.exonerado, this.montoExonerado, prod[0].frio );
+            this.pedido.detalle.push( this.nuevoDetalle );
+            this.pedido.subTotal += this.nuevoDetalle.subTotal;
+            this.pedido.iva += this.nuevoDetalle.iva;
+            this.pedido.descuento += this.nuevoDetalle.descuento;
+            this.pedido.total += this.nuevoDetalle.total;
+            this.pedidoSinSalvar = true;
           }
-          if ( result[i].descuento == null ){
-            result[i].descuento = 0;
-          }
-          this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
-          this.montoSub = result[i].cantPedido * prod[0].precio;
-          this.montoDescLinea = this.montoSub * result[i].descuento / 100;
-          this.montoIVA = (this.montoSub - this.montoDescLinea) * this.impuesto;
-          this.montoExonerado = this.montoSub * this.exonerado;
-          this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea;
-          this.nuevoDetalle = new DetallePedido(result[i].codProducto, prod[0].nombre, prod[0].precio, result[i].cantPedido, this.montoSub, this.montoIVA, 
-                                                this.montoDescLinea, 0, this.montoTotal, prod[0].impuesto, prod[0].canastaBasica, result[i].descuento, this.impuesto*100, 
-                                                this.exonerado, this.montoExonerado, prod[0].frio );
-          this.pedido.detalle.push( this.nuevoDetalle );
-          this.pedido.subTotal += this.nuevoDetalle.subTotal;
-          this.pedido.iva += this.nuevoDetalle.iva;
-          this.pedido.descuento += this.nuevoDetalle.descuento;
-          this.pedido.total += this.nuevoDetalle.total;
-          this.pedidoSinSalvar = true;
         }
       }
       this.numLineas = this.pedido.detalle.length;
@@ -345,32 +341,108 @@ export class PedidosPage {
     }
   }
 
-  carrito(){
-    if (this.pedidoSinSalvar && !this.modificando && !this.mostrarListaProd && this.isaConfig.transmitiendo.length === 0 ){
-      this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
-      this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
-      this.isaConfig.nextPedido();    // Incrementa el consecutivo de los pedidos
-      this.pedidoSinSalvar = false;
-      this.texto = '';
-      this.mostrarListaProd = false;
-      this.mostrarProducto = false;
-      this.cantidad = 6;
-      this.descuento = 0;
-      this.montoIVA = 0;
-      this.montoDescLinea = 0;
-      this.montoDescGen = 0;
-      this.montoSub = 0;
-      this.montoTotal = 0;
-      this.defaultCant = true;
-      this.impuesto = 0;
-      this.montoExonerado = 0;
-      this.exonerado = 0;
-      const fecha = new Date()
-      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
-      this.numLineas = this.pedido.detalle.length;
-    } else {
-      this.isaConfig.presentAlertW('Salvar Pedido', 'No se puede enviar el pedido en este momento.');
+  async carrito(){
+    let botones: any[] = [
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        cssClass: 'secondary',
+        handler: () => {
+          console.log('Confirm Cancel');
+          return;
+        }
+      }, {
+        text: 'Proforma',
+        handler: () => {
+          console.log('Confirm Proforma');
+          this.enviarProforma();
+        }
+      }, {
+        text: 'Transmitir',
+        handler: () => {
+          console.log('Confirm Transmitir');
+          this.transmitir();
+        }
+      }
+    ];
+
+    if ( !this.hayCardex ){
+      botones = [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+            return;
+          }
+        }, {
+          text: 'Transmitir',
+          handler: () => {
+            console.log('Confirm Transmitir');
+            this.transmitir();
+          }
+        }
+      ];
     }
+
+    if (this.pedidoSinSalvar && !this.modificando && !this.mostrarListaProd ){
+      const alert = await this.alertController.create({
+        cssClass: 'my-custom-class',
+        header: 'Confirmación',
+        message: `Envío de Pedido <strong>${this.pedido.numPedido}</strong>`,
+        buttons: botones
+      });
+      await alert.present();
+    } else {
+      this.isaConfig.presentAlertW('Salvar Pedido', 'No se puede transmitir el pedido si se está editando o modificando una línea.');
+    }
+  }
+
+  transmitir(){
+    this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
+    this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
+    this.isaConfig.nextPedido();    // Incrementa el consecutivo de los pedidos
+    this.pedidoSinSalvar = false;
+    this.texto = '';
+    this.mostrarListaProd = false;
+    this.mostrarProducto = false;
+    this.cantidad = 6;
+    this.descuento = 0;
+    this.montoIVA = 0;
+    this.montoDescLinea = 0;
+    this.montoDescGen = 0;
+    this.montoSub = 0;
+    this.montoTotal = 0;
+    this.defaultCant = true;
+    this.impuesto = 0;
+    this.montoExonerado = 0;
+    this.exonerado = 0;
+    const fecha = new Date()
+    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
+    this.numLineas = this.pedido.detalle.length;
+  }
+
+  enviarProforma(){
+    this.isaPedido.proforma( this.pedido );
+    this.pedidoSinSalvar = false;
+    this.texto = '';
+    this.mostrarListaProd = false;
+    this.mostrarProducto = false;
+    this.cantidad = 6;
+    this.descuento = 0;
+    this.montoIVA = 0;
+    this.montoDescLinea = 0;
+    this.montoDescGen = 0;
+    this.montoSub = 0;
+    this.montoTotal = 0;
+    this.defaultCant = true;
+    this.impuesto = 0;
+    this.montoExonerado = 0;
+    this.exonerado = 0;
+    const fecha = new Date()
+    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
+    this.numLineas = this.pedido.detalle.length;
   }
 
   descuentoPermitido( codCliente: string, codProducto: string ){

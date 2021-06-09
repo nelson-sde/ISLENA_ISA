@@ -70,22 +70,18 @@ export class ProductosPage {
   buscarProducto(){
     let array: Productos[] = [];
 
+    const selectArray = this.busquedaProd.filter( d => d.seleccionado );
+    if ( selectArray.length > 0){         // Se seleccionaron uno o varios artículos
+      this.modalCtrl.dismiss({ productos: selectArray });
+    }
+
     if ( this.texto.length === 0 ){
       this.paginaIni = 0;
       this.paginaFin = 30;
       this.busquedaProd = [];
       this.infiniteScroll.disabled = false;
       this.incrementaPagina();
-    } else if (this.texto[0] == '#') {                     // Se buscará por código de producto
-      const idProduct = this.texto.slice(1);
-      const product = this.isa.productos.find( e => e.id == idProduct );
-      if ( product !== undefined ){
-        this.busquedaProd = [];
-        this.busquedaProd.push(product);
-      } else {
-        this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
-      }
-    } else {                       // Se recorre el arreglo para buscar coincidencias
+    } else if ( isNaN( +this.texto )){      // Se recorre el arreglo para buscar coincidencias en el texto
       array = this.busquedaProd.slice(0);
       this.busquedaProd = [];
       for (let i = 0; i < this.isa.productos.length; i++) {
@@ -93,15 +89,25 @@ export class ProductosPage {
             this.busquedaProd.push(this.isa.productos[i]);
         }
       }
+    } else {              // La búsqueda es por código de producto
+      const product = this.isa.productos.find( e => e.id === this.texto );
+      if ( product !== undefined ){
+        this.busquedaProd = [];
+        this.busquedaProd.push(product);
+      } else {           // Sino se busca por código de barras
+        const product2 = this.isa.productos.find( e => e.codigoBarras === this.texto );
+        if ( product2 !== undefined ){
+          this.busquedaProd = [];
+          this.busquedaProd.push(product2);
+        } else {
+          this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
+        }
+      }
     }
     if (this.busquedaProd.length === 0){                    // no hay coincidencias
       this.busquedaProd = array.slice(0);
       this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
     } 
-  }
-
-  productoSelect( i: number ){
-    this.modalCtrl.dismiss({codProducto: this.busquedaProd[i].id, desProducto: this.busquedaProd[i].nombre});
   }
 
   barcode(){
@@ -124,7 +130,7 @@ export class ProductosPage {
   }
 
   regresar(){
-    this.modalCtrl.dismiss({codProducto: null, desProducto: null});
+    this.modalCtrl.dismiss({ productos: null });
   }
 
 }

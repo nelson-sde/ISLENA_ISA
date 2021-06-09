@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { ModalController, NavController, NavParams } from '@ionic/angular';
+import { AlertController, ModalController, NavController, NavParams } from '@ionic/angular';
 import { Cardex, SugeridoBD } from 'src/app/models/cardex';
+import { Productos } from 'src/app/models/productos';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaService } from 'src/app/services/isa.service';
 import { ProductosPage } from '../productos/productos.page';
@@ -11,13 +12,14 @@ import { ProductosPage } from '../productos/productos.page';
   styleUrls: ['./cardex.page.scss'],
 })
 export class CardexPage {
+  
   codProducto: string;
   nomProducto: string;
   descuento: number;
   cantInventario: number = 0;
   cantPedido: number = 0;
   i:          number;               // La posicion en el arreglo de Cardex donde esta el producto (-1 si no se halla)
-  lineaCardex: Cardex;
+  //lineaCardex: Cardex;
   cardex: Cardex[] = [];
   productos: Cardex[] = [];
 
@@ -25,17 +27,28 @@ export class CardexPage {
                private modalCtrl: ModalController,
                private navParams: NavParams,
                private navController: NavController,
-               public isaCardex: IsaCardexService) {
+               private isaCardex: IsaCardexService,
+               private alertCtrl: AlertController) {
 
     this.codProducto = this.navParams.get('codProd');
     this.descuento = this.navParams.get('desc');
-    this.cardex = this.navParams.get('cardex');
     this.nomProducto = this.navParams.get('nombre');
     this.productos = this.navParams.get('productos');
+    this.cardex = this.isaCardex.cargarCardexCliente( this.isa.clienteAct.id );
     console.log(this.codProducto);
     if (this.codProducto !== null){
-      this.lineaCardex = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(this.codProducto), this.descuento);
-      this.agregaLineaCardex();
+      const linea = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(this.codProducto), this.descuento);
+      linea.precio = this.consultarPrecio( linea.codProducto );
+      this.agregaLineaCardex( linea );
+    }
+  }
+
+  consultarPrecio( id: string ){
+    const i = this.isa.productos.findIndex( d => d.id === id );
+    if ( i >= 0 ){
+      return this.isa.productos[i].precio;
+    } else {
+      return 0;
     }
   }
 
@@ -55,21 +68,27 @@ export class CardexPage {
     return sugerido; 
   }
 
-  agregaLineaCardex(){
-    const existe = this.cardex.find( d => d.codProducto == this.lineaCardex.codProducto );
+  agregaLineaCardex( linea: Cardex ){
+    const existe = this.cardex.find( d => d.codProducto === linea.codProducto );
     if ( !existe ){
-      this.cardex.unshift(this.lineaCardex);
-      this.isaCardex.cardex.unshift( this.lineaCardex );
+      this.cardex.unshift(linea);
+      //this.isaCardex.cardex.unshift( linea );
       this.isaCardex.cardexSinSalvar = true;
     }
-    
   }
 
   regresar(){
-    this.modalCtrl.dismiss({cardex: this.cardex});
+    if ( this.cardex.length > 0 ){
+      this.isaCardex.guardarCardex( this.cardex );
+    }
+    this.modalCtrl.dismiss();
   }
 
   async agregarProducto(){
+
+    let prodArray: Productos[] = [];
+    let linea: Cardex;
+
     const modal = await this.modalCtrl.create({
       component: ProductosPage,
       componentProps: {
@@ -81,9 +100,14 @@ export class CardexPage {
     await modal.present();
 
     const {data} = await modal.onDidDismiss();
-    if (data.codProducto !== null){
-      this.lineaCardex = new Cardex(this.isa.clienteAct.id, data.codProducto, data.desProducto, 'Pedido', new Date(), null, this.traerSugerido(data.codProducto), 0);
-      this.agregaLineaCardex();
+    
+    if (data.productos !== null){
+      prodArray = data.productos.slice(0);
+      prodArray.forEach( d => {
+        linea = new Cardex(this.isa.clienteAct.id, d.id, d.nombre, 'Pedido', new Date(), null, this.traerSugerido(d.id), 0);
+        linea.precio = this.consultarPrecio( linea.codProducto );
+        this.agregaLineaCardex( linea );
+      });
     }
   }
 
@@ -105,6 +129,62 @@ export class CardexPage {
     }
     this.cardex = data.slice(0);
     this.isaCardex.cardexSinSalvar = true;
+  }
+
+  async ingresarMontos( i: number ){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'my-custom-class',
+      header: 'Cantidades',
+      inputs: [
+        {
+          name: 'Pedido',
+          type: 'number',
+          placeholder: 'Pedido',
+          min: 0,
+          max: 1000
+        },
+        {
+          name: 'Descuento',
+          type: 'number',
+          placeholder: 'Descuento',
+          min: 0,
+          max: 1000
+        },
+        {
+          name: 'Inventario',
+          type: 'number',
+          placeholder: 'Inventario',
+          min: 0,
+          max: 1000
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Ok',
+          handler: (data) => {
+            console.log('Confirm Ok', data);
+            if (data.Pedido.length > 0){
+              this.cardex[i].cantPedido = +data.Pedido;
+            }
+            if (data.Descuento.length > 0){
+              this.cardex[i].descuento = +data.Descuento;
+            }
+            if ( data.Inventario.length > 0 ){
+              this.cardex[i].cantInventario = +data.Inventario;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
 }

@@ -28,20 +28,25 @@
         <ion-row color="light">
           <ion-col size="3">
             <div class="ion-text-center">
-              Producto
+              Item
             </div>
           </ion-col>
           <ion-col size="3">
+            <div class="ion-text-center">
+              Precio
+            </div>
+          </ion-col>
+          <ion-col size="2">
             <div class="ion-text-end">
-              Descuento
+              Desc
             </div>
           </ion-col>
-          <ion-col size="3">
+          <ion-col size="2">
             <div class="ion-text-end">
-              Inventario
+              Invent
             </div>
           </ion-col>
-          <ion-col size="3">
+          <ion-col size="2">
             <div class="ion-text-end">
               Pedido
             </div>
@@ -51,7 +56,7 @@
     </ion-list-header>
 
     <ion-item-sliding *ngFor="let item of cardex; let i = index" lines="full">
-      <ion-item >
+      <ion-item (click)="ingresarMontos(i)">
         <ion-grid>    
           <ion-row>
             <ion-col size="3">
@@ -61,17 +66,22 @@
             </ion-col>
             <ion-col size="3">
               <div class="ion-text-end">
-                <ion-input type="number" placeholder="?" value="{{item.descuento}}" [(ngModel)]="item.descuento"></ion-input>
+                {{item.precio | colones:1 :"." :"," }}
               </div>
             </ion-col>
-            <ion-col size="3">
+            <ion-col size="2">
               <div class="ion-text-end">
-                <ion-input type="number" placeholder="?" value="{{item.cantInventario}}" [(ngModel)]="item.cantInventario"></ion-input>
+                {{item.descuento}}
               </div>
             </ion-col>
-            <ion-col size="3">
+            <ion-col size="2">
               <div class="ion-text-end">
-                <ion-input type="number" placeholder="?" value="{{item.cantPedido}}" [(ngModel)]="item.cantPedido"></ion-input>
+                {{item.cantInventario}}
+              </div>
+            </ion-col>
+            <ion-col size="2">
+              <div class="ion-text-end">
+                {{item.cantPedido}}
               </div>
             </ion-col>
             <ion-col size="12">

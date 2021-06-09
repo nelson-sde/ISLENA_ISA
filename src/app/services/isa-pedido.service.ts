@@ -231,6 +231,14 @@ export class IsaPedidoService {
     );
   }
 
+  proforma( pedido: Pedido ){
+    let email: Email;
+
+    const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
+    email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido));
+    this.isa.enviarEmail( email );
+  }
+
   getBody( pedido: Pedido ){
     let body: string[] = [];
     let texto: string;

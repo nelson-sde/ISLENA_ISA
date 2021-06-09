@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { AlertController, IonInfiniteScroll, ModalController, NavController } from '@ionic/angular';
 import { Cardex } from 'src/app/models/cardex';
+import { Productos } from 'src/app/models/productos';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaService } from 'src/app/services/isa.service';
 import { CardexPage } from '../cardex/cardex.page';
@@ -17,7 +18,6 @@ export class InventarioPage {
   productos: Cardex[] = [];
   cardexHistorico: Cardex [] = [];       // Carga la totalidad del histórico de ventas del cliente
   historico: Cardex[] = [];             // Arreglo que contiene la data a mostrar en pantalla
-  cardex: Cardex[] = [];               // Arreglo que contiene el cardex que estamos construyendo al cliente
   filtra: boolean = false;
   tamPagina: number = 30;            // Cantidad de registros a mostrar en la pagina 
   paginaIni: number = 0;
@@ -30,7 +30,6 @@ export class InventarioPage {
                private modalCtrl: ModalController,
                private navController: NavController,
                private alertController: AlertController ) {
-    this.cardex = this.isaCardex.cargarCardexCliente( this.isa.clienteAct.id );
     this.reordenaHistorico();
   }
 
@@ -96,6 +95,8 @@ export class InventarioPage {
   }
 
   async filtraProductos(){
+    /*let prodArray: Productos[] = [];
+
     const modal = await this.modalCtrl.create({
       component: ProductosPage,
       componentProps: {
@@ -107,10 +108,10 @@ export class InventarioPage {
     await modal.present();
 
     const {data} = await modal.onDidDismiss();
-    if (data.codProducto !== null){
-      const i = this.cardexHistorico.findIndex( d => d.codProducto === data.codProducto );
+    if (data.productos !== null){
+      prodArray = data.productos.slice(0);
       this.abrirCardex( i );
-    }
+    }*/
   }
 
   async abrirCardex( i: number ){
@@ -126,18 +127,18 @@ export class InventarioPage {
     const modal = await this.modalCtrl.create({
       component: CardexPage,
       componentProps: {
-        codProd: codProducto,
-        nombre: nombre,
-        desc: descuento,
-        cardex: this.cardex,
-        productos: this.productos,
+        'codProd': codProducto,
+        'nombre': nombre,
+        'desc': descuento,
+        //'cardex': this.cardex,
+        'productos': this.productos,
       },
       cssClass: 'my-custom-class'
     });
     await modal.present();
     const {data} = await modal.onWillDismiss();
     if ( data !== undefined){
-      this.cardex = data.cardex.slice(0);
+      // this.cardex = data.cardex.slice(0);
     }
   }
 
