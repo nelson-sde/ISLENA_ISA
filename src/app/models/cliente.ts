@@ -101,3 +101,12 @@ export interface ClienteRT {
     createDate:                    Date;
 }
 
+export interface ClientePut {
+    RUTA:                          string;
+    FECHA_MODIFICACION:            Date;
+    CLIENTE:                       string;
+    RUBRO1_CLIENTE:                string;
+    RUBRO2_CLIENTE:                string;
+    RUBRO3_CLIENTE:                string;
+}
+

@@ -54,10 +54,19 @@ export class IsaPedidoService {
     }
   }
 
+  private actualizaVisita( idCliente: string ){
+    const existe = this.isa.rutero.findIndex( d => d.cliente === idCliente );
+    if (existe >= 0){
+      this.isa.rutero[existe].razon = 'E';
+      localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+    }
+  }
+
   procesaPedido( pedido: Pedido, frio: boolean, seco: boolean ){
     let pedidoSeco: Pedido;
     let pedidoFrio: Pedido;
 
+    this.actualizaVisita( pedido.codCliente );
     if ( frio && seco ){
       this.isa.addBitacora( true, 'INSERT', `Separa los pedidos de Frio y Seco.  Frio: ${pedido.numPedido}`);
       pedidoFrio = this.separaPedido ( pedido, true );
@@ -81,7 +90,9 @@ export class IsaPedidoService {
   private separaPedido( pedido: Pedido, tipo: boolean ){
     let pedidoNuevo: Pedido;
 
-    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, pedido.fechaEntrega, false );
+    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, pedido.fecha, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, pedido.fechaEntrega, false,
+                              pedido.horaFin );
+
     pedido.detalle.forEach( d => {
       if ( d.frio == tipo ) {
         pedidoNuevo.detalle.push(d);
@@ -101,8 +112,8 @@ export class IsaPedidoService {
     let pedidoOriginal: Pedido;
 
     console.log('Pedido original', pedido);
-    pedidoOriginal = new Pedido( pedido.numPedido, pedido.codCliente, pedido.subTotal, pedido.iva, pedido.descuento, pedido.porcentajeDescGeneral, pedido.descGeneral,
-                                pedido.total, pedido.observaciones, pedido.fechaEntrega, false );
+    pedidoOriginal = new Pedido( pedido.numPedido, pedido.codCliente, pedido.fecha, pedido.subTotal, pedido.iva, pedido.descuento, pedido.porcentajeDescGeneral, pedido.descGeneral,
+                                pedido.total, pedido.observaciones, pedido.fechaEntrega, false, pedido.horaFin );
     pedidoOriginal.detalle = pedido.detalle.slice(0);
 
     while ( lineas > 0 ) {
@@ -129,7 +140,8 @@ export class IsaPedidoService {
   private nuevoPedido( pedido: Pedido ){
     let pedidoNuevo: Pedido;
 
-    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, pedido.fechaEntrega, false );
+    pedidoNuevo = new Pedido( pedido.numPedido, pedido.codCliente, pedido.fecha, 0, 0, 0, pedido.porcentajeDescGeneral, 0, 0, pedido.observaciones, pedido.fechaEntrega, false,
+                              pedido.horaFin );
     for (let i = 0; i < environment.cantLineasMaxPedido; i++) {
       pedidoNuevo.detalle.push(pedido.detalle[i]);
       pedidoNuevo.subTotal += pedido.detalle[i].subTotal;
@@ -161,14 +173,14 @@ export class IsaPedidoService {
 
     if ( cliente !== undefined ){ 
 
-      email = new Email( cliente.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido));
+      email = new Email( cliente.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
       rowPointer = this.isa.generate();
 
       if ( tipo == 'N' ){
         this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
       }
-      const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', new Date(fechaPedido), new Date(fechaPedido), 
-                                    new Date(fechaEntrega), new Date(fechaPedido), pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, 
+      const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', new Date(pedido.horaFin), new Date(fechaPedido), 
+                                    new Date(fechaEntrega), new Date(pedido.fecha), pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, 
                                     pedido.detalle.length, cliente.listaPrecios, pedido.observaciones, null, 'N', cliente.diasCredito.toString(), 
                                     this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, 
                                     this.isa.nivelPrecios, 'L', 0, new Date(fechaPedido), rowPointer, 'ISA', 'ISA', new Date(fechaPedido), null, cliente.divGeografica1, 
@@ -235,15 +247,15 @@ export class IsaPedidoService {
     let email: Email;
 
     const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
-    email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido));
+    email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
     this.isa.enviarEmail( email );
   }
 
-  getBody( pedido: Pedido ){
+  getBody( pedido: Pedido, nombre: string ){     // nombre = nombre del cliente del pedido
     let body: string[] = [];
     let texto: string;
 
-    body.push( `Cliente: ${pedido.codCliente} - ${this.isa.clienteAct.nombre}<br/>` );
+    body.push( `Cliente: ${pedido.codCliente} - ${nombre}<br/>` );
     body.push(`Fecha Pedido: ${this.getFecha(pedido.fecha)}<br/>`);
     body.push(`Fecha Entrega: ${this.getFecha(pedido.fechaEntrega)}<br/>`);
     body.push('<br/>');

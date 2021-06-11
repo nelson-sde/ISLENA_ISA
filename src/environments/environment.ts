@@ -21,6 +21,7 @@ export const environment = {
   ChequeURL: 'Cheque/',
   ExoneracionesURL: 'Exoneraciones/',
   ClienteRTURL: 'Cliente_RT/',
+  ClientePutURL: 'ClienteData/',
   SugeridoURL: 'Sugerido/',
   CuotaURL: 'Cuota/',
   EmailURL: 'Email/',

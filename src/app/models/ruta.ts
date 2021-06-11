@@ -45,3 +45,34 @@ export interface Cuota {
     c__Margen:       number;
 }
 
+export class Rutero {
+    cliente:  string;
+    ruta:     string;
+    inicio:   Date;
+    razon:    string;
+    fin:      Date;
+    fecha_Plan: Date;
+    tipo:     string;
+    notas:    string;
+    doc_Pro:  string;
+    latitud:  number;
+    longitud: number;
+    pendiente: boolean;
+
+    constructor ( cliente:  string,
+                  ruta:     string){
+        this.cliente = cliente;
+        this.ruta = ruta;
+        this.inicio = new Date();
+        this.razon = 'N';
+        this.fin = null;
+        this.fecha_Plan = new Date();
+        this.tipo = 'R';
+        this.notas = '';
+        this.doc_Pro = null;
+        this.latitud = 0;
+        this.longitud = 0;
+        this.pendiente = false;
+    }
+}
+

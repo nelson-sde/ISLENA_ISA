@@ -53,12 +53,15 @@ export class Pedido {
     detalle: DetallePedido[];
     observaciones: string;
     envioExitoso: boolean;
+    horaFin?: Date;
+    latitud?: number;
+    longitud?: number;
 
-    constructor ( numPedido: string, id: string, subTotal: number, iva: number, desc: number, porDesGen: number, descGen:number, total: number, obser: string, 
-                  fecha_despacho: Date, exito: boolean ){
+    constructor ( numPedido: string, idCliente: string, fecha: Date, subTotal: number, iva: number, desc: number, porDesGen: number, descGen:number, total: number, obser: string, 
+                  fecha_despacho: Date, exito: boolean, horaFin: Date ){
         this.numPedido = numPedido;
-        this.codCliente = id;
-        this.fecha = new Date();
+        this.codCliente = idCliente;
+        this.fecha = fecha;
         this.fechaEntrega = fecha_despacho;
         this.subTotal = subTotal;
         this.iva = iva;
@@ -69,6 +72,7 @@ export class Pedido {
         this.detalle = [];
         this.observaciones = obser;
         this.envioExitoso = exito;
+        this.horaFin = horaFin;
     }
 }
 

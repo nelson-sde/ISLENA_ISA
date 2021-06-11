@@ -1,6 +1,5 @@
 
-import { Component, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Productos } from 'src/app/models/productos';
 import { DetallePedido, Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
@@ -11,6 +10,7 @@ import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component'
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { environment } from 'src/environments/environment';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 
 
@@ -19,7 +19,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './pedidos.page.html',
   styleUrls: ['./pedidos.page.scss'],
 })
-export class PedidosPage {
+export class PedidosPage implements OnInit {
 
   busquedaProd: Productos[] = [];           // Arreglo que contiene la sublista de productos seleccionados
   producto: Productos;                     // Producto seleccionado de la busqueda     
@@ -52,24 +52,38 @@ export class PedidosPage {
 
   @ViewChild('myList') ionList: IonList;
 
-  constructor( private activateRoute: ActivatedRoute,
-               private isaConfig: IsaService,
+  constructor( private isaConfig: IsaService,
                private isaPedido: IsaPedidoService,
                private isaCardex: IsaCardexService,
                private alertController: AlertController,
                private navController: NavController,
                private popoverController: PopoverController,
-               private barcodeScanner: BarcodeScanner ) {
+               private barcodeScanner: BarcodeScanner,
+               private geolocation: Geolocation ) {
+  }
 
-    this.activateRoute.params.subscribe((data: any) => {    // Como parametro ingresa al modulo la info del cliente del rutero
-      const fecha = new Date();
-      this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
-      this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
-      this.isaConfig.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isaConfig.clienteAct.nombre}`);
-      this.validaSiCardex();
-    });
+  ngOnInit(){
+    const fecha = new Date();
+    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
+    //this.getGeo();
+    this.isaConfig.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isaConfig.clienteAct.nombre}`);
+    this.validaSiCardex();
     this.isaConfig.transmitiendo = [];
   }
+
+  /*getGeo(){
+    console.log('Cargando Geolocalización');
+    this.geolocation.getCurrentPosition().then((resp) => {
+      // resp.coords.latitude
+      // resp.coords.longitude
+      console.log(resp);
+      this.pedido.latitud = resp.coords.latitude;
+      this.pedido.longitud = resp.coords.longitude;
+     }).catch((error) => {
+       console.log('Error getting location', error);
+     });
+  }*/
 
   validaSiCardex(){
     let prod: Productos[] = [];
@@ -400,6 +414,7 @@ export class PedidosPage {
   }
 
   transmitir(){
+    this.pedido.horaFin = new Date();
     this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
     this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
     this.isaConfig.nextPedido();    // Incrementa el consecutivo de los pedidos
@@ -419,8 +434,11 @@ export class PedidosPage {
     this.montoExonerado = 0;
     this.exonerado = 0;
     const fecha = new Date()
-    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
+    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
+    //this.getGeo();
     this.numLineas = this.pedido.detalle.length;
+    this.isaConfig.transmitiendo = [];
   }
 
   enviarProforma(){
@@ -441,7 +459,9 @@ export class PedidosPage {
     this.montoExonerado = 0;
     this.exonerado = 0;
     const fecha = new Date()
-    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, 0, 0, 0, 0, 0, 0, '', fecha, false);
+    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
+    //this.getGeo();
     this.numLineas = this.pedido.detalle.length;
   }
 

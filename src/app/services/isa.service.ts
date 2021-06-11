@@ -4,14 +4,14 @@ import { AlertController, LoadingController, ToastController } from '@ionic/angu
 import { environment } from 'src/environments/environment';
 import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
-import { Cliente, ClienteBD, ClienteRT } from '../models/cliente';
+import { Cliente, ClienteBD, ClientePut, ClienteRT } from '../models/cliente';
 import { CxCBD, Pen_Cobro } from '../models/cobro';
-import { Exoneraciones, Existencias, PedEnca, Pedido } from '../models/pedido';
+import { Exoneraciones, Existencias, PedEnca  } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
-import { Cuota, Ruta, RutaConfig } from '../models/ruta';
+import { Cuota, Ruta, RutaConfig, Rutero } from '../models/ruta';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +44,8 @@ export class IsaService {
   existencias: Existencias[] = [];
   bitacora: Bitacora[] = [];
   userLogged: boolean = true;
-  transmitiendo: string[] = []; 
+  transmitiendo: string[] = [];
+  rutero: Rutero[] = [];                // Arreglo con la lista de clientes visitados en el día
 
   loading: HTMLIonLoadingElement;
 
@@ -255,7 +256,7 @@ export class IsaService {
     }
   }
 
-  modificarCliente( cliente: Cliente ){
+  /*modificarCliente( cliente: Cliente ){
     let clientes: Cliente[] = [];
 
     if (localStorage.getItem('clientesModificados')){
@@ -266,7 +267,7 @@ export class IsaService {
     const i = this.clientes.findIndex( d => d.id == this.clienteAct.id );
     this.clientes[i] = this.clienteAct;
     localStorage.setItem('clientes', JSON.stringify(this.clientes));
-  }
+  }*/
 
   syncCardex( ruta: string ){
     let j: number;
@@ -601,6 +602,38 @@ export class IsaService {
      }*/
      return true;
   }
+
+  private postCliente( cliente: ClientePut ){
+    const URL = this.getURL( environment.ClientePutURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(cliente), options );
+  }
+
+  actualizarCliente( idCliente: string, contacto: string, telefono: string, email: string ){
+    let cliente:  ClientePut = {
+      RUTA:               this.varConfig.numRuta,
+      FECHA_MODIFICACION: new Date(),
+      CLIENTE:            idCliente,
+      RUBRO1_CLIENTE :    email,
+      RUBRO2_CLIENTE :    telefono,
+      RUBRO3_CLIENTE :    contacto,
+    }
+    this.postCliente( cliente ).subscribe(                    // Realiza la actualización de la tabla Islena.Cliente
+      resp => {
+        console.log('Cliente Actualizado...', resp);
+        this.presentaToast( 'Cliente Actualizado...' );
+      }, error => {
+        console.log('Error Actualizando Cliente ', error.message);
+        this.presentaToast( 'Error actualizando cliente...' );
+      }
+    );
+  }
+
 
   
 }

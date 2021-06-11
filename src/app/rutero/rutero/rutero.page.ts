@@ -7,7 +7,8 @@ import { environment } from 'src/environments/environment';
 import { ClienteInfoPage } from '../cliente-info/cliente-info.page';
 import { ClientesPage } from '../clientes/clientes.page';
 import { Plugins } from '@capacitor/core';
-import { Email } from 'src/app/models/email';
+import { Rutero } from 'src/app/models/ruta';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 const { App } = Plugins;
 
@@ -27,9 +28,11 @@ export class RuteroPage {
                private router: Router,
                public isa: IsaService,
                private popoverCtrl: PopoverController,
-               private platform: Platform ) {
+               private platform: Platform,
+               private geolocation: Geolocation ) {
 
     this.isa.cargarClientes();
+    this.cargarRutero();
     this.platform.backButton.subscribeWithPriority(10, () => {
       console.log('Handler was called!');
       this.presentAlertSalir();
@@ -75,6 +78,10 @@ export class RuteroPage {
     this.router.navigate(['/cuota']);
   }
 
+  abrirVisita(){
+    this.router.navigate(['/visita']);
+  }
+
   buscarCliente( ev: any ){
     if ( this.isa.userLogged || !environment.prdMode ){            // Valida si el vendedor hizo login
       if (this.texto.length == 0) {                               // Se busca en todos los cliente
@@ -108,6 +115,7 @@ export class RuteroPage {
         this.isa.clienteAct = this.buscarClientes[0];
         this.isa.cargaListaPrecios();
         this.isa.cargarExoneraciones();
+        this.agregarRutero();
         if (this.isa.existencias.length === 0){
           this.isa.cargarExistencias();
         }
@@ -140,6 +148,7 @@ export class RuteroPage {
         this.dir = true;
         this.isa.cargaListaPrecios();
         this.isa.cargarExoneraciones();
+        this.agregarRutero();
         if (this.isa.existencias.length === 0){
           this.isa.cargarExistencias();
         }
@@ -164,8 +173,7 @@ export class RuteroPage {
     if ( data !== undefined){
       if ( data.modificado ){
         console.log('Se modificaron los datos del cliente');
-        this.isa.modificarCliente( this.isa.clienteAct );
-        this.enviarEmailCliente( this.isa.clienteAct );
+        this.isa.actualizarCliente( this.isa.clienteAct.id, this.isa.clienteAct.nombreContacto, this.isa.clienteAct.telefonoContacto, this.isa.clienteAct.email );
       }
       if ( data.geoReferencia ){
         this.isa.salvarCoordenadas();
@@ -173,7 +181,7 @@ export class RuteroPage {
     }
   }
 
-  enviarEmailCliente( cliente: Cliente ){
+  /*enviarEmailCliente( cliente: Cliente ){
     let email: Email;
     let texto: string[] = [];
 
@@ -187,7 +195,7 @@ export class RuteroPage {
     email.body = texto.join('');
     console.log(email);
     this.isa.enviarEmail( email );
-  }
+  }*/
 
   async presentAlert( subtitulo: string, mensaje: string ) {
     const alert = await this.alertController.create({
@@ -223,6 +231,39 @@ export class RuteroPage {
       ]
     });
     await alert.present();
+  }
+
+  cargarRutero(){
+    if (localStorage.getItem('rutero')){
+      this.isa.rutero = JSON.parse(localStorage.getItem('rutero'));
+    }
+  }
+
+  agregarRutero(){
+    const existe = this.isa.rutero.findIndex( d => d.cliente === this.isa.clienteAct.id);
+    if (existe < 0){
+      const item = new Rutero (this.isa.clienteAct.id, this.isa.varConfig.numRuta);
+      this.isa.rutero.unshift(item);
+      this.getGeo( item.cliente );
+    }
+  }
+
+  getGeo( idCliente: string ){
+    console.log('Cargando Geolocalización');
+    this.geolocation.getCurrentPosition().then((resp) => {
+      // resp.coords.latitude
+      // resp.coords.longitude
+      console.log(resp);
+      const existe = this.isa.rutero.findIndex( d => d.cliente === idCliente);
+      if (existe >= 0){
+        this.isa.rutero[existe].latitud = resp.coords.latitude;
+        this.isa.rutero[existe].longitud = resp.coords.longitude;
+        localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+      }
+     }).catch((error) => {
+       console.log('Error getting location', error);
+       localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+     });
   }
 
 }

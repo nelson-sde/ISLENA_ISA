@@ -81,6 +81,10 @@ const routes: Routes = [
   {
     path: 'cuota',
     loadChildren: () => import('./rutero/cuota/cuota.module').then( m => m.CuotaPageModule)
+  },
+  {
+    path: 'visita',
+    loadChildren: () => import('./rutero/visita/visita.module').then( m => m.VisitaPageModule)
   }
 ];
 @NgModule({
