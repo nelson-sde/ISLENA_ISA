@@ -69,12 +69,17 @@ export class IsaCardexService {
                                                       // Modifica una linea en el arreglo del cardex
 
   actualizaAplicado( codCliente: string ){
-    this.cardex.forEach( e => {
-      if (e.codCliente == codCliente){
-        e.aplicado = true;
-      }
-    })
-    localStorage.setItem('cardexCliente', JSON.stringify(this.cardex));
+    let cardex: Cardex[] = [];
+    if (localStorage.getItem('cardexCliente')){
+      cardex = JSON.parse( localStorage.getItem('cardexCliente'));
+      cardex.forEach( e => {
+        if (e.codCliente == codCliente){
+          e.aplicado = true;
+        }
+      });
+      localStorage.setItem('cardexCliente', JSON.stringify(cardex));
+    }
+    
   }
 
   guardarCardex( cardex: Cardex[]){                  // Guarda en arreglo en el Local Storage

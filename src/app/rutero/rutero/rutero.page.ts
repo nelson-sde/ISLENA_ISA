@@ -243,6 +243,11 @@ export class RuteroPage {
     const existe = this.isa.rutero.findIndex( d => d.cliente === this.isa.clienteAct.id);
     if (existe < 0){
       const item = new Rutero (this.isa.clienteAct.id, this.isa.varConfig.numRuta);
+      if (this.isa.rutero.length > 0){
+        if (this.isa.rutero[0].fin == null){
+          this.isa.rutero[0].fin = new Date();
+        }
+      }
       this.isa.rutero.unshift(item);
       this.getGeo( item.cliente );
     }
