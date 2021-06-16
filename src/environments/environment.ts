@@ -23,6 +23,8 @@ export const environment = {
   ClienteRTURL: 'Cliente_RT/',
   ClientePutURL: 'ClienteData/',
   SugeridoURL: 'Sugerido/',
+  UbicacionURL: 'Ubicacion/',
+  VisitaURL: 'Visita/',
   CuotaURL: 'Cuota/',
   EmailURL: 'Email/',
   cantLineasMaxPedido: 35,

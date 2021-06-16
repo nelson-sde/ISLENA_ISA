@@ -11,7 +11,7 @@ import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
-import { Cuota, Ruta, RutaConfig, Rutero } from '../models/ruta';
+import { Cuota, Ruta, RutaConfig, Rutero, UbicacionBD, VisitaBD } from '../models/ruta';
 
 @Injectable({
   providedIn: 'root'
@@ -634,6 +634,77 @@ export class IsaService {
     );
   }
 
+  private postVisita( visitas: VisitaBD[] ){
+    const URL = this.getURL( environment.VisitaURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(visitas), options );
+  }
 
+  actualizarVisitas(){
+    let visitas: VisitaBD[] = [];
+    let visita: VisitaBD;
+
+    if (this.rutero.length > 0){
+      if (this.rutero[0].fin === null){
+        this.rutero[0].fin = new Date();
+      }
+      this.rutero.forEach( d => {
+        visita = new VisitaBD(d.cliente, d.ruta, d.inicio, d.razon, d.fin, d.fecha_Plan, d.tipo, d.notas, null);
+        visitas.push( visita );
+      });
+
+      this.postVisita( visitas ).subscribe(
+        resp => {
+          console.log('Sincronizando Visitas', resp);
+        }, error => {
+          console.log('Error Sincronizando Visitas...!!!', error.message);
+          console.log(JSON.stringify(visitas));
+        }
+      );
+      console.log('Visitas JSON: ', JSON.stringify(visitas));
+    }
+  }
+
+  private postUbicacion( visitas: UbicacionBD[] ){
+    const URL = this.getURL( environment.UbicacionURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(visitas), options );
+  }
+
+  actualizarVisitaUbicacion(){
+    let visitas: UbicacionBD[] = [];
+    let visita: UbicacionBD;
+
+    if (this.rutero.length > 0){
+      if (this.rutero[0].fin === null){
+        this.rutero[0].fin = new Date();
+      }
+      this.rutero.forEach( d => {
+        visita = new UbicacionBD( d.cliente, d.ruta, d.inicio, d.latitud, d.longitud, 0, d.inicio, d.inicio, 0, null);
+        visitas.push( visita );
+      });
+
+      this.postUbicacion( visitas ).subscribe(
+        resp => {
+          console.log('Sincronizando Visitas Ubicación', resp);
+          this.rutero = [];
+          localStorage.removeItem('rutero');
+        }, error => {
+          console.log('Error Sincronizando Visitas Ubicación...!!!', error.message);
+        }
+      );
+      console.log('Ubicacion JSON:', JSON.stringify(visitas));
+    }
+  }
   
 }

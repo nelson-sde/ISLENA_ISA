@@ -11,7 +11,11 @@ export class ClientePipe implements PipeTransform {
 
     clientes = JSON.parse( localStorage.getItem('clientes'));
     const cliente = clientes.find( d => d.id == value );
-    return cliente.nombre;
+    if ( cliente !== undefined){ 
+      return cliente.nombre;
+    } else {
+      return 'ND';
+    }
   }
 
 }

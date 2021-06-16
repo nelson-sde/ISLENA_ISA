@@ -254,29 +254,22 @@ export class IsaPedidoService {
   getBody( pedido: Pedido, nombre: string ){     // nombre = nombre del cliente del pedido
     let body: string[] = [];
     let texto: string;
+    let descuento: number = pedido.descuento + pedido.descGeneral;
 
-    body.push( `Cliente: ${pedido.codCliente} - ${nombre}<br/>` );
-    body.push(`Fecha Pedido: ${this.getFecha(pedido.fecha)}<br/>`);
-    body.push(`Fecha Entrega: ${this.getFecha(pedido.fechaEntrega)}<br/>`);
+    body.push( `<h1>Cliente: ${pedido.codCliente} - ${nombre}</h1>` );
+    body.push(`<TABLE><TR><TD>Fecha Pedido: </TD><TD>${this.getFecha(pedido.fecha)}</TD></TR>`);
+    body.push(`<TR><TD>Fecha Entrega: </TD><TD>${this.getFecha(pedido.fechaEntrega)}</TD></TR></TABLE>`);
     body.push('<br/>');
-    body.push(`SubTotal:...: ${this.colones(pedido.subTotal)}<br/>`);
-    body.push(`IVA...............: ${this.colones(pedido.iva)}<br/>`);
-    body.push(`Desc x Línea: ${this.colones(pedido.descuento)}<br/>`);
-    body.push(`Desc General: ${this.colones(pedido.descGeneral)}<br/>`);
-    body.push('<br/>');
-    body.push(`<b>Total............: ${this.colones(pedido.total)}</b><br/>`);
-    body.push('<br/>');
-    body.push('------------------- Detalle -------------------<br/>');
-    body.push('Item<br/>');
-    body.push('Cant - SubTotal -    IVA -   Desc -    Total<br/>');
-    body.push('-------------------------------------------------<br/>');
+    body.push('<TABLE BORDER>');
+    body.push('<TR><TH>Cant</TH><TH>Código</TH><TH>Descripción</TH><TH>Precio</TH><TH>IVA</TH><TH>Desc</TH><TH>Total</TH></TR>');
+    
     pedido.detalle.forEach( d => {
-      texto = `${d.descripcion}<br/>`;
+      texto = `<TR><TD>${d.cantidad}</TD><TD>${d.codProducto}</TD><TD>${d.descripcion}</TD><TD ALIGN=right>${this.colones(d.precio)}</TD><TD ALIGN=right>${d.porcenIVA}%</TD><TD ALIGN=right>${d.porcenDescuento}%</TD><TD ALIGN=right>${this.colones(d.total)}</TD></TR>`;
       body.push(texto);
-      texto = `Q: ${d.cantidad} - ${this.colones(d.subTotal)} - ${d.porcenIVA}% - ${d.porcenDescuento}% - ${this.colones(d.total)}<br/>`;
-      body.push(texto);
-      
     });
+    texto = `<TR><TD COLSPAN=4><B>TOTALES</B></TD><TD ALIGN=right><B>${this.colones(pedido.iva)}</B></TD><TD ALIGN=right><B>${this.colones(descuento)}</B></TD><TD ALIGN=right><B>${this.colones(pedido.total)}</B></TD></TR>`;
+      body.push(texto);
+    body.push('</TABLE>');
     body.push('<br/>');
     body.push('Este correo ha sido enviado de forma automática con carácter informativo.<br/>');
     body.push('Favor no responder o escribir a esta cuenta, cualquier consulta pueden dirigirse con Servicio al Cliente ');

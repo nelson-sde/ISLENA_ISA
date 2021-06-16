@@ -98,6 +98,8 @@ export class Tab3DatosPage {
   }
 
   realizarSinc(){
+    this.isa.actualizarVisitas();
+    this.isa.actualizarVisitaUbicacion();
     this.isa.clienteAct.id = '';
     this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
     this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos

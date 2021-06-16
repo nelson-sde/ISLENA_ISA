@@ -219,12 +219,19 @@ export class IsaCobrosService {
 
   private getBody ( recibo: Recibo ){
     let body: string[] = [];
+    let day = new Date(recibo.fecha).getDate();
+    let month = new Date(recibo.fecha).getMonth()+1;
+    let year = new Date(recibo.fecha).getFullYear();
 
-    body.push(`Fecha: ${this.getFecha(recibo.fecha)}<br/>`);
-    body.push(`Cliente: ${recibo.codCliente} - ${this.isa.clienteAct.nombre}<br/>`)
-    body.push(`Monto: ${this.colones(recibo.montoLocal)}<br/>`);
-    body.push(`<br/>`);
-    body.push(`Concepto: ${recibo.observaciones}<br/>`);
+    body.push(`<TABLE BORDER  CELLPADDING=3 CELLSPACING=0>`);
+    body.push(`<Tr><Th>Dia</Th><Th>Mes</Th><Th>Año</Th><Th ROWSPAN=2>Distribuidora Isleña de Alimentos S.A.<Br>Cédula Juridica 3-101-109180</Th><Th>Recibo de Dinero</Th></Tr>`);
+    body.push(`<Tr><Td>${day}</Td><Td>${month}</Td><Td>${year}</Td><Td>${recibo.numeroRecibo}</Td></Tr>`);
+    body.push(`</TABLE>`);
+    body.push(`<br>`);
+    body.push(`RECIBIMOS DE: ${this.isa.clienteAct.nombre}.<br>`);
+    body.push(`Código: ${recibo.codCliente} LA SUMA DE: ${this.colones(recibo.montoLocal)} COLONES.<br>`);
+    body.push(`<br>`);
+    body.push(`POR CONCEPTO DE: ${recibo.observaciones}<br>`);
     body.push(`<br/>`);
     body.push(`----------------------------- Detalle ----------------------------<br/>`);
     recibo.detalle.forEach( d => {
@@ -237,13 +244,13 @@ export class IsaCobrosService {
     return body.join('');
   }
 
-  private getFecha( fecha: Date ){
+  /*private getFecha( fecha: Date ){
     let day = new Date(fecha).getDate();
     let month = new Date(fecha).getMonth()+1;
     let year = new Date(fecha).getFullYear();
 
     return `${day}-${month}-${year}`;
-  }
+  }*/
 
   private colones (amount, decimalCount = 2, decimal = ".", thousands = ","){
     decimalCount = Math.abs(decimalCount);

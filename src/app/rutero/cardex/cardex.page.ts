@@ -137,9 +137,9 @@ export class CardexPage {
       header: 'Cantidades',
       inputs: [
         {
-          name: 'Pedido',
+          name: 'Inventario',
           type: 'number',
-          placeholder: 'Pedido',
+          placeholder: 'Inventario',
           min: 0,
           max: 1000
         },
@@ -151,9 +151,9 @@ export class CardexPage {
           max: 1000
         },
         {
-          name: 'Inventario',
+          name: 'Pedido',
           type: 'number',
-          placeholder: 'Inventario',
+          placeholder: 'Pedido',
           min: 0,
           max: 1000
         },

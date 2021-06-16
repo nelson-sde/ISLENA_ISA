@@ -119,7 +119,7 @@ export class ProductosPage {
         texto = barcodeData.text;
         const item = this.isa.productos.find( d => d.codigoBarras == texto )
         if ( item ){
-          this.texto = '#' + item.id;
+          this.texto = item.id;
         } else {
           this.isa.presentAlertW('Scan', 'Producto no existe' + texto);
         }
