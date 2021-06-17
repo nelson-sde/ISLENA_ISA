@@ -114,70 +114,76 @@ export class IsaCobrosService {
     let rowPointer: string = '';
     this.detalleReciboBD = [];
     let email: Email;
+    const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
 
-    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque) );
+    if ( cliente !== undefined ){
 
-    rowPointer = this.isa.generate();
-    this.actualizaVisita( recibo.codCliente );
+      email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
 
-    this.reciboBD.nuM_REC = recibo.numeroRecibo;
-    this.reciboBD.coD_CLT = recibo.codCliente.toString();
-    this.reciboBD.coD_ZON = this.isa.varConfig.numRuta;
-    this.reciboBD.moN_DOC_LOC = recibo.montoLocal;
-    this.reciboBD.moN_DOC_DOL = recibo.montoDolar;
-    this.reciboBD.moN_EFE_LOCAL = recibo.montoEfectivoL;
-    this.reciboBD.moN_EFE_DOLAR = recibo.montoEfectivoD;
-    this.reciboBD.moN_CHE_DOLAR = recibo.montoChequeD;
-    this.reciboBD.moN_CHE_LOCAL = recibo.montoChequeL;
-    this.reciboBD.moN_TAR_LOCAL = recibo.montoTarjetaL;
-    this.reciboBD.moN_TAR_DOLAR = recibo.montoTarjetaD;
-    this.reciboBD.moN_DEP_LOCAL = recibo.montoDepositoL;
-    this.reciboBD.moN_DEP_DOLAR = recibo.montoDepositoD;
-    this.reciboBD.rowPointer = rowPointer;
-    this.reciboBD.APLICACION = recibo.observaciones;
-
-    for (let i = 0; i < recibo.detalle.length; i++) {
       rowPointer = this.isa.generate();
-      this.detalleRec = new RecDetaBD();
-      if ( recibo.detalle[i].tipoDocumen == '1' ){
-        this.detalleRec.coD_TIP_DC = '5';
-        this.detalleRec.nuM_DOC = recibo.numeroRecibo;
-        this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoLocal;
-        this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoDolar;
-      } else {
-        this.detalleRec.coD_TIP_DC = '7';
-        this.detalleRec.nuM_DOC = recibo.detalle[i].numeroDocumen;
-        this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoNCFL;
-        this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoNCFD;
+      this.actualizaVisita( recibo.codCliente );
+
+      this.reciboBD.nuM_REC = recibo.numeroRecibo;
+      this.reciboBD.coD_CLT = recibo.codCliente.toString();
+      this.reciboBD.coD_ZON = this.isa.varConfig.numRuta;
+      this.reciboBD.moN_DOC_LOC = recibo.montoLocal;
+      this.reciboBD.moN_DOC_DOL = recibo.montoDolar;
+      this.reciboBD.moN_EFE_LOCAL = recibo.montoEfectivoL;
+      this.reciboBD.moN_EFE_DOLAR = recibo.montoEfectivoD;
+      this.reciboBD.moN_CHE_DOLAR = recibo.montoChequeD;
+      this.reciboBD.moN_CHE_LOCAL = recibo.montoChequeL;
+      this.reciboBD.moN_TAR_LOCAL = recibo.montoTarjetaL;
+      this.reciboBD.moN_TAR_DOLAR = recibo.montoTarjetaD;
+      this.reciboBD.moN_DEP_LOCAL = recibo.montoDepositoL;
+      this.reciboBD.moN_DEP_DOLAR = recibo.montoDepositoD;
+      this.reciboBD.rowPointer = rowPointer;
+      this.reciboBD.APLICACION = recibo.observaciones;
+
+      for (let i = 0; i < recibo.detalle.length; i++) {
+        rowPointer = this.isa.generate();
+        this.detalleRec = new RecDetaBD();
+        if ( recibo.detalle[i].tipoDocumen == '1' ){
+          this.detalleRec.coD_TIP_DC = '5';
+          this.detalleRec.nuM_DOC = recibo.numeroRecibo;
+          this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoLocal;
+          this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoDolar;
+        } else {
+          this.detalleRec.coD_TIP_DC = '7';
+          this.detalleRec.nuM_DOC = recibo.detalle[i].numeroDocumen;
+          this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoNCFL;
+          this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoNCFD;
+        }
+        this.detalleRec.coD_ZON = this.isa.varConfig.numRuta;
+        this.detalleRec.coD_CLT = recibo.codCliente.toString();
+        this.detalleRec.nuM_REC = recibo.numeroRecibo;
+        this.detalleRec.nuM_DOC_AF = recibo.detalle[i].numeroDocumenAf;
+        this.detalleRec.feC_DOC = recibo.detalle[i].fechaDocu;
+        this.detalleRec.moN_MOV_LOCAL = recibo.detalle[i].abonoLocal;
+        this.detalleRec.moN_MOV_DOL = recibo.detalle[i].abonoDolar;
+        
+        this.detalleRec.rowPointer = rowPointer;
+        this.detalleReciboBD.push(this.detalleRec);
+      } 
+      if (nuevo) {
+        this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
+        if (hayCheque){
+          this.guardarCheque( cheque );
+        }
       }
-      this.detalleRec.coD_ZON = this.isa.varConfig.numRuta;
-      this.detalleRec.coD_CLT = recibo.codCliente.toString();
-      this.detalleRec.nuM_REC = recibo.numeroRecibo;
-      this.detalleRec.nuM_DOC_AF = recibo.detalle[i].numeroDocumenAf;
-      this.detalleRec.feC_DOC = recibo.detalle[i].fechaDocu;
-      this.detalleRec.moN_MOV_LOCAL = recibo.detalle[i].abonoLocal;
-      this.detalleRec.moN_MOV_DOL = recibo.detalle[i].abonoDolar;
-      
-      this.detalleRec.rowPointer = rowPointer;
-      this.detalleReciboBD.push(this.detalleRec);
-    } 
-    if (nuevo) {
-      this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
-      if (hayCheque){
-        this.guardarCheque( cheque );
-      }
+      this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
+        resp => {
+          console.log('Success RecEnca...', resp);
+          this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque, email );
+        }, error => {
+          console.log('Error RecEnca ', error);
+          this.isa.presentaToast( 'Error de Envío...' );
+        }
+      );
+      console.log('Encabezado JSON',JSON.stringify(this.reciboBD));
+      console.log('Detalle JSON',JSON.stringify(this.detalleReciboBD));
+    } else {
+      this.isa.presentAlertW( 'Transmitir Recibo', 'Imposible transmitir recibo. Datos del cliente inconsistentes');
     }
-    this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
-      resp => {
-        console.log('Success RecEnca...', resp);
-        this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque, email );
-      }, error => {
-        console.log('Error RecEnca ', error);
-        this.isa.presentaToast( 'Error de Envío...' );
-      }
-    );
-    console.log('Encabezado JSON',JSON.stringify(this.reciboBD));
-    console.log('Detalle JSON',JSON.stringify(this.detalleReciboBD));
   }
 
   agregarDetalle( detalle: RecDetaBD[], cheque: Cheque, hayCheque: boolean, email: Email ) {
@@ -214,7 +220,7 @@ export class IsaCobrosService {
     let cheque: Cheque = new Cheque('','','','','',0);
 
     console.log('Creando un recibo de Transferencia');
-    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO POR TRANSFERENCIA RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque) );
+    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO POR TRANSFERENCIA RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque, this.isa.clienteAct.nombre) );
     this.isa.enviarEmail( email );
     email.toEmail = this.isa.varConfig.emailCxC;
     this.isa.enviarEmail( email );
@@ -233,7 +239,7 @@ export class IsaCobrosService {
     }
   }
 
-  private getBody ( recibo: Recibo, cheque: Cheque ){
+  private getBody ( recibo: Recibo, cheque: Cheque, nombre: string ){
     let body: string[] = [];
     let texto: string = '';
     let efectivo: string = '  ';
@@ -250,7 +256,7 @@ export class IsaCobrosService {
     body.push(`<Tr><Td ALIGN=right COLSPAN=3>Fecha: ${day} - ${month} - ${year}</Td></Tr>`);
     body.push(`</TABLE>`);
     body.push(`<br>`);
-    body.push(`RECIBIMOS DE: ${this.isa.clienteAct.nombre}.<br>`);
+    body.push(`RECIBIMOS DE: ${nombre}.<br>`);
     body.push(`<br>`);
     body.push(`Código: ${recibo.codCliente} LA SUMA DE: ${this.colones(recibo.montoLocal)} colones.<br>`);
     body.push(`<br>`);
@@ -260,6 +266,7 @@ export class IsaCobrosService {
       saldoAnterior += d.montoLocal;
       saldoActual += d.saldoLocal; 
     });
+    saldoAnterior = saldoActual + recibo.montoLocal;
     body.push(`POR CONCEPTO DE: Abono a Factura${texto}. ${recibo.observaciones}`);
     body.push(`<br>`);
     body.push(`<br>`);
@@ -337,9 +344,18 @@ export class IsaCobrosService {
     );
   }
 
-  borrarRecibos(){
+  borrarRecibos( completo: boolean ){    // Si completo = true, borra todos los recibos de la tabla Pedidos
+                                        // de lo contrario solo borra los que envioExitoso = true){
+    let recibosLS: Recibo[] = [];
+
     if (localStorage.getItem('recibos')){
-      localStorage.removeItem('recibos');
+      recibosLS = JSON.parse( localStorage.getItem('recibos'));
+      const recibos = recibosLS.filter( d => !d.envioExitoso );
+      if ( recibos.length > 0 && !completo ){
+        localStorage.setItem('recibos', JSON.stringify(recibos));
+      } else {
+        localStorage.removeItem('recibos');
+      }
     }
   }
 

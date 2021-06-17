@@ -80,7 +80,7 @@ export class PedEnca {
     COD_CIA: string;
     NUM_PED: string;
     COD_ZON: string;
-    COD_CLT: string;
+    coD_CLT: string;
     TIP_DOC: string;
     HOR_FIN: Date;
     FEC_PED: Date;
@@ -137,7 +137,7 @@ export class PedEnca {
         this.COD_CIA = COD_CIA;
         this.NUM_PED = NUM_PED;
         this.COD_ZON = COD_ZON;
-        this.COD_CLT = COD_CLT;
+        this.coD_CLT = COD_CLT;
         this.TIP_DOC = TIP_DOC;
         this.HOR_FIN = HOR_FIN;
         this.FEC_PED = new Date(FEC_PED);

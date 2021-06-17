@@ -110,7 +110,7 @@ export class IsaService {
 
   getPedido( numPedido: string ){
     const URL = this.getURL( environment.PedEncaURL, numPedido );
-    return this.http.get<PedEnca>( URL );
+    return this.http.get<PedEnca[]>( URL );
   }
 
   private getClientes(ruta: string){

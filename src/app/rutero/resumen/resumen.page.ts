@@ -51,17 +51,22 @@ export class ResumenPage {
   }
 
   buscarPedido( i: number ){
-    let pedidoBD: PedEnca;
 
     this.isa.getPedido( this.pedidos[i].numPedido ).subscribe(
       resp => {
+        debugger
         console.log('Pedido', resp );
-        pedidoBD = resp;
-        if ( this.pedidos[i].codCliente === pedidoBD.COD_CLT ){
-          this.pedidos[i].envioExitoso = true;
-          console.log('Pedido Encontrado');
+        if (resp.length > 0){
+          const existe = resp.findIndex( d => d.coD_CLT === this.pedidos[i].codCliente);
+          if ( existe >= 0 ){
+            this.pedidos[i].envioExitoso = true;
+            console.log('Pedido Encontrado');
+          } else {
+            console.log('El pedido no corresponde con el cliente...');
+          }
         } else {
           console.log('Pedido no en BD');
+          this.isa.presentAlertW('Pedido', `El pedido ${this.pedidos[i].numPedido} no está en la BD.  Por favor retransmita.`);
         }
       }, error => {
         console.log('Error conexión: ', error.message);

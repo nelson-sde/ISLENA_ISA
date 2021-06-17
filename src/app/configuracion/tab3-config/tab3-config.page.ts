@@ -120,7 +120,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.syncSugerido();
       this.isa.syncExistencias();
       this.isaPedidos.borrarPedidos( true );    // Se borra por completo la tabla pedidos
-      this.isaCobros.borrarRecibos();
+      this.isaCobros.borrarRecibos( true );
       this.isaCardex.borrarCardex();
       this.regresar();
     } else {
