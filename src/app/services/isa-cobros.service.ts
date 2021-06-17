@@ -101,15 +101,24 @@ export class IsaCobrosService {
     return cheque;
   }
 
+  private actualizaVisita( idCliente: string ){
+    const existe = this.isa.rutero.findIndex( d => d.cliente === idCliente );
+    if (existe >= 0){
+      this.isa.rutero[existe].razon = 'E';
+      localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+    }
+  }
+
   transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
 
     let rowPointer: string = '';
     this.detalleReciboBD = [];
     let email: Email;
 
-    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo) );
+    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque) );
 
     rowPointer = this.isa.generate();
+    this.actualizaVisita( recibo.codCliente );
 
     this.reciboBD.nuM_REC = recibo.numeroRecibo;
     this.reciboBD.coD_CLT = recibo.codCliente.toString();
@@ -177,6 +186,12 @@ export class IsaCobrosService {
       resp2 => {
         console.log('Success Detalle...', resp2);
         this.actualizaEstadoRecibo(detalle[0].nuM_DOC, true);
+        if (email.toEmail !== undefined) {
+          if (email.toEmail.length > 0){
+            this.isa.enviarEmail( email );
+          }
+        }
+        email.toEmail = this.isa.varConfig.emailVendedor;
         this.isa.enviarEmail( email );
         email.toEmail = this.isa.varConfig.emailCxC;
         this.isa.enviarEmail( email );
@@ -196,9 +211,10 @@ export class IsaCobrosService {
 
   reciboSimple( recibo: Recibo ){
     let email: Email;
+    let cheque: Cheque = new Cheque('','','','','',0);
 
     console.log('Creando un recibo de Transferencia');
-    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO POR TRANSFERENCIA RUTA: ${recibo.numeroRuta}`, this.getBody(recibo) );
+    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO POR TRANSFERENCIA RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque) );
     this.isa.enviarEmail( email );
     email.toEmail = this.isa.varConfig.emailCxC;
     this.isa.enviarEmail( email );
@@ -217,30 +233,60 @@ export class IsaCobrosService {
     }
   }
 
-  private getBody ( recibo: Recibo ){
+  private getBody ( recibo: Recibo, cheque: Cheque ){
     let body: string[] = [];
+    let texto: string = '';
+    let efectivo: string = '  ';
+    let hayCheque: string = '  ';
     let day = new Date(recibo.fecha).getDate();
     let month = new Date(recibo.fecha).getMonth()+1;
     let year = new Date(recibo.fecha).getFullYear();
+    let saldoAnterior: number = 0;
+    let saldoActual: number = 0;
 
-    body.push(`<TABLE BORDER  CELLPADDING=3 CELLSPACING=0>`);
-    body.push(`<Tr><Th>Dia</Th><Th>Mes</Th><Th>Año</Th><Th ROWSPAN=2>Distribuidora Isleña de Alimentos S.A.<Br>Cédula Juridica 3-101-109180</Th><Th>Recibo de Dinero</Th></Tr>`);
-    body.push(`<Tr><Td>${day}</Td><Td>${month}</Td><Td>${year}</Td><Td>${recibo.numeroRecibo}</Td></Tr>`);
+    body.push(`<TABLE BORDER  CELLPADDING=5 CELLSPACING=0>`);
+    body.push(`<Tr><Th ROWSPAN=2><img src="https://di.cr/image/catalog/logotipo_front_home1.png"  width="227" height="70"></Th><Th ROWSPAN=2>Distribuidora Isleña de Alimentos S.A.<Br>Cédula Juridica 3-101-109180</Th><Th>Recibo de Dinero</Th></Tr>`);
+    body.push(`<Tr><Td><font color="red">${recibo.numeroRecibo}</font></Td></Tr>`);
+    body.push(`<Tr><Td ALIGN=right COLSPAN=3>Fecha: ${day} - ${month} - ${year}</Td></Tr>`);
     body.push(`</TABLE>`);
     body.push(`<br>`);
     body.push(`RECIBIMOS DE: ${this.isa.clienteAct.nombre}.<br>`);
-    body.push(`Código: ${recibo.codCliente} LA SUMA DE: ${this.colones(recibo.montoLocal)} COLONES.<br>`);
     body.push(`<br>`);
-    body.push(`POR CONCEPTO DE: ${recibo.observaciones}<br>`);
-    body.push(`<br/>`);
-    body.push(`----------------------------- Detalle ----------------------------<br/>`);
+    body.push(`Código: ${recibo.codCliente} LA SUMA DE: ${this.colones(recibo.montoLocal)} colones.<br>`);
+    body.push(`<br>`);
+    
     recibo.detalle.forEach( d => {
-      body.push(`Documento: ${d.numeroDocumen} - Monto: ${this.colones(d.montoLocal)} - Abono: ${this.colones(d.abonoLocal)}. Saldo: ${this.colones(d.saldoLocal)}<br/>`);
+      texto = texto.concat(`, ${d.numeroDocumen}`);
+      saldoAnterior += d.montoLocal;
+      saldoActual += d.saldoLocal; 
     });
-    body.push(`<br/>`);
+    body.push(`POR CONCEPTO DE: Abono a Factura${texto}. ${recibo.observaciones}`);
+    body.push(`<br>`);
+    body.push(`<br>`);
+
+    if (recibo.montoEfectivoL > 0){
+      efectivo = 'X';
+    }
+    if (recibo.montoChequeL > 0){
+      hayCheque = 'X';
+    }
+    body.push(`[${efectivo}] Efectivo   [${hayCheque}] Cheque No. ${cheque.numeroCheque}, Banco: ${cheque.codigoBanco}<br>`);
+    body.push(`<br>`);
+    body.push(`<TABLE BORDER  CELLPADDING=5 CELLSPACING=0>`);
+    body.push(`<Tr><Td>Saldo Anterior: </Td><Td ALIGN=right>${this.colones(saldoAnterior)}</Td></Tr>`);
+    body.push(`<Tr><Td>Este abono: </Td><Td ALIGN=right>${this.colones(recibo.montoLocal)}</Td></Tr>`);
+    body.push(`<Tr><Td>Saldo Actual: </Td><Td ALIGN=right>${this.colones(saldoActual)}</Td></Tr>`);
+    body.push(`</TABLE>`);
+    body.push(`<br>`);
+    body.push(`(*)La validez de este recibo queda sujeta a que el banco honre su cheque<br>`);
+    body.push(`<br>`);
     body.push(`Atentamente<br/>`);
-    body.push(`Departamento de Crédito y Cobro.<br/>`);
-    body.push(`Distribuidora La Isleña.<br/>`);
+    body.push(`Departamento de Crédito y Cobro.<br>`);
+    body.push(`Distribuidora Isleña de Alimentos S.A.<br>`);
+    body.push(`Barreal de Heredia, de la Embotelladora Pepsi 100m Este, 500m Norte.<br>`);
+    body.push(`Tel: (506)2293-0609 - Fax: (506)2293-3231. Apdo: 463-1200 Pavas.<br>`);
+    body.push(`www.distribuidoraislena.com<br>`);
+
     return body.join('');
   }
 

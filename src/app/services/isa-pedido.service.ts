@@ -228,8 +228,10 @@ export class IsaPedidoService {
         this.isa.transmitiendo.pop();
         console.log('Transmitió: ', this.isa.transmitiendo);
         this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
-        if (email.toEmail.length > 0) {
-          this.isa.enviarEmail( email );
+        if (email.toEmail !== undefined) {
+          if (email.toEmail.length > 0){
+            this.isa.enviarEmail( email );
+          }
         }
         email.toEmail = this.isa.varConfig.emailVendedor;
         this.isa.enviarEmail( email );
