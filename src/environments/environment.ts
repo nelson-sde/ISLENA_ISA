@@ -31,7 +31,7 @@ export const environment = {
   maxchar: 107,
   maxCharCodigoProd: 6,
   adminClave: '@dmin2021*',
-  version: '1.2.2',
+  version: '1.2.3',
   aplicarNC: false,
   prdMode: true,
 };

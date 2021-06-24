@@ -10,7 +10,6 @@ import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component'
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { environment } from 'src/environments/environment';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 
 
@@ -58,32 +57,17 @@ export class PedidosPage implements OnInit {
                private alertController: AlertController,
                private navController: NavController,
                private popoverController: PopoverController,
-               private barcodeScanner: BarcodeScanner,
-               private geolocation: Geolocation ) {
+               private barcodeScanner: BarcodeScanner ) {
   }
 
   ngOnInit(){
     const fecha = new Date();
-    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
     this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
-    //this.getGeo();
     this.isaConfig.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isaConfig.clienteAct.nombre}`);
     this.validaSiCardex();
     this.isaConfig.transmitiendo = [];
   }
-
-  /*getGeo(){
-    console.log('Cargando Geolocalización');
-    this.geolocation.getCurrentPosition().then((resp) => {
-      // resp.coords.latitude
-      // resp.coords.longitude
-      console.log(resp);
-      this.pedido.latitud = resp.coords.latitude;
-      this.pedido.longitud = resp.coords.longitude;
-     }).catch((error) => {
-       console.log('Error getting location', error);
-     });
-  }*/
 
   validaSiCardex(){
     let prod: Productos[] = [];
@@ -434,7 +418,7 @@ export class PedidosPage implements OnInit {
     this.montoExonerado = 0;
     this.exonerado = 0;
     const fecha = new Date()
-    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
     this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
     //this.getGeo();
     this.numLineas = this.pedido.detalle.length;

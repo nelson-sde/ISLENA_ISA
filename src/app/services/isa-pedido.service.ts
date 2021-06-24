@@ -166,8 +166,11 @@ export class IsaPedidoService {
     let rowPointer: string = '';
     let tax: number;
     let email: Email;
-    const fechaPedido = this.getFecha( new Date(), 'JSON');
-    const fechaEntrega = this.getFecha( pedido.fechaEntrega, 'JSON');
+    const fechaPedido = new Date(pedido.fecha.getTime() - (pedido.fecha.getTimezoneOffset() * 60000));
+    const fechaEntrega = new Date(pedido.fechaEntrega.getTime() - (pedido.fechaEntrega.getTimezoneOffset() * 60000));
+    const fechaFin = new Date(pedido.horaFin.getTime() - (pedido.horaFin.getTimezoneOffset() * 60000));
+    //const fechaPedido = this.getFecha( new Date(), 'JSON');
+    //const fechaEntrega = this.getFecha( pedido.fechaEntrega, 'JSON');
     const numPedido = pedido.numPedido;
     const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
 
@@ -179,11 +182,11 @@ export class IsaPedidoService {
       if ( tipo == 'N' ){
         this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
       }
-      const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', new Date(pedido.horaFin), new Date(fechaPedido), 
-                                    new Date(fechaEntrega), new Date(pedido.fecha), pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, 
+      const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', fechaFin, fechaPedido, 
+                                    fechaEntrega, fechaPedido, pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, 
                                     pedido.detalle.length, cliente.listaPrecios, pedido.observaciones, null, 'N', cliente.diasCredito.toString(), 
                                     this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, 
-                                    this.isa.nivelPrecios, 'L', 0, new Date(fechaPedido), rowPointer, 'ISA', 'ISA', new Date(fechaPedido), null, cliente.divGeografica1, 
+                                    this.isa.nivelPrecios, 'L', 0, fechaPedido, rowPointer, 'ISA', 'ISA', fechaPedido, null, cliente.divGeografica1, 
                                     cliente.divGeografica2, null, null, null, '512211');
 
       for (let i = 0; i < pedido.detalle.length; i++) {
@@ -191,8 +194,8 @@ export class IsaPedidoService {
         rowPointer = this.isa.generate();
         detalleBD = new PedDeta( i + 1, pedido.numPedido, 'ISLENA', pedido.detalle[i].codProducto.toString(), '0', null, pedido.detalle[i].precio, 
                           pedido.detalle[i].descuento * 100 / pedido.detalle[i].subTotal, pedido.detalle[i].subTotal, pedido.detalle[i].descuento,
-                          pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, cliente.listaPrecios, null, 0, new Date(fechaPedido), rowPointer, 
-                          'ISA', 'ISA', new Date(fechaPedido), pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
+                          pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, cliente.listaPrecios, null, 0, fechaPedido, rowPointer, 
+                          'ISA', 'ISA', fechaPedido, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
                           pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
         arrDetBD.push(detalleBD);
       } 
@@ -251,6 +254,8 @@ export class IsaPedidoService {
     const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
     email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
     this.isa.enviarEmail( email );
+    email.toEmail = this.isa.varConfig.emailVendedor;
+    this.isa.enviarEmail( email );
   }
 
   getBody( pedido: Pedido, nombre: string ){     // nombre = nombre del cliente del pedido
@@ -272,7 +277,10 @@ export class IsaPedidoService {
     texto = `<TR><TD COLSPAN=4><B>TOTALES</B></TD><TD ALIGN=right><B>${this.colones(pedido.iva)}</B></TD><TD ALIGN=right><B>${this.colones(descuento)}</B></TD><TD ALIGN=right><B>${this.colones(pedido.total)}</B></TD></TR>`;
       body.push(texto);
     body.push('</TABLE>');
-    body.push('<br/>');
+    body.push('<br>');
+    body.push('Notas:<br>');
+    body.push(`${pedido.observaciones}<br>`);
+    body.push('<br>');
     body.push('Este correo ha sido enviado de forma automática con carácter informativo.<br/>');
     body.push('Favor no responder o escribir a esta cuenta, cualquier consulta pueden dirigirse con Servicio al Cliente ');
     body.push('al 2293-0609 o servicioalcliente@di.cr <br/>');
@@ -311,6 +319,8 @@ export class IsaPedidoService {
           'Accept': 'application/json'
       }
     };
+    let texto = JSON.stringify(pedido);
+    console.log('JSON: ', texto);
     return this.http.post( URL, JSON.stringify(pedido), options );
   }
 
