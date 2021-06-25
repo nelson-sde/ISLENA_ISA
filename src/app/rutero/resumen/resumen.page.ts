@@ -54,7 +54,6 @@ export class ResumenPage {
 
     this.isa.getPedido( this.pedidos[i].numPedido ).subscribe(
       resp => {
-        debugger
         console.log('Pedido', resp );
         if (resp.length > 0){
           const existe = resp.findIndex( d => d.coD_CLT === this.pedidos[i].codCliente);

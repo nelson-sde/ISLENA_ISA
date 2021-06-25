@@ -18,7 +18,7 @@
       <h2>{{ isa.clienteAct.nombre }}</h2>
     </ion-text>
     <ion-button slot="end" (click)="filtraProductos()" fill="clear" size="large">
-      <ion-icon name="search-outline" color="primary" size="medium"></ion-icon>
+      <ion-icon [name]="!filtra? 'search-outline' : 'close-outline'" color="primary" size="medium"></ion-icon>
     </ion-button>
   </ion-item>
   

@@ -30,7 +30,7 @@ export class InventarioPage {
                private modalCtrl: ModalController,
                private navController: NavController,
                private alertController: AlertController ) {
-    this.reordenaHistorico();
+    this.reordenaHistorico('TODO');
   }
 
   incrementaPagina(){
@@ -53,11 +53,11 @@ export class InventarioPage {
     }, 500)
   }
 
-  async reordenaHistorico(){
+  async reordenaHistorico(parametro: string){
     let i = 0;
     let j = 1;
 
-    this.cardexHistorico = await this.isaCardex.cargarCardex('TODO');
+    this.cardexHistorico = await this.isaCardex.cargarCardex(parametro);
     while (i < this.cardexHistorico.length && j < this.cardexHistorico.length) {
       if(new Date(this.cardexHistorico[j].fecha).getDate() == new Date(this.cardexHistorico[i].fecha).getDate()){
         this.cardexHistorico[j].fecha = null;
@@ -95,23 +95,33 @@ export class InventarioPage {
   }
 
   async filtraProductos(){
-    /*let prodArray: Productos[] = [];
+    let prodArray: Productos[] = [];
+    this.cardexHistorico = [];
+    this.historico = [];
+    this.paginaIni = 0;
+    this.paginaFin = 30;
 
-    const modal = await this.modalCtrl.create({
-      component: ProductosPage,
-      componentProps: {
-        'cardex': this.productos,
-        'mostrar': true,
-      },
-      cssClass: 'my-custom-class'
-    });
-    await modal.present();
+    if (!this.filtra){
+      this.filtra = true;
+      const modal = await this.modalCtrl.create({
+        component: ProductosPage,
+        componentProps: {
+          'cardex': this.productos,
+          'mostrar': true,
+        },
+        cssClass: 'my-custom-class'
+      });
+      await modal.present();
 
-    const {data} = await modal.onDidDismiss();
-    if (data.productos !== null){
-      prodArray = data.productos.slice(0);
-      this.abrirCardex( i );
-    }*/
+      const {data} = await modal.onDidDismiss();
+      if (data.productos !== null){
+        prodArray = data.productos.slice(0);
+        this.reordenaHistorico(prodArray[0].id);
+      }
+    } else {
+      this.filtra = false;
+      this.reordenaHistorico('TODO');
+    }
   }
 
   async abrirCardex( i: number ){

@@ -166,9 +166,9 @@ export class IsaPedidoService {
     let rowPointer: string = '';
     let tax: number;
     let email: Email;
-    const fechaPedido = new Date(pedido.fecha.getTime() - (pedido.fecha.getTimezoneOffset() * 60000));
-    const fechaEntrega = new Date(pedido.fechaEntrega.getTime() - (pedido.fechaEntrega.getTimezoneOffset() * 60000));
-    const fechaFin = new Date(pedido.horaFin.getTime() - (pedido.horaFin.getTimezoneOffset() * 60000));
+    const fechaPedido = new Date(new Date(pedido.fecha).getTime() - (new Date(pedido.fecha).getTimezoneOffset() * 60000));
+    const fechaEntrega = new Date(new Date(pedido.fechaEntrega).getTime() - (new Date(pedido.fechaEntrega).getTimezoneOffset() * 60000));
+    const fechaFin = new Date(new Date(pedido.horaFin).getTime() - (new Date(pedido.horaFin).getTimezoneOffset() * 60000));
     //const fechaPedido = this.getFecha( new Date(), 'JSON');
     //const fechaEntrega = this.getFecha( pedido.fechaEntrega, 'JSON');
     const numPedido = pedido.numPedido;
@@ -231,7 +231,7 @@ export class IsaPedidoService {
         this.isa.transmitiendo.pop();
         console.log('Transmitió: ', this.isa.transmitiendo);
         this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
-        if (email.toEmail !== undefined) {
+        if (email.toEmail !== undefined && email.toEmail !== null && email.toEmail !== '') {
           if (email.toEmail.length > 0){
             this.isa.enviarEmail( email );
           }
