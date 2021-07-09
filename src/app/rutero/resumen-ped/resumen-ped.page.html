@@ -5,7 +5,7 @@
         <ion-icon name="chevron-back-outline"></ion-icon>
       </ion-button>
       <ion-title align-text-center>{{pedido.numPedido}}</ion-title>
-      <ion-button fill="clear" slot="end" size="medium" (click)="transmitirPedido()">
+      <ion-button *ngIf="pedido.envioExitoso" fill="clear" slot="end" size="medium" (click)="transmitirPedido()">
         <ion-icon name="paper-plane-outline" [color]="pedido.envioExitoso ? 'success' : 'danger'" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>

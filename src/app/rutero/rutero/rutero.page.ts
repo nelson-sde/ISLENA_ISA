@@ -82,6 +82,10 @@ export class RuteroPage {
     this.router.navigate(['/visita']);
   }
 
+  abrirLiquida(){
+    this.router.navigate(['/liquida']);
+  }
+
   buscarCliente( ev: any ){
     if ( this.isa.userLogged || !environment.prdMode ){            // Valida si el vendedor hizo login
       if (this.texto.length == 0) {                               // Se busca en todos los cliente
@@ -180,22 +184,6 @@ export class RuteroPage {
       }
     }
   }
-
-  /*enviarEmailCliente( cliente: Cliente ){
-    let email: Email;
-    let texto: string[] = [];
-
-    email = new Email(this.isa.varConfig.emailCxC, `SOLICITUD PARA MODIFICAR CLIENTE RUTA ${this.isa.varConfig.numRuta}`, '');
-
-    texto.push(`CLIENTE: ${cliente.id} - ${cliente.nombre}<br/>`);
-    texto.push('<br/>');
-    texto.push(`Contacto: ${cliente.nombreContacto}<br/>`);
-    texto.push(`Telefono: ${cliente.telefonoContacto}<br/>`);
-    texto.push(`Email: ${cliente.email}<br/>`);
-    email.body = texto.join('');
-    console.log(email);
-    this.isa.enviarEmail( email );
-  }*/
 
   async presentAlert( subtitulo: string, mensaje: string ) {
     const alert = await this.alertController.create({

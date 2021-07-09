@@ -192,7 +192,10 @@ export class IsaCobrosService {
       resp2 => {
         console.log('Success Detalle...', resp2);
         this.actualizaEstadoRecibo(detalle[0].nuM_DOC, true);
-        if (email.toEmail !== undefined) {
+        if ( hayCheque ){
+          this.transmitirCheque( cheque );
+        }
+        if (email.toEmail !== undefined && email.toEmail !== null && email.toEmail !== '') {
           if (email.toEmail.length > 0){
             this.isa.enviarEmail( email );
           }
@@ -202,9 +205,6 @@ export class IsaCobrosService {
         email.toEmail = this.isa.varConfig.emailCxC;
         this.isa.enviarEmail( email );
         this.isa.transmitiendo.pop();
-        if ( hayCheque ){
-          this.transmitirCheque( cheque );
-        }
         this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
       }, error => {
         console.log('Error en Recibo ', error);
@@ -213,6 +213,35 @@ export class IsaCobrosService {
         this.isa.presentaToast( 'Error de Envío...' );
       }
     );
+  }
+
+  retransmitirRecibo( recibo: Recibo ){
+    let hayCheque: boolean = false;
+    let cheque: Cheque;
+
+    this.isa.addBitacora( true, 'START', `Retransmite Recibo: ${recibo.numeroRecibo}`);
+    cheque = this.consultarCheque( recibo.numeroRecibo );
+    if ( cheque !== undefined ){
+      hayCheque = true;
+    } else {
+      cheque = new Cheque('', '', '', '', '', 0);
+    }
+    this.transmitirRecibo( recibo, cheque, hayCheque, false);
+  }
+
+  retransRecibosPen(){
+    let recibos: Recibo[] = [];
+    let temp: Recibo[] = [];
+
+    if (localStorage.getItem('recibos')){
+      temp = JSON.parse(localStorage.getItem('recibos'));
+      recibos = temp.filter( d => !d.envioExitoso );
+      if ( recibos.length > 0 ){                          // Si hay recibos sin transmitir
+        recibos.forEach( d => {
+          this.retransmitirRecibo( d );
+        });
+      }
+    }
   }
 
   reciboSimple( recibo: Recibo ){

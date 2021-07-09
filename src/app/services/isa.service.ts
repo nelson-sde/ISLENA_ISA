@@ -256,19 +256,6 @@ export class IsaService {
     }
   }
 
-  /*modificarCliente( cliente: Cliente ){
-    let clientes: Cliente[] = [];
-
-    if (localStorage.getItem('clientesModificados')){
-      clientes = JSON.parse( localStorage.getItem('clientesModificados'));
-    }
-    clientes.push( cliente );
-    localStorage.setItem('clientesModificados', JSON.stringify(clientes));
-    const i = this.clientes.findIndex( d => d.id == this.clienteAct.id );
-    this.clientes[i] = this.clienteAct;
-    localStorage.setItem('clientes', JSON.stringify(this.clientes));
-  }*/
-
   syncCardex( ruta: string ){
     let j: number;
     let cardex: Cardex;
@@ -487,7 +474,7 @@ export class IsaService {
     this.guardarVarConfig();
   }
 
-  public generate(): string {
+  public generate(): string {             // Función que genera de forma aleatoria un RowId
     let isUnique = false;
     let tempId = '';
 
@@ -502,7 +489,7 @@ export class IsaService {
     return tempId;
   }
 
-  public remove(id: string): void {
+  private remove(id: string): void {
     const index = this.ids.indexOf(id);
     this.ids.splice(index, 1);
   }
@@ -623,6 +610,7 @@ export class IsaService {
       RUBRO2_CLIENTE :    telefono,
       RUBRO3_CLIENTE :    contacto,
     }
+    this.guardarClienteActual();
     this.postCliente( cliente ).subscribe(                    // Realiza la actualización de la tabla Islena.Cliente
       resp => {
         console.log('Cliente Actualizado...', resp);
@@ -632,6 +620,16 @@ export class IsaService {
         this.presentaToast( 'Error actualizando cliente...' );
       }
     );
+  }
+
+  guardarClienteActual(){                                                   // Actualiza los datos del Cliente en el Local Storage
+    const i = this.clientes.findIndex( d => d.id === this.clienteAct.id );
+    if ( i >= 0 ){
+      this.clientes[i].email = this.clienteAct.email;
+      this.clientes[i].telefonoContacto = this.clienteAct.telefonoContacto;
+      this.clientes[i].nombreContacto = this.clienteAct.nombreContacto;
+      localStorage.setItem('clientes', JSON.stringify(this.clientes));
+    }
   }
 
   private postVisita( visitas: VisitaBD[] ){
@@ -655,12 +653,14 @@ export class IsaService {
       }
       this.rutero.forEach( d => {
         visita = new VisitaBD(d.cliente, d.ruta, d.inicio, d.razon, d.fin, d.fecha_Plan, d.tipo, d.notas, null);
+        visita.rowPointer = this.generate();
         visitas.push( visita );
       });
 
       this.postVisita( visitas ).subscribe(
         resp => {
           console.log('Sincronizando Visitas', resp);
+          this.actualizarVisitaUbicacion();
         }, error => {
           console.log('Error Sincronizando Visitas...!!!', error.message);
           console.log(JSON.stringify(visitas));
@@ -681,7 +681,7 @@ export class IsaService {
     return this.http.post( URL, JSON.stringify(visitas), options );
   }
 
-  actualizarVisitaUbicacion(){
+  private actualizarVisitaUbicacion(){
     let visitas: UbicacionBD[] = [];
     let visita: UbicacionBD;
 
@@ -691,6 +691,7 @@ export class IsaService {
       }
       this.rutero.forEach( d => {
         visita = new UbicacionBD( d.cliente, d.ruta, d.inicio, d.latitud, d.longitud, 0, d.inicio, d.inicio, 0, null);
+        visita.rowPointer = this.generate();
         visitas.push( visita );
       });
 

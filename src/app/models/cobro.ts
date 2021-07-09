@@ -102,6 +102,7 @@ export class Recibo {
     montoTarjetaL: number;
     observaciones: string;
     envioExitoso: boolean;
+    liquidado: boolean;
     detalle: Det_Recibo[];
 
     constructor ( ruta: string, cliente: string, recibo: string, fecha: Date, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
@@ -121,7 +122,8 @@ export class Recibo {
         this.montoTarjetaL = tarjetaL;
         this.montoTarjetaD = tarjetaD;
         this.observaciones = observaciones;
-        this.envioExitoso = false; 
+        this.envioExitoso = false;
+        this.liquidado = false;
         this.detalle = [];
     }
 }

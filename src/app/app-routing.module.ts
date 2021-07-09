@@ -89,6 +89,10 @@ const routes: Routes = [
   {
     path: 'visita-det',
     loadChildren: () => import('./rutero/visita-det/visita-det.module').then( m => m.VisitaDetPageModule)
+  },
+  {
+    path: 'liquida',
+    loadChildren: () => import('./rutero/liquida/liquida.module').then( m => m.LiquidaPageModule)
   }
 ];
 @NgModule({

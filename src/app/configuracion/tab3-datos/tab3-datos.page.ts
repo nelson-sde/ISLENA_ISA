@@ -98,8 +98,9 @@ export class Tab3DatosPage {
   }
 
   realizarSinc(){
-    this.isa.actualizarVisitas();
-    this.isa.actualizarVisitaUbicacion();
+    this.isa.borrarBitacora();                                   // Se borra la bitácora de primero para que los movimientos generados en la Sync queden registrados.
+    this.isaCobros.retransRecibosPen();                         // Este método retransmite los recibos pendientes hasta ahora.
+    this.isa.actualizarVisitas();                              // Este procedimiento inserta las visitas y ubicaciones Visita y Visita_Ubicacion
     this.isa.clienteAct.id = '';
     this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
     this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos
@@ -110,10 +111,10 @@ export class Tab3DatosPage {
     this.isa.syncExoneraciones();
     this.isa.syncSugerido();
     this.isa.syncExistencias();
-    this.isaPedidos.borrarPedidos( false );   // Si hay pedidos sin transmitir no son borrados
-    this.isaCobros.borrarRecibos( false );
+    this.isaPedidos.borrarPedidos( false );   // False = Si hay pedidos sin transmitir no son borrados.
+    // this.isaCobros.borrarRecibos( false );
     this.isaCardex.borrarCardex();
-    this.isa.borrarBitacora();
+    
     this.regresar();
   }
 
