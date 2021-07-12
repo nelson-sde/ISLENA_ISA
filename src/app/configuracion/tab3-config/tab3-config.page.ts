@@ -26,7 +26,6 @@ export class Tab3ConfigPage implements OnInit{
                private isaPedidos: IsaPedidoService,
                private isaCobros: IsaCobrosService,
                private isaCardex: IsaCardexService,
-               private isaLS: IsaLSService,
                private alertCtrl: AlertController,
                private navControler: NavController,
                private popoverCtrl: PopoverController,
@@ -97,6 +96,7 @@ export class Tab3ConfigPage implements OnInit{
       } else {
         this.isa.varConfig.usaRecibos = false;
       }
+      this.isa.guardarVarConfig();
     }
   }
 
@@ -116,6 +116,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.syncCxC(this.isa.varConfig.numRuta);
       this.isa.syncCuota( this.isa.varConfig.numRuta );
       this.isa.syncBancos();
+      this.isa.syncEjecutivas();
       this.isa.syncExoneraciones();
       this.isa.syncSugerido();
       this.isa.syncExistencias();

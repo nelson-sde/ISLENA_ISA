@@ -173,9 +173,11 @@ export class IsaCobrosService {
       this.postRecibo( this.reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
         resp => {
           console.log('Success RecEnca...', resp);
+          this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
           this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque, email );
         }, error => {
           console.log('Error RecEnca ', error);
+          this.isa.addBitacora( false, 'TR', `Recibo: ${recibo.numeroRecibo}, falla en Encabezado. ${error.message}`);
           this.isa.presentaToast( 'Error de Envío...' );
         }
       );
@@ -191,6 +193,7 @@ export class IsaCobrosService {
     this.postReciboDetalle( detalle ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
+        this.isa.addBitacora( true, 'TR', `Recibo: transmitido Detalle con exito`);
         this.actualizaEstadoRecibo(detalle[0].nuM_DOC, true);
         if ( hayCheque ){
           this.transmitirCheque( cheque );
@@ -208,6 +211,7 @@ export class IsaCobrosService {
         this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
       }, error => {
         console.log('Error en Recibo ', error);
+        this.isa.addBitacora( false, 'TR', `Detalle Recibo FALLÓ... ${error.message}.`);
         console.log('debemos borrar el enca del recibo...');
         this.isa.transmitiendo.pop();
         this.isa.presentaToast( 'Error de Envío...' );
@@ -367,8 +371,10 @@ export class IsaCobrosService {
     this.postCheque( chequeBD ).subscribe(
       resp => {
         console.log('Success Cheque...', resp);
+        this.isa.addBitacora( true, 'TR', `Transmite Cheque número: ${cheque.numeroCheque}`);
       }, error => {
         console.log('Error en Cheque', error);
+        this.isa.addBitacora( false, 'TR', `Error al transmitir Cheque número: ${cheque.numeroCheque}. ${error.message}`);
       }
     );
   }

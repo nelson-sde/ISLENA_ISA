@@ -41,17 +41,23 @@ export class ResumenPage {
   }
 
   refrescarRojos(){
-    if (this.pedidos.length > 0){
+    if (this.pedidos.length > 0){        // Filtra los pedidos sin transmitir
       for (let i = 0; i < this.pedidos.length; i++) {
         if (!this.pedidos[i].envioExitoso){
-          this.buscarPedido(i);
+          this.buscarPedidos(i);         // Valida si están en la BD
+        }
+      }
+    }
+    if (this.recibos.length > 0){       // Filtra los recibos sin TR
+      for (let i = 0; i < this.recibos.length; i++) {
+        if (!this.recibos[i].envioExitoso){
+          this.buscarRecibos(i);         // Valida si están en la BD
         }
       }
     }
   }
 
-  buscarPedido( i: number ){
-
+  buscarPedidos( i: number ){      // Busca en la BD si el pedido "i" fue transmitido o no.  Si fue TR lo marca como true en EnvíoExitoso
     this.isa.getPedido( this.pedidos[i].numPedido ).subscribe(
       resp => {
         console.log('Pedido', resp );
@@ -59,6 +65,7 @@ export class ResumenPage {
           const existe = resp.findIndex( d => d.coD_CLT === this.pedidos[i].codCliente);
           if ( existe >= 0 ){
             this.pedidos[i].envioExitoso = true;
+            localStorage.setItem( 'pedidos', JSON.stringify(this.pedidos));
             console.log('Pedido Encontrado');
           } else {
             console.log('El pedido no corresponde con el cliente...');
@@ -66,6 +73,29 @@ export class ResumenPage {
         } else {
           console.log('Pedido no en BD');
           this.isa.presentAlertW('Pedido', `El pedido ${this.pedidos[i].numPedido} no está en la BD.  Por favor retransmita.`);
+        }
+      }, error => {
+        console.log('Error conexión: ', error.message);
+      }
+    );
+  }
+
+  buscarRecibos( i: number ){      // Busca en la BD si el recibo "i" fue transmitido o no.  Si fue TR lo marca como true en EnvíoExitoso
+    this.isa.getRecibo( this.recibos[i].numeroRecibo ).subscribe(
+      resp => {
+        console.log('Recibo: ', resp );
+        if (resp.length > 0){
+          const existe = resp.findIndex( d => d.coD_CLT === this.recibos[i].codCliente);
+          if ( existe >= 0 ){
+            this.recibos[i].envioExitoso = true;
+            localStorage.setItem( 'recibos', JSON.stringify(this.recibos));
+            console.log('Recibo Encontrado');
+          } else {
+            console.log('El recibo no corresponde con el cliente...');
+          }
+        } else {
+          console.log('Recibo no en BD');
+          this.isa.presentAlertW('Recibo', `El recibo ${this.recibos[i].numeroRecibo} no está en la BD.  Por favor retransmita.`);
         }
       }, error => {
         console.log('Error conexión: ', error.message);

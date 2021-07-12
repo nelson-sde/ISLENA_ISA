@@ -16,6 +16,7 @@ export const environment = {
   CxCURL: 'cxc/',
   RecEncaURL: 'RecEnca/',
   RecDetaURL: 'RecDeta/',
+  Ejecutivas: 'Ejecutivas/',
   Existencias: 'Existencias/',
   BancosURL: 'Bancos/',
   ChequeURL: 'Cheque/',
@@ -33,7 +34,7 @@ export const environment = {
   adminClave: '@dmin2021*',
   version: '1.3.0',
   aplicarNC: false,
-  prdMode: false,
+  prdMode: true,
 };
 
 /*

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
-import { Recibo } from 'src/app/models/cobro';
+import { Ejecutivas, Recibo } from 'src/app/models/cobro';
 import { IsaService } from 'src/app/services/isa.service';
 import { ResumenRecPage } from '../resumen-rec/resumen-rec.page';
 
@@ -14,9 +15,18 @@ export class LiquidaPage implements OnInit {
   recibos: Recibo[] = [];
   montoEfectivo: number = 0;
   montoCheque: number = 0;
+  ejecutiva: Ejecutivas = {
+    empleado:         '',
+    usuario:          '',
+    clave:            '',
+    email:            '',
+    nombre:           '',
+    email_Supervisor: ''
+  };
 
   constructor( private navController: NavController,
                private modalCtrl: ModalController,
+               private router: Router,
                private isa: IsaService ) { }
 
   ngOnInit() {
@@ -25,7 +35,7 @@ export class LiquidaPage implements OnInit {
       this.recibos.forEach( d => {
         this.montoEfectivo += d.montoEfectivoL;
         this.montoCheque += d.montoChequeL;
-      })
+      });
     }
   }
 
@@ -41,11 +51,18 @@ export class LiquidaPage implements OnInit {
   }
 
   liquidar(){
-    const i = this.recibos.findIndex( d => !d.envioExitoso );
-    if ( i < 0 ){             // No hay recibos pendientes de transmitir
-      return;
+    if (this.recibos.length > 0){
+      const i = this.recibos.findIndex( d => !d.envioExitoso );
+      if ( i < 0 ){             // No hay recibos pendientes de transmitir
+        this.router.navigate(['login',{
+          usuario: 'CXC',
+          navega: 'liquida-info'
+        }]);
+      } else {
+        this.isa.presentAlertW( 'Liquidación', 'No se puede liquidar la ruta si hay recibos pendientes de transmitir.');
+      }
     } else {
-      this.isa.presentAlertW( 'Liquidación', 'No se puede liquidar la ruta si hay recibos pendientes de transmitir.');
+      this.isa.presentAlertW('Liquidación', 'No hay recibos para liquidar.');
     }
   }
 

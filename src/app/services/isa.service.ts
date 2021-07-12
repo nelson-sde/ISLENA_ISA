@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
 import { Cliente, ClienteBD, ClientePut, ClienteRT } from '../models/cliente';
-import { CxCBD, Pen_Cobro } from '../models/cobro';
+import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
 import { Exoneraciones, Existencias, PedEnca  } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
@@ -32,6 +32,8 @@ export class IsaService {
     emailCxC: '',
     emailVendedor: '',
     usaRecibos: false,
+    usuarioCxC: '',
+    claveCxC: ''
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero
@@ -62,8 +64,19 @@ export class IsaService {
   }
 
   private cargarVarConfig(){
+    let ejecutivas: Ejecutivas[] = [];
+
     if (localStorage.getItem('config')){
       this.varConfig = JSON.parse( localStorage.getItem('config'));
+      if ( this.varConfig.usuarioCxC === '' ){
+        ejecutivas = JSON.parse( localStorage.getItem( 'ejecutivas')! ) || [];
+        const i = ejecutivas.findIndex( d => d.email === this.varConfig.emailCxC );
+        if ( i >= 0 ){
+          this.varConfig.usuarioCxC = ejecutivas[i].usuario;
+          this.varConfig.claveCxC = ejecutivas[i].clave;
+          this.guardarVarConfig();
+        }
+      }
     } 
   }
 
@@ -113,6 +126,11 @@ export class IsaService {
     return this.http.get<PedEnca[]>( URL );
   }
 
+  getRecibo( numRecibo: string ){
+    const URL = this.getURL( environment.RecEncaURL, numRecibo );
+    return this.http.get<RecEncaBD[]>( URL );
+  }
+
   private getClientes(ruta: string){
     const URL = this.getURL( environment.clientesURL, ruta );
     return this.http.get<ClienteBD[]>( URL );
@@ -156,6 +174,11 @@ export class IsaService {
   private getExistencias(){
     const URL = this.getURL( environment.Existencias, '' );
     return this.http.get<Existencias[]>( URL );
+  }
+
+  private getEjecutivas(){
+    const URL = this.getURL( environment.Ejecutivas, '' );
+    return this.http.get<Ejecutivas[]>( URL );
   }
 
   syncExistencias(){
@@ -359,6 +382,20 @@ export class IsaService {
       const bancos = JSON.parse( localStorage.getItem('bancos'));
       return bancos;
     }
+  }
+
+  syncEjecutivas(){
+    this.getEjecutivas().subscribe(
+      resp => {
+        console.log('Ejecutivas', resp );
+        if (localStorage.getItem('ejecutivas')){
+          localStorage.removeItem('ejecutivas');
+        }
+        localStorage.setItem('ejecutivas', JSON.stringify(resp));
+      }, error => {
+        console.log(error.message);
+      }
+    );
   }
 
   syncExoneraciones(){

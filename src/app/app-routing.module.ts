@@ -93,6 +93,10 @@ const routes: Routes = [
   {
     path: 'liquida',
     loadChildren: () => import('./rutero/liquida/liquida.module').then( m => m.LiquidaPageModule)
+  },
+  {
+    path: 'liquida-info',
+    loadChildren: () => import('./rutero/liquida-info/liquida-info.module').then( m => m.LiquidaInfoPageModule)
   }
 ];
 @NgModule({

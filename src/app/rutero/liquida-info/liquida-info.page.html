@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-title align-text-center>Liquidaciones - {{isa.varConfig.numRuta}}</ion-title>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item color="light">
+    <ion-label>
+      <h1>Vendedor: {{ isa.varConfig.nomVendedor }}</h1>
+      <h1>Fecha: {{ fecha | date : 'shortDate'}}</h1>
+      <h1>Ejecutiva: {{ isa.varConfig.usuarioCxC }}</h1>
+    </ion-label>
+  </ion-item>
+  <p></p>
+  <ion-item>
+    <ion-grid fixed>
+      <ion-row>
+        <ion-col size="5"><h1>Efectivo:</h1></ion-col>
+        <ion-col size="7" class="ion-text-end"><h1>{{ montoEfectivo | colones }}</h1></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="5"><h1>Cheque:</h1></ion-col>
+        <ion-col size="7" class="ion-text-end"><h1>{{ montoCheque | colones }}</h1></ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-item>
+  <p>.</p>
+  <p>.</p>
+  <ion-button (click)="liquidar()" expand="block" shape="round" size="large">
+    Liquidar
+  </ion-button>
+</ion-content>

@@ -1,18 +1,20 @@
 
 export interface RutaConfig {
-    numRuta: string;
+    numRuta:     string;
     descripcion: string;
     codVendedor: number;
     nomVendedor: string;
-    usuario: string;
-    clave: string;
+    usuario:    string;
+    clave:      string;
     consecutivoPedidos: string;
     consecutivoRecibos: string;
     consecutivoDevoluciones: string;
-    bodega: number;
-    emailCxC: string;
+    bodega:     number;
+    emailCxC:   string;
     emailVendedor: string
     usaRecibos: boolean;
+    usuarioCxC: string;
+    claveCxC: string;
 }
   
 export interface Ruta {

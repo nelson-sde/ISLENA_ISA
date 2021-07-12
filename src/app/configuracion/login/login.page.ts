@@ -31,16 +31,22 @@ export class LoginPage {
   }
 
   login(){
-    if ( this.usuario == 'admin'){
-      if ( this.usuarioForm.usuarioF == 'admin' && this.usuarioForm.claveF == environment.adminClave ){
+    if ( this.usuario === 'admin'){
+      if ( this.usuarioForm.usuarioF === 'admin' && this.usuarioForm.claveF === environment.adminClave ){
         this.router.navigate([this.navegaA]);
       } else {
         this.isa.presentAlertW('', 'Usuario o clave incorrectos...');
       }
-    } else if ( this.usuario == 'user'){
+    } else if ( this.usuario === 'user'){
       if ( this.usuarioForm.usuarioF == this.isa.varConfig.usuario && this.usuarioForm.claveF == this.isa.varConfig.clave ){
         this.isa.userLogged = true;
         this.regresar();
+      } else {
+        this.isa.presentAlertW('', 'Usuario o clave incorrectos...');
+      }
+    } else if ( this.usuario === 'CXC' ){
+      if ( this.usuarioForm.usuarioF === this.isa.varConfig.usuarioCxC && this.usuarioForm.claveF === this.isa.varConfig.claveCxC ){
+        this.router.navigate([this.navegaA]);
       } else {
         this.isa.presentAlertW('', 'Usuario o clave incorrectos...');
       }
