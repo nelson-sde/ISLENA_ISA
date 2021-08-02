@@ -4,7 +4,7 @@ import { AlertController, LoadingController, ToastController } from '@ionic/angu
 import { environment } from 'src/environments/environment';
 import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
-import { Cliente, ClienteBD, ClientePut, ClienteRT } from '../models/cliente';
+import { Categorias, Cliente, ClienteBD, ClientePut, ClienteRT } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
 import { Exoneraciones, Existencias, PedEnca  } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
@@ -159,6 +159,11 @@ export class IsaService {
   private getBancos(){
     const URL = this.getURL( environment.BancosURL, '' );
     return this.http.get<BancosBD[]>( URL );
+  }
+
+  private getCategorias(){
+    const URL = this.getURL( environment.CategoriaClientesURL, '' );
+    return this.http.get<Categorias[]>( URL );
   }
 
   private getExoneraciones(){
@@ -371,6 +376,20 @@ export class IsaService {
           localStorage.removeItem('bancos');
         }
         localStorage.setItem('bancos', JSON.stringify(bancos));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
+  syncCategorias(){
+    this.getCategorias().subscribe(
+      resp => {
+        console.log('Categorias', resp );
+        if (localStorage.getItem('categorias')){
+          localStorage.removeItem('categorias');
+        }
+        localStorage.setItem('categorias', JSON.stringify(resp));
       }, error => {
         console.log(error.message);
       }

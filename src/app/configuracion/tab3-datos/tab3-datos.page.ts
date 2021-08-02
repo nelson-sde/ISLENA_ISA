@@ -108,6 +108,7 @@ export class Tab3DatosPage {
     this.isa.syncCxC(this.isa.varConfig.numRuta);
     this.isa.syncCuota( this.isa.varConfig.numRuta );
     this.isa.syncBancos();
+    this.isa.syncCategorias();
     this.isa.syncEjecutivas();
     this.isa.syncExoneraciones();
     this.isa.syncSugerido();

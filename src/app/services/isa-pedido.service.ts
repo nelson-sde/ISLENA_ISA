@@ -195,15 +195,15 @@ export class IsaPedidoService {
         detalleBD = new PedDeta( i + 1, pedido.numPedido, 'ISLENA', pedido.detalle[i].codProducto.toString(), '0', null, pedido.detalle[i].precio, 
                           pedido.detalle[i].descuento * 100 / pedido.detalle[i].subTotal, pedido.detalle[i].subTotal, pedido.detalle[i].descuento,
                           pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, cliente.listaPrecios, null, 0, fechaPedido, rowPointer, 
-                          'ISA', 'ISA', fechaPedido, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, pedido.detalle[i].porcenExonerado, 
-                          pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
+                          'ISA', 'ISA', fechaPedido, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, 
+                          pedido.detalle[i].porcenExonerado, pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
         arrDetBD.push(detalleBD);
       } 
       this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
         resp => {
           console.log('Success Encabezado...', resp);
           this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
-          this.agregarDetalle( numPedido, arrDetBD, email );
+          this.agregarDetalle( numPedido, arrDetBD, email );                                                       // Si es exitoso envia el detalle
         }, error => {
           console.log('Error Encabezado ', error.message );
           this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);

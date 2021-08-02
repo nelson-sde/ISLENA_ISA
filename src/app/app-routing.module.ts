@@ -97,6 +97,10 @@ const routes: Routes = [
   {
     path: 'liquida-info',
     loadChildren: () => import('./rutero/liquida-info/liquida-info.module').then( m => m.LiquidaInfoPageModule)
+  },
+  {
+    path: 'nuevo',
+    loadChildren: () => import('./configuracion/nuevo/nuevo.module').then( m => m.NuevoPageModule)
   }
 ];
 @NgModule({

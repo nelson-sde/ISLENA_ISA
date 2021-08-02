@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, Platform, PopoverController } from '@ionic/angular';
+import { AlertController, ModalController, Platform, PopoverController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
 import { IsaService } from 'src/app/services/isa.service';
 import { environment } from 'src/environments/environment';
@@ -9,6 +9,7 @@ import { ClientesPage } from '../clientes/clientes.page';
 import { Plugins } from '@capacitor/core';
 import { Rutero } from 'src/app/models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { NuevoPage } from 'src/app/configuracion/nuevo/nuevo.page';
 
 const { App } = Plugins;
 
@@ -26,8 +27,9 @@ export class RuteroPage {
 
   constructor( private alertController: AlertController,
                private router: Router,
-               public isa: IsaService,
+               private isa: IsaService,
                private popoverCtrl: PopoverController,
+               private modalCtrl: ModalController,
                private platform: Platform,
                private geolocation: Geolocation ) {
 
@@ -37,6 +39,14 @@ export class RuteroPage {
       console.log('Handler was called!');
       this.presentAlertSalir();
     });
+  }
+
+  async clienteNuevo(){
+    const modal = await this.modalCtrl.create({
+      component: NuevoPage,
+      cssClass: 'my-custom-class'
+    });
+    return await modal.present();
   }
 
   abrirPedidos(){

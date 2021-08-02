@@ -12,6 +12,7 @@ export const environment = {
   productosURL: 'productos/',
   PedEncaURL: 'FAC_enc_ped/',
   PedDetaURL: 'FAC_det_ped/',
+  CategoriaClientesURL: 'Categorias/',
   CardexURL: 'ISA_Estad_Ventas/',
   CxCURL: 'cxc/',
   RecEncaURL: 'RecEnca/',
