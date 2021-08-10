@@ -270,6 +270,10 @@ export class PedidosPage implements OnInit {
   }
 
   calculaLineaPedido(){           // Boton de aceptar la linea de pedido
+    if ( this.descuento > environment.DescuentoMaxLinea ){
+      this.isaConfig.presentAlertW('Descuento', 'El descuento es superior al límite permitido');
+      return;
+    }
     if ( this.cantidad > 0 ){ 
       this.montoSub = this.cantidad * this.producto.precio;
       this.montoDescLinea = this.montoSub * this.descuento / 100;
@@ -324,7 +328,7 @@ export class PedidosPage implements OnInit {
   }
 
   masFunction(){
-    if (this.defaultCant){ moveTo
+    if (this.defaultCant){
       this.cantidad = this.cantidad + 1;
     } else {
       this.descuento = this.descuento + this.descuentoPermitido( this.isaConfig.clienteAct.id, this.producto.id );
@@ -592,7 +596,9 @@ export class PedidosPage implements OnInit {
     let montoExo: number;
     let tax: number;
 
-    if (this.pedido.detalle.length > 0){
+    if ( this.pedido.porcentajeDescGeneral > environment.DescuentoMaxGen ){
+      this.isaConfig.presentAlertW('Descuento','El descuento es superior al máximo permitido...');
+    } else if (this.pedido.detalle.length > 0){
       for (let i = 0; i < this.pedido.detalle.length; i++) {
         tax = this.calculaImpuesto(this.pedido.detalle[i].impuesto, this.pedido.detalle[i].codProducto );
         montoDescGen = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento) * this.pedido.porcentajeDescGeneral / 100;

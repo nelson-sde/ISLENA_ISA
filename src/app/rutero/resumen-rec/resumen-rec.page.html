@@ -15,11 +15,42 @@
 <ion-content>
   <ion-list>
     <ion-item color="light">
-      <ion-label>
-        <h2><strong>Fecha...: {{recibo.fecha | date: 'short'}}</strong></h2>
-        <p><strong>Cliente...:</strong> {{recibo.codCliente}} - {{recibo.codCliente | cliente }}</p>
-        <p><strong>Monto....: {{recibo.montoLocal | colones}}</strong></p>
-      </ion-label>
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="3"><strong>Fecha:</strong></ion-col>
+          <ion-col size="8">{{recibo.fecha | date: 'short'}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="3"><strong>Cliente:</strong></ion-col>
+          <ion-col size="8">
+            <ion-text>
+              {{recibo.codCliente}} - {{recibo.codCliente | cliente }}
+            </ion-text>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="3"><strong>Moneda:</strong></ion-col>
+          <ion-col size="8">
+            <div *ngIf="(recibo.moneda === 'L')">
+              Colones
+            </div>
+            <div *ngIf="!(recibo.moneda === 'L')">
+              Dólares
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="3"><strong>Monto:</strong></ion-col>
+          <ion-col size="8">
+            <div *ngIf="(recibo.moneda === 'L')">
+              {{recibo.montoLocal | colones}}
+            </div>
+            <div *ngIf="!(recibo.moneda === 'L')">
+              {{recibo.montoDolar | colones : 2 : "." : "," : "$"}}
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-item>
     <ion-item color="light">
       <ion-label>
@@ -31,13 +62,13 @@
     <ion-item color="light">
       <ion-grid>
         <ion-row>
-          <ion-col size="6">
+          <ion-col size="4">
             <div class="ion-text-center">Factura</div>
           </ion-col>
-          <ion-col size="3">
+          <ion-col size="4">
             <div class="ion-text-center">Abono</div>
           </ion-col>
-          <ion-col size="3">
+          <ion-col size="4">
             <div class="ion-text-center">Saldo</div>
           </ion-col>
         </ion-row>
@@ -51,10 +82,12 @@
             <div class="ion-text-start">{{ item.numeroDocumen }}</div>
           </ion-col>
           <ion-col size="4">
-            <div class="ion-text-end">{{ item.abonoLocal | colones:1 :"." :"," }}</div>
+            <div class="ion-text-end" *ngIf="(recibo.moneda === 'L')">{{ item.abonoLocal | colones : 1 }}</div>
+            <div class="ion-text-end" *ngIf="!(recibo.moneda === 'L')">{{ item.abonoDolar | colones : 1 : "." : "," : "$" }}</div>
           </ion-col>
           <ion-col size="4">
-            <div class="ion-text-end">{{ item.saldoLocal | colones:1 :"." :"," }}</div>
+            <div class="ion-text-end" *ngIf="(recibo.moneda === 'L')">{{ item.saldoLocal | colones : 1 }}</div>
+            <div class="ion-text-end" *ngIf="!(recibo.moneda === 'L')">{{ item.saldoDolar | colones : 1 : "." : "," : "$" }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>

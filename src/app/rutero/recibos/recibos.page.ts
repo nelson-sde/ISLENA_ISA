@@ -16,12 +16,15 @@ export class RecibosPage {
 
   docsPagar: Pen_Cobro[] = [];
   recibo: Recibo;
-  tipoCambio: number = 1;
+  tipoCambio: number = 1;               // Tipo de cambio al que se registró la factura
+  dolares: boolean = false;            // True = recibo en dólares, caso contrario colones
+  moneda: string = '¢';
+  etiquetaMoneda: string = 'Colones';
   reciboSinSalvar: boolean = false;
   hayFactura: boolean = false;           // Indicador utilizado para saber que se aplicará el recibo a una factura
   hayNC: boolean = false;            // Nos indica si hay una nota de credito en los documentos a aplicar
   ncAsignada: boolean = false          // true si la NC ya fue asignada a una factura
-  edicion: boolean = false;           // true = editar información de cheques y depositos
+  edicion: boolean = false;           // true = editar información del recibo tales como efectivo, cheques, tarjeta etc.
   hayCheque: boolean = false;           // True = se captura info de cheque
   reciboCheque: boolean = false;       // True = se agregó un cheque al recibo
   cantNC: number = 0;
@@ -32,6 +35,14 @@ export class RecibosPage {
   cheque: Cheque;
   bancos: Bancos[] = [];
   banco: Bancos;
+  reciboTemp = {                   // Estructura que visualmente en el HTML contiene los valores del recibo según la moneda en la variable dolares
+    monto : 0,
+    abono: 0,
+    efectivo: 0,
+    tarjeta: 0,
+    deposito: 0,
+    cheque: 0
+  }
 
   constructor( private isa: IsaService,
                private isaCobros: IsaCobrosService,
@@ -62,12 +73,32 @@ export class RecibosPage {
       this.recibo.montoEfectivoL = this.recibo.montoLocal;
       this.recibo.montoEfectivoD = this.recibo.montoDolar;
       this.tipoCambio = this.recibo.montoLocal / this.recibo.montoDolar;
-      this.monto = this.recibo.montoLocal;
-      this.abono = this.recibo.montoLocal;
+      this.reciboTemp.monto = this.recibo.montoLocal;
+      this.reciboTemp.abono = this.recibo.montoLocal;
+      this.reciboTemp.efectivo = this.recibo.montoLocal;
     }
     this.cheque = new Cheque('', this.isa.clienteAct.id.toString(), this.isa.varConfig.consecutivoRecibos, '', '', 0 );
     this.bancos = this.isa.cargarBancos();
     this.banco = new Bancos('','');
+  }
+
+  cambiarMoneda(){
+    console.log(this.dolares);
+    if ( this.dolares ){
+      this.etiquetaMoneda = 'Dólares:';
+      this.moneda = "$";
+      this.reciboTemp.monto = this.recibo.montoDolar;
+      this.reciboTemp.abono = this.recibo.montoDolar;
+      this.reciboTemp.efectivo = this.recibo.montoDolar;
+      this.recibo.moneda = 'D';
+    } else {
+      this.etiquetaMoneda = 'Colones';
+      this.moneda = "¢";
+      this.reciboTemp.monto = this.recibo.montoLocal;
+      this.reciboTemp.abono = this.recibo.montoLocal;
+      this.reciboTemp.efectivo = this.recibo.montoLocal;
+      this.recibo.moneda = 'L';
+    }
   }
 
   async modificarAbono( i: number){
@@ -123,17 +154,22 @@ export class RecibosPage {
 
   modificarRecibo(){
     if ( this.cantNC == this.asignadasNC ){
-      if ( this.edicion ){
+      if ( this.edicion ){                    // Se estaba modificando los valores del recibo
         console.log(this.recibo);
        if ( this.hayCheque ){
-         if ( this.cheque.monto > 0 ){
-           if ( this.cheque.monto <= this.recibo.montoLocal ){
+         if ( this.cheque.monto > 0 ){       // Valida la información del Cheque
+           if ( this.cheque.monto <= this.reciboTemp.monto ){
               if ( this.cheque.numeroCheque !== ''  && this.cheque.numeroCuenta !== '' && this.banco.banco !== '' ) {
                 this.cheque.codCliente = this.recibo.codCliente.toString();
                 this.cheque.codigoBanco = this.banco.banco;
                 this.cheque.numeroRecibo = this.recibo.numeroRecibo;
-                this.recibo.montoChequeL = this.cheque.monto;
+                if ( this.dolares ){
+                  this.recibo.montoChequeD = this.cheque.monto;
+                this.recibo.montoChequeL = this.cheque.monto * this.tipoCambio;
+                } else {
+                  this.recibo.montoChequeL = this.cheque.monto;
                 this.recibo.montoChequeD = this.cheque.monto / this.tipoCambio;
+                }
                 this.reciboCheque = true;
                 this.edicion = false;
                 this.hayCheque = false;
@@ -146,40 +182,71 @@ export class RecibosPage {
           } else {
             this.hayCheque = false;
             this.recibo.montoChequeD = 0;
+            this.recibo.montoChequeL = 0;
           }
-        }
-        if ( this.recibo.montoEfectivoL > 0 ) {
-          if ( this.recibo.montoEfectivoL <= this.recibo.montoLocal ){
-            this.recibo.montoEfectivoD = this.recibo.montoEfectivoL / this.tipoCambio;
+        }                                       // Valida la información del efectivo
+        if ( this.reciboTemp.efectivo > 0 ) {
+          if ( this.reciboTemp.efectivo <= this.reciboTemp.monto ){
+            if ( this.dolares ){
+              this.recibo.montoEfectivoD = this.reciboTemp.efectivo;
+              this.recibo.montoEfectivoL = this.reciboTemp.efectivo * this.tipoCambio;
+            } else {
+              this.recibo.montoEfectivoL = this.reciboTemp.efectivo;
+              this.recibo.montoEfectivoD = this.recibo.montoEfectivoL / this.tipoCambio;
+            }
             this.edicion = false;
           } else {
-            this.isa.presentAlertW('Efectivo', 'El monto del Efectivo no puede ser mayor al del Recibo');
+            this.isa.presentAlertW('Efectivo', 'El monto del Efectivo no puede ser mayor al monto del Recibo');
           }
         } else {
+          this.recibo.montoEfectivoL = 0;
           this.recibo.montoEfectivoD = 0;
         }
-        if ( this.recibo.montoTarjetaL > 0 ) {
-          if ( this.recibo.montoTarjetaL <= this.recibo.montoLocal ){
-            this.recibo.montoTarjetaD = this.recibo.montoTarjetaL / this.tipoCambio;
+        if ( this.reciboTemp.tarjeta > 0 ) {    // Valida los montos de las tarjetas
+          if ( this.reciboTemp.tarjeta <= this.reciboTemp.monto ){
+            if ( this.dolares ){
+              this.recibo.montoTarjetaD = this.reciboTemp.tarjeta;
+              this.recibo.montoTarjetaL = this.reciboTemp.tarjeta * this.tipoCambio;
+            } else {
+              this.recibo.montoTarjetaL = this.reciboTemp.tarjeta;
+              this.recibo.montoTarjetaD = this.recibo.montoTarjetaL / this.tipoCambio;
+            }
             this.edicion = false;
           } else {
-            this.isa.presentAlertW('Tarjeta', 'El monto de la Tarjeta no puede ser mayor al del Recibo');
+            this.isa.presentAlertW('Tarjeta', 'El monto de la Tarjeta no puede ser mayor al monto del Recibo');
           }
         } else {
           this.recibo.montoTarjetaD = 0;
+          this.recibo.montoTarjetaL = 0;
         }
         if ( this.recibo.montoDepositoL > 0 ) {
-          if ( this.recibo.montoDepositoL <= this.recibo.montoLocal ){
-            this.recibo.montoDepositoD = this.recibo.montoChequeL / this.tipoCambio;
+          if ( this.reciboTemp.deposito <= this.reciboTemp.monto ){
+            if ( this.dolares ){
+              this.recibo.montoDepositoD = this.reciboTemp.deposito;
+              this.recibo.montoDepositoL = this.reciboTemp.deposito * this.tipoCambio;
+            } else {
+              this.recibo.montoDepositoL = this.reciboTemp.deposito;
+              this.recibo.montoDepositoD = this.recibo.montoDepositoL / this.tipoCambio;
+            }
             this.edicion = false;
           } else {
-            this.isa.presentAlertW('Depósito', 'El monto del Deposito no puede ser mayor al del Recibo');
+            this.isa.presentAlertW('Depósito', 'El monto del Deposito no puede ser mayor al monto del Recibo');
           }
         } else {
           this.recibo.montoDepositoD = 0;
+          this.recibo.montoDepositoL = 0;
         }
-        if (( this.recibo.montoChequeL + this.recibo.montoDepositoL + this.recibo.montoEfectivoL + this.recibo.montoTarjetaL ) == this.recibo.montoLocal ){
+        if (( this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta ) <= this.reciboTemp.monto ){
           this.edicion = false;
+          this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta;
+          if ( this.dolares ){
+            this.recibo.montoDolar = this.reciboTemp.abono;
+            this.recibo.montoLocal = this.reciboTemp.abono * this.tipoCambio;
+          } else {
+            this.recibo.montoLocal = this.reciboTemp.abono;
+            this.recibo.montoDolar = this.reciboTemp.abono / this.tipoCambio;
+          }
+          
         } else {
           this.isa.presentAlertW('Recibo', 'El monto de los componentes del Recibo no pueden ser mayores al monto del recibo');
           this.edicion = true;

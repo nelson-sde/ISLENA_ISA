@@ -138,6 +138,7 @@ export class IsaCobrosService {
       this.reciboBD.moN_DEP_DOLAR = recibo.montoDepositoD;
       this.reciboBD.rowPointer = rowPointer;
       this.reciboBD.APLICACION = recibo.observaciones;
+      this.reciboBD.inD_MON = recibo.moneda;
 
       for (let i = 0; i < recibo.detalle.length; i++) {
         rowPointer = this.isa.generate();

@@ -103,6 +103,7 @@ export class Recibo {
     observaciones: string;
     envioExitoso: boolean;
     liquidado: boolean;
+    moneda: string;
     detalle: Det_Recibo[];
 
     constructor ( ruta: string, cliente: string, recibo: string, fecha: Date, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
@@ -124,6 +125,7 @@ export class Recibo {
         this.observaciones = observaciones;
         this.envioExitoso = false;
         this.liquidado = false;
+        this.moneda = 'L';
         this.detalle = [];
     }
 }

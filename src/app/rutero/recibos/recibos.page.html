@@ -21,45 +21,73 @@
     </ion-item>
     <p></p>
 
+    <ion-item *ngIf="!edicion">
+      <ion-label>{{etiquetaMoneda}}</ion-label>
+      <ion-toggle [(ngModel)]="dolares" (ionChange)="cambiarMoneda()"></ion-toggle>
+    </ion-item>
+
     <ion-item color="light" *ngIf="!edicion">
-      <ion-label>
-        <h2><strong>Recibo: </strong> {{ recibo.numeroRecibo }}</h2>
-        <p><strong>Abono...: </strong>{{ recibo.montoLocal | colones }}</p>
-        <p><strong>Efectivo: </strong>{{ recibo.montoEfectivoL | colones }}</p>
-        <p><strong>Tarjeta..: </strong>{{ recibo.montoTarjetaL | colones }}</p>
-        <p><strong>Depósito: </strong>{{ recibo.montoDepositoL | colones }}</p>
-        <p><strong>Cheque....: </strong>{{ recibo.montoChequeL | colones }}</p>
-      </ion-label>
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="4"><strong>Recibo: </strong></ion-col>
+          <ion-col size="8">{{ recibo.numeroRecibo }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Abono:</ion-col>
+          <ion-col size="6">{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Efectivo:</ion-col>
+          <ion-col size="6">{{ reciboTemp.efectivo | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Tarjeta:</ion-col>
+          <ion-col size="6">{{ reciboTemp.tarjeta | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Depósito:</ion-col>
+          <ion-col size="6">{{ reciboTemp.deposito | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Cheque:</ion-col>
+          <ion-col size="6">{{ reciboTemp.cheque | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+      </ion-grid>
       <ion-button slot="end" (click)="modificarRecibo()" expand="block" shape="round">
         Editar
       </ion-button>
     </ion-item>
     <ion-item color="light" *ngIf="!edicion">
       <ion-text>
-        <p>Concepto..: {{ recibo.observaciones }}</p>
+        <strong>Concepto</strong>: {{ recibo.observaciones }}
       </ion-text>
     </ion-item>
 
     <ion-item color="light" *ngIf="edicion">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="4"><strong>Recibo: </strong></ion-col>
+          <ion-col size="8">{{ recibo.numeroRecibo }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Abono:</ion-col>
+          <ion-col size="6">{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
       <ion-label>
-        <h2><strong>Recibo: </strong> {{ recibo.numeroRecibo }}</h2>
-        <p><strong>Abono...: </strong>{{ recibo.montoLocal | colones }}</p>
-        <p></p>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.efectivo">Efectivo:</ion-input>
       </ion-label>
     </ion-item>
     <ion-item color="light" *ngIf="edicion">
       <ion-label>
-        <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.montoEfectivoL">Efectivo:</ion-input>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.tarjeta">Tarjeta   :</ion-input>
       </ion-label>
     </ion-item>
     <ion-item color="light" *ngIf="edicion">
       <ion-label>
-        <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.montoTarjetaL">Tarjeta   :</ion-input>
-      </ion-label>
-    </ion-item>
-    <ion-item color="light" *ngIf="edicion">
-      <ion-label>
-        <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.montoDepositoL">Deposito:</ion-input>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.deposito">Deposito:</ion-input>
       </ion-label>
     </ion-item>
     <ion-item color="light" *ngIf="edicion">

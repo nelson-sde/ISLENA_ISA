@@ -13,8 +13,10 @@ import { ResumenRecPage } from '../resumen-rec/resumen-rec.page';
 export class LiquidaPage implements OnInit {
 
   recibos: Recibo[] = [];
-  montoEfectivo: number = 0;
-  montoCheque: number = 0;
+  montoEfectivoL: number = 0;
+  montoEfectivoD: number = 0;
+  montoChequeL: number = 0;
+  montoChequeD: number = 0;
   ejecutiva: Ejecutivas = {
     empleado:         '',
     usuario:          '',
@@ -33,8 +35,13 @@ export class LiquidaPage implements OnInit {
     if ( localStorage.getItem('recibos')){
       this.recibos = JSON.parse(localStorage.getItem('recibos'));
       this.recibos.forEach( d => {
-        this.montoEfectivo += d.montoEfectivoL;
-        this.montoCheque += d.montoChequeL;
+        if ( d.moneda === 'L' ){
+          this.montoEfectivoL += d.montoEfectivoL;
+          this.montoChequeL += d.montoChequeL;
+        } else {
+          this.montoEfectivoD += d.montoEfectivoD;
+          this.montoChequeD += d.montoChequeD;
+        }
       });
     }
   }
