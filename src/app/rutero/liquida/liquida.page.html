@@ -50,7 +50,12 @@
       <ion-grid fixed>
         <ion-row (click)="abrirDetalleRecibo(i)">
           <ion-col size="5">
-            <ion-label [color]="item.envioExitoso ? 'success' : 'danger'">{{item.numeroRecibo}}</ion-label>
+            <div *ngIf="(item.tipoDoc === 'R')">
+              <ion-label [color]="item.envioExitoso ? 'success' : 'danger'">{{item.numeroRecibo}}</ion-label>
+            </div>
+            <div *ngIf="!(item.tipoDoc === 'R')">
+              <ion-label [color]="item.envioExitoso ? 'primary' : 'danger'">{{item.numeroRecibo}}</ion-label>
+            </div>
           </ion-col>
           <ion-col size="2">{{item.fecha | date : 'shortDate'}}</ion-col>
           <ion-col size="4" class="ion-text-end">
@@ -62,12 +67,15 @@
             </div>
           </ion-col>
           <ion-col size="1">
-            <div *ngIf="!(item.montoEfectivoL > 0 && item.montoChequeL > 0)">
+            <div *ngIf="(!(item.montoEfectivoL > 0 && item.montoChequeL > 0) && item.tipoDoc === 'R')">
               <ion-icon slot="start" [name]="item.montoEfectivoL > 0 ? 'cash-outline' : 'receipt-outline'" 
                                      [color]="item.montoEfectivoL > 0 ? 'success' : 'primary'"></ion-icon>
             </div>
-            <div *ngIf="(item.montoEfectivoL > 0 && item.montoChequeL > 0)">
+            <div *ngIf="((item.montoEfectivoL > 0 && item.montoChequeL > 0) && item.tipoDoc === 'R')">
               <ion-icon slot="start" name="duplicate-outline" color="danger"></ion-icon>
+            </div>
+            <div *ngIf="(item.tipoDoc === 'A')">
+              <ion-icon slot="start" name="skull-outline" color="danger"></ion-icon>
             </div>
           </ion-col>
           <ion-col size="12">{{item.codCliente}} - {{item.codCliente | cliente}}</ion-col>

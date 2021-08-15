@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { Recibo } from 'src/app/models/cobro';
 import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 import { IsaService } from 'src/app/services/isa.service';
@@ -13,7 +13,10 @@ export class ResumenRecPage {
 
   @Input() recibo: Recibo;
 
+  reciboAnulado: Recibo;
+
   constructor( private modalCtrl: ModalController,
+               private alertCtrl: AlertController,
                private isa: IsaService,
                private isaCobros: IsaCobrosService ) { }
 
@@ -28,6 +31,39 @@ export class ResumenRecPage {
         this.isa.presentAlertW('Retransmitir', 'No se puede transmitir el recibo.  Hay otro en proceso.  Por favor espere.');
       }
     }
+  }
+
+  async anularRecibo(){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'my-custom-class',
+      header: 'Anular Recibo',
+      message: `Desea anular el recibo ${this.recibo.numeroRecibo}.`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Si',
+          handler: () => {
+            const idRecibo = this.recibo.numeroRecibo.slice( 0, 4 ) + 'A' + this.recibo.numeroRecibo.slice(5);
+            this.reciboAnulado = new Recibo( this.isa.varConfig.numRuta, this.recibo.codCliente, idRecibo, this.recibo.fecha, -1 * this.recibo.montoDolar, 
+                                            -1 * this.recibo.montoLocal, -1 * this.recibo.montoEfectivoL, -1 * this.recibo.montoEfectivoD,
+                                            -1 * this.recibo.montoChequeL, -1 * this.recibo.montoChequeD, 0, 0, 0, 0, this.recibo.observaciones, this.recibo.moneda );
+            this.reciboAnulado.tipoDoc = 'A';   // Crea el recibo que anula en reciboAnulado
+            this.recibo.anulado = true;        // Anula el recibo
+            this.isaCobros.guardarRecibo( this.reciboAnulado );      // Guarda ambos recibos en el LS
+            this.isaCobros.guardarRecibo( this.recibo );
+            this.isaCobros.anularRecibo( this.reciboAnulado );      // Ejecuta el Post en la BD insertando el reciboAnulado en la tabla ISA_Liquidacion
+            this.regresar();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   regresar(){

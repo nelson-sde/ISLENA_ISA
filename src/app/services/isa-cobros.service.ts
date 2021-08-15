@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Pen_Cobro, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
+import { Pen_Cobro, RecAnulado, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
 import { IsaService } from './isa.service';
 import { environment } from 'src/environments/environment';
 import { Cheque, ChequeBD } from '../models/cheques';
@@ -68,13 +68,18 @@ export class IsaCobrosService {
     }
   }
 
-  private guardarRecibo( recibo: Recibo ){           // Guarda el Recibo en el Local Storage
+  guardarRecibo( recibo: Recibo ){           // Guarda el Recibo en el Local Storage
     let recibosLS: Recibo[] = [];
 
     if (localStorage.getItem('recibos')){
       recibosLS = JSON.parse( localStorage.getItem('recibos'));
+      const i = recibosLS.findIndex( d => d.numeroRecibo === recibo.numeroRecibo );
+      if ( i === -1 ){
+        recibosLS.push( recibo );
+      } else {
+        recibosLS[i] = recibo;
+      }
     }
-    recibosLS.push( recibo );
     localStorage.setItem('recibos', JSON.stringify(recibosLS));
   }
 
@@ -426,6 +431,55 @@ export class IsaCobrosService {
       }
     };
     return this.http.post( URL, JSON.stringify(cheque), options );
+  }
+
+  private postAnulaRecibo( reciboAnulado: RecAnulado ){
+    const URL = this.isa.getURL( environment.LiquidURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(reciboAnulado), options );
+  }
+
+  anularRecibo( reciboAnulado: Recibo ){
+    let reciboBD: RecAnulado = {
+      coD_CIA:      'ISLENA',
+      nuM_REC:       reciboAnulado.numeroRecibo,
+      coD_TIP_DC:    '0',
+      ruta:          reciboAnulado.numeroRuta,
+      coD_CLT:       reciboAnulado.codCliente,
+      feC_PRO:       reciboAnulado.fecha,
+      moN_DOC_LOC:   reciboAnulado.montoLocal,
+      moN_DOC_DOL:   reciboAnulado.montoDolar,
+      moN_EFE_LOCAL: reciboAnulado.montoEfectivoL,
+      moN_EFE_DOLAR: reciboAnulado.montoEfectivoD,
+      moN_CHE_DOLAR: reciboAnulado.montoChequeD,
+      moN_CHE_LOCAL: reciboAnulado.montoChequeL,
+      doC_LIQ:       'N',
+      feC_LIQ:       null,
+      ejecutivA_CXC: null,
+      aplicacion:    'ISA',
+      recordDate:    new Date(),
+      createdBy:     'ISA',
+      updatedBy:     'ISA',
+      createDate:    new Date(),
+      inD_MON:       reciboAnulado.moneda
+    }
+    this.postAnulaRecibo( reciboBD ).subscribe(
+      resp => {
+        console.log('Recibo Anulado. ', resp);
+        this.actualizaEstadoRecibo( reciboBD.nuM_REC, true );
+        this.isa.addBitacora( true, 'TR', `Inserta Recibo a Anular: ${reciboBD.nuM_REC}`);
+        this.isa.presentaToast( 'Recibo Anulado con Exito...' );
+      }, error => {
+        console.log('Error insertar recibo nulo. ', error);
+        this.isa.addBitacora( false, 'TR', `Error al insertar recibo nulo: ${reciboBD.nuM_REC}. ${error.message}`);
+        this.isa.presentaToast( 'Error al Anular Recibo...!!!' );
+      }
+    )
   }
 
 }

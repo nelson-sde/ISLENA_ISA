@@ -52,7 +52,7 @@ export class RecibosPage {
     
     let det: Det_Recibo;
 
-    this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, new Date(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '' );
+    this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, new Date(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'L' );
     this.docsPagar = this.isaCobros.cxc.filter( d => d.pago );
     if ( this.docsPagar.length > 0 ){
       this.docsPagar.forEach( e => {
@@ -163,6 +163,7 @@ export class RecibosPage {
                 this.cheque.codCliente = this.recibo.codCliente.toString();
                 this.cheque.codigoBanco = this.banco.banco;
                 this.cheque.numeroRecibo = this.recibo.numeroRecibo;
+                this.reciboTemp.cheque = this.cheque.monto;
                 if ( this.dolares ){
                   this.recibo.montoChequeD = this.cheque.monto;
                 this.recibo.montoChequeL = this.cheque.monto * this.tipoCambio;
@@ -183,6 +184,7 @@ export class RecibosPage {
             this.hayCheque = false;
             this.recibo.montoChequeD = 0;
             this.recibo.montoChequeL = 0;
+            this.reciboTemp.cheque = 0;
           }
         }                                       // Valida la información del efectivo
         if ( this.reciboTemp.efectivo > 0 ) {
