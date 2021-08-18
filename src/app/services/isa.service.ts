@@ -33,7 +33,8 @@ export class IsaService {
     emailVendedor: '',
     usaRecibos: false,
     usuarioCxC: '',
-    claveCxC: ''
+    claveCxC: '',
+    tipoCambio: environment.tipoCambio
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero

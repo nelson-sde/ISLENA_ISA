@@ -91,6 +91,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[data.indice].devolucion;
       this.isa.varConfig.emailCxC = this.isa.rutas[data.indice].emaiL_EJECUTIVA;
       this.isa.varConfig.emailVendedor = this.isa.rutas[data.indice].emaiL_VENDEDOR;
+      this.isa.varConfig.tipoCambio = this.isa.rutas[data.indice].tcom;
       if ( this.isa.rutas[data.indice].usA_RECIBOS === 'S') {
         this.isa.varConfig.usaRecibos = true;
       } else {

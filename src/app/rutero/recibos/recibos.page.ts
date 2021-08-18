@@ -5,6 +5,7 @@ import { Cheque } from 'src/app/models/cheques';
 import { Det_Recibo, Pen_Cobro, Recibo } from 'src/app/models/cobro';
 import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 import { IsaService } from 'src/app/services/isa.service';
+import { environment } from 'src/environments/environment';
 import { FacturasPage } from '../facturas/facturas.page';
 
 @Component({
@@ -48,10 +49,12 @@ export class RecibosPage {
   constructor( private isa: IsaService,
                private isaCobros: IsaCobrosService,
                private navController: NavController,
-               private popoverCtrl: PopoverController ) {
+               private popoverCtrl: PopoverController,
+               private alertCtrl: AlertController ) {
     
     let det: Det_Recibo;
 
+    this.tipoCambio = environment.tipoCambio;
     this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, new Date(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'L' );
     this.docsPagar = this.isaCobros.cxc.filter( d => d.pago );
     if ( this.docsPagar.length > 0 ){
@@ -59,21 +62,21 @@ export class RecibosPage {
         if (e.tipoDocumen == '1'){
           this.hayFactura = true;
           this.recibo.montoLocal = this.recibo.montoLocal + e.saldoLocal;
-          this.recibo.montoDolar = this.recibo.montoDolar + e.saldoDolar;
-          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, true, e.fechaDoc, 0, 0, e.montoDolar, e.montoLocal, e.saldoLocal, e.saldoDolar );
+          this.recibo.montoDolar = this.recibo.montoLocal / this.tipoCambio;
+          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, true, e.fechaDoc, 0, 0, e.montoLocal / this.tipoCambio, e.montoLocal, e.saldoLocal, e.saldoLocal / this.tipoCambio );
           this.recibo.detalle.push(det);
           this.saldoFactura = e.saldoLocal;
         } else {
           this.hayNC = true;
           this.cantNC++;
-          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, false, e.fechaDoc, 0, 0, e.montoDolar, e.montoLocal, e.saldoLocal, e.saldoDolar );
+          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, false, e.fechaDoc, 0, 0, e.montoLocal / this.tipoCambio, e.montoLocal, e.saldoLocal, e.saldoLocal / this.tipoCambio );
           this.recibo.detalle.push(det);
         }
       });
       this.reciboSinSalvar = true;
       this.recibo.montoEfectivoL = this.recibo.montoLocal;
       this.recibo.montoEfectivoD = this.recibo.montoDolar;
-      this.tipoCambio = this.recibo.montoLocal / this.recibo.montoDolar;
+      
       this.reciboTemp.monto = this.recibo.montoLocal;
       this.reciboTemp.abono = this.recibo.montoLocal;
       this.reciboTemp.efectivo = this.recibo.montoLocal;
@@ -104,63 +107,10 @@ export class RecibosPage {
     }
   }
 
-  /*
-  async modificarAbono( i: number){
-    const alert = await this.alertController.create({
-      cssClass: 'my-custom-class',
-      header: 'Abono!',
-      inputs: [
-        {
-          name: 'abono',
-          type: 'number',
-          placeholder: 'Abono',
-          value: this.recibo.detalle[i].abonoLocal,
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('Confirm Cancel');
-          }
-        }, {
-          text: 'Ok',
-          handler: (d) => {
-            if ( +d.abono > 0 && +d.abono <= this.recibo.detalle[i].abonoLocal ){
-              const montoAntLocal = this.recibo.detalle[i].abonoLocal;
-              const montoAntDolar = this.recibo.detalle[i].abonoDolar;
-              this.recibo.detalle[i].abonoLocal = +d.abono;
-              this.recibo.detalle[i].abonoDolar = +d.abono / this.tipoCambio;
-              this.recibo.detalle[i].saldoLocal = this.recibo.detalle[i].montoLocal - this.recibo.detalle[i].abonoLocal;
-              this.recibo.detalle[i].saldoDolar = this.recibo.detalle[i].montoDolar - this.recibo.detalle[i].abonoDolar;
-              this.recibo.montoLocal = this.recibo.montoLocal - montoAntLocal + +d.abono;
-              this.recibo.montoDolar = this.recibo.montoDolar - montoAntDolar + this.recibo.detalle[i].abonoDolar;
-              this.saldo = this.saldo + montoAntLocal - +d.abono;
-              this.recibo.montoEfectivoL = this.recibo.montoLocal;
-              this.recibo.montoEfectivoD = this.recibo.montoDolar;
-              this.recibo.montoChequeL = 0;
-              this.recibo.montoChequeD = 0;
-              this.recibo.montoTarjetaL = 0;
-              this.recibo.montoTarjetaD = 0;
-              this.recibo.montoDepositoL = 0;
-              this.recibo.montoDepositoD = 0;
-            }
-            console.log('Confirm Ok');
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-  */
-
   modificarRecibo(){
     const montoAntLocal = this.recibo.detalle[0].abonoLocal;
     const montoAntDolar = this.recibo.detalle[0].abonoDolar;
-debugger
+
     if ( this.cantNC == this.asignadasNC ){
       if ( this.edicion ){                    // Se estaba modificando los valores del recibo
         console.log(this.recibo);            // Valida la información del efectivo
@@ -300,7 +250,27 @@ debugger
     }
   }
 
-  salvarRecibo(){
+  async salvarRecibo(){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'my-custom-class',
+      header: 'Salvar Recibo...!!!',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+        }, {
+          text: 'Si',
+          handler: () => {
+            this.procesaRecibo();
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  procesaRecibo(){
     let cxc: Pen_Cobro[] = [];
     let j: number;
 

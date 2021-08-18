@@ -257,9 +257,10 @@ export class IsaCobrosService {
   reciboSimple( recibo: Recibo ){
     let email: Email;
     let cheque: Cheque = new Cheque('','','','','',0);
+    const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
 
     console.log('Creando un recibo de Transferencia');
-    email = new Email( this.isa.clienteAct.email, `RECIBO DE DINERO POR TRANSFERENCIA RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque, this.isa.clienteAct.nombre) );
+    email = new Email( cliente.email, `NOTIFICACION POR COBRO DE DINERO RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque, cliente.nombre, false) );
     this.isa.enviarEmail( email );
     email.toEmail = this.isa.varConfig.emailCxC;
     this.isa.enviarEmail( email );
@@ -278,7 +279,7 @@ export class IsaCobrosService {
     }
   }
 
-  private getBody ( recibo: Recibo, cheque: Cheque, nombre: string ){
+  private getBody ( recibo: Recibo, cheque: Cheque, nombre: string, numRecibo: boolean = true, nulo: boolean = false ){
     let body: string[] = [];
     let texto: string = '';
     let efectivo: string = '  ';
@@ -291,8 +292,14 @@ export class IsaCobrosService {
 
     body.push(`<TABLE BORDER  CELLPADDING=5 CELLSPACING=0>`);
     body.push(`<Tr><Th ROWSPAN=2><img src="https://di.cr/image/catalog/logotipo_front_home1.png"  width="227" height="70"></Th><Th ROWSPAN=2>Distribuidora Isleña de Alimentos S.A.<Br>Cédula Juridica 3-101-109180</Th><Th>Recibo de Dinero</Th></Tr>`);
-    body.push(`<Tr><Td><font color="red">${recibo.numeroRecibo}</font></Td></Tr>`);
-    body.push(`<Tr><Td ALIGN=right COLSPAN=3>Fecha: ${day} - ${month} - ${year}</Td></Tr>`);
+    if ( numRecibo ){
+      body.push(`<Tr><Td><font color="red">${recibo.numeroRecibo}</font></Td></Tr>`);
+    }
+    if ( nulo ){ 
+      body.push(`<Tr><Td ALIGN=center COLSPAN=2><font color="red">**** NULO ****</font></Td><Td ALIGN=right>Fecha: ${day} - ${month} - ${year}</Td></Tr>`);
+    } else {
+      body.push(`<Tr><Td ALIGN=right COLSPAN=3>Fecha: ${day} - ${month} - ${year}</Td></Tr>`);
+    }
     body.push(`</TABLE>`);
     body.push(`<br>`);
     body.push(`RECIBIMOS DE: ${nombre}.<br>`);
@@ -444,7 +451,7 @@ export class IsaCobrosService {
     return this.http.post( URL, JSON.stringify(reciboAnulado), options );
   }
 
-  anularRecibo( reciboAnulado: Recibo ){
+  anularRecibo( recibo: Recibo, reciboAnulado: Recibo ){
     let reciboBD: RecAnulado = {
       coD_CIA:      'ISLENA',
       nuM_REC:       reciboAnulado.numeroRecibo,
@@ -468,11 +475,19 @@ export class IsaCobrosService {
       createDate:    new Date(),
       inD_MON:       reciboAnulado.moneda
     }
+    let email: Email;
+    let cheque: Cheque = new Cheque('', '', '', '', '', 0);
+
     this.postAnulaRecibo( reciboBD ).subscribe(
       resp => {
         console.log('Recibo Anulado. ', resp);
         this.actualizaEstadoRecibo( reciboBD.nuM_REC, true );
         this.isa.addBitacora( true, 'TR', `Inserta Recibo a Anular: ${reciboBD.nuM_REC}`);
+        const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
+        email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre, true, true) );
+        this.isa.enviarEmail( email );
+        email.toEmail = this.isa.varConfig.emailVendedor;
+        this.isa.enviarEmail( email );
         this.isa.presentaToast( 'Recibo Anulado con Exito...' );
       }, error => {
         console.log('Error insertar recibo nulo. ', error);

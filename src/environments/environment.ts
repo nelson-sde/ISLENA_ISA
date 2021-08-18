@@ -33,6 +33,7 @@ export const environment = {
   RecDetaURL:   'RecDeta/',
   rutasURL:     'rutas/',
   SugeridoURL:  'Sugerido/',
+  tipoCambio:   616,
   UbicacionURL: 'Ubicacion/',
   VisitaURL:    'Visita/',
   
