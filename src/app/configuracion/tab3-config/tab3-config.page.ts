@@ -125,6 +125,8 @@ export class Tab3ConfigPage implements OnInit{
       this.isaPedidos.borrarPedidos( true );    // Se borra por completo la tabla pedidos
       this.isaCobros.borrarRecibos( true );
       this.isaCardex.borrarCardex();
+      this.isa.borrarRutero();
+      this.isa.borrarBitacora();
       this.regresar();
     } else {
       this.isa.presentAlertW(this.texto, 'Faltan datos claves para sincronizar la información.');

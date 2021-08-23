@@ -40,7 +40,7 @@ export const environment = {
   adminClave: '@dmin2021*',
   version:    '1.3.0',
   aplicarNC:  false,
-  prdMode:    false,
+  prdMode:    true,
 };
 
 /*

@@ -700,6 +700,13 @@ export class IsaService {
     return this.http.post( URL, JSON.stringify(visitas), options );
   }
 
+  borrarRutero(){
+    if (localStorage.getItem('rutero')){
+      localStorage.removeItem('rutero');
+      this.rutero = [];
+    }
+  }
+
   actualizarVisitas(){
     let visitas: VisitaBD[] = [];
     let visita: VisitaBD;
