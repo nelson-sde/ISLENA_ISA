@@ -79,6 +79,8 @@ export class IsaCobrosService {
       } else {
         recibosLS[i] = recibo;
       }
+    } else {
+      recibosLS.push( recibo );
     }
     localStorage.setItem('recibos', JSON.stringify(recibosLS));
   }

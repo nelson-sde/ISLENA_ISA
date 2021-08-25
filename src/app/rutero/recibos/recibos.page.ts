@@ -273,7 +273,7 @@ export class RecibosPage {
   procesaRecibo(){
     let cxc: Pen_Cobro[] = [];
     let j: number;
-
+debugger
     if ( this.recibo.montoLocal > 0 && this.hayFactura ){         // valida si se está abonando almenos una factura
       if (this.cantNC == this.asignadasNC ){                     // Valida si no quedó una NC sin asignar a una factura
         cxc = JSON.parse(localStorage.getItem('cxc'));
