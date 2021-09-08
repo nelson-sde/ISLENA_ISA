@@ -353,7 +353,7 @@ export class IsaCobrosService {
     return `${day}-${month}-${year}`;
   }*/
 
-  private colones (amount, decimalCount = 2, decimal = ".", thousands = ","){
+  colones (amount, decimalCount = 2, decimal = ".", thousands = ","){
     decimalCount = Math.abs(decimalCount);
     decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
     const negativeSign = amount < 0 ? "-" : "";

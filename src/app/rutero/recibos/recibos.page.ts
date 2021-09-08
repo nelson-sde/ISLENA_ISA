@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertController, NavController, PopoverController } from '@ionic/angular';
+import { AlertController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { Bancos } from 'src/app/models/bancos';
 import { Cheque } from 'src/app/models/cheques';
 import { Det_Recibo, Pen_Cobro, Recibo } from 'src/app/models/cobro';
@@ -7,6 +7,11 @@ import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 import { IsaService } from 'src/app/services/isa.service';
 import { environment } from 'src/environments/environment';
 import { FacturasPage } from '../facturas/facturas.page';
+import { Plugins, FilesystemDirectory } from "@capacitor/core";
+const { Filesystem } = Plugins;
+import { PdfMakeWrapper, Txt, Table, Img  } from 'pdfmake-wrapper';
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { FileOpener } from '@ionic-native/file-opener/ngx';
 
 @Component({
   selector: 'app-recibos',
@@ -50,9 +55,12 @@ export class RecibosPage {
                private isaCobros: IsaCobrosService,
                private navController: NavController,
                private popoverCtrl: PopoverController,
-               private alertCtrl: AlertController ) {
+               private alertCtrl: AlertController,
+               private fileOpener: FileOpener,
+               private plt: Platform ) {
     
     let det: Det_Recibo;
+    PdfMakeWrapper.setFonts(pdfFonts);
 
     this.tipoCambio = environment.tipoCambio;
     this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, new Date(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'L' );
@@ -260,20 +268,126 @@ export class RecibosPage {
           role: 'cancel',
           cssClass: 'secondary',
         }, {
-          text: 'Si',
+          text: 'Email',
           handler: () => {
             this.procesaRecibo();
           }
-        }
+        },
+        {
+          text: 'PDF & Email',
+          handler: () => {
+            this.procesaRecibo();
+            this.procesaPDF();
+          }
+        },
       ]
     });
     await alert.present();
   }
 
+  async procesaPDF(){
+    const pdf = new PdfMakeWrapper();
+    let day = new Date(this.recibo.fecha).getDate();
+    let month = new Date(this.recibo.fecha).getMonth()+1;
+    let year = new Date(this.recibo.fecha).getFullYear();
+    let texto: string = '';
+    let saldoAnterior: number = 0;
+    let saldoActual: number = 0;
+    let efectivo: string = '  ';
+    let hayCheque: string = '  ';
+
+    pdf.info({
+      title: this.recibo.numeroRecibo,
+      author: this.isa.varConfig.numRuta,
+      subject: 'Recibo de Dinero',
+    });
+    
+    pdf.add(
+      pdf.ln(2)
+    );
+    pdf.add(new Txt(`Fecha: ${day}-${month}-${year}`).alignment('right').bold().end);
+    pdf.add(new Table([
+      [ await new Img('/assets/img/islena.png').build(), 
+        new Txt('Distribuidora Isleña de Alimentos S.A.').alignment('center').end, 
+        new Txt('Recibo de Dinero').alignment('center').end
+      ],
+      [ this.isa.varConfig.numRuta, 
+        new Txt('Cédula Jurídica 3-101-109180').alignment('center').end, 
+        new Txt(this.recibo.numeroRecibo).alignment('center').end
+      ],
+    ]).widths([ '*', '*', '*' ]).end);
+    pdf.add(pdf.ln(1));
+    pdf.add(new Txt(`RECIBIMOS DE: (${this.isa.clienteAct.id}) ${this.isa.clienteAct.nombre}`).bold().end);
+    pdf.add(pdf.ln(1));
+    pdf.add(new Txt(`LA SUMA DE: ${this.isaCobros.colones(this.recibo.montoLocal)} colones.`).end);
+    pdf.add(pdf.ln(1));
+
+    this.recibo.detalle.forEach( d => {
+      texto = texto.concat(`, ${d.numeroDocumen}`);
+      saldoAnterior += d.montoLocal;
+      saldoActual += d.saldoLocal; 
+    });
+    saldoAnterior = saldoActual + this.recibo.montoLocal;
+    pdf.add(new Txt(`POR CONCEPTO DE: Abono a Factura${texto}. ${this.recibo.observaciones}`).end);
+    pdf.add(pdf.ln(1));
+
+    if (this.recibo.montoEfectivoL > 0){
+      efectivo = 'X';
+    }
+    if (this.recibo.montoChequeL > 0){
+      hayCheque = 'X';
+    }
+    pdf.add(new Txt(`[${efectivo}] Efectivo   [${hayCheque}] Cheque No. ${this.cheque.numeroCheque}, Banco: ${this.cheque.codigoBanco}`).end);
+    pdf.add(pdf.ln(1));
+
+    pdf.add(new Table([
+      [ 'Saldo Anterior', 
+        new Txt(`${this.isaCobros.colones(saldoAnterior)}`).alignment('right').end
+      ],
+      [ 'Este abono', 
+        new Txt(`${this.isaCobros.colones(this.recibo.montoLocal)}`).alignment('right').end
+      ],
+      [ 'Saldo actual', 
+        new Txt(`${this.isaCobros.colones(saldoActual)}`).alignment('right').end
+      ],
+    ]).end);
+    pdf.add(pdf.ln(1));
+    pdf.add(new Txt('Nota: La validez de este recibo queda sujeta a que el banco honre su cheque.').end);
+    pdf.add(pdf.ln(1));
+    pdf.add(new Txt('Atentamente.').end);
+    pdf.add(pdf.ln(1));
+    pdf.add(new Txt('Departamento de Crédito y Cobro.').end);
+    pdf.add(new Txt('Distribuidora Isleña de Alimentos S.A.').end);
+    pdf.add(new Txt('Barreal de Heredia, de la Embotelladora Pepsi 100m Este, 500m Norte.').end);
+    pdf.add(new Txt('Tel: (506)2293-0609 - Fax: (506)2293-3231. Apdo: 463-1200 Pavas.').end);
+    pdf.add(new Txt('www.distribuidoraislena.com').end);
+
+
+    if (this.plt.is('capacitor')){
+      pdf.create().getBase64( async (data) => {
+        try {
+          let path = `pdf/${this.recibo.numeroRecibo}.pdf`;
+          const result = await Filesystem.writeFile({
+            path,
+            data,
+            directory: FilesystemDirectory.Documents,
+            recursive: true
+          });
+          this.fileOpener.open(`${result.uri}`, 'application/pdf');
+              
+        } catch (e) {
+          console.log('Error Creando el archivo', JSON.stringify(e));
+        }
+      });
+    } else {
+      pdf.create().download(this.recibo.numeroRecibo);
+    }
+  }
+
   procesaRecibo(){
     let cxc: Pen_Cobro[] = [];
     let j: number;
-debugger
+
     if ( this.recibo.montoLocal > 0 && this.hayFactura ){         // valida si se está abonando almenos una factura
       if (this.cantNC == this.asignadasNC ){                     // Valida si no quedó una NC sin asignar a una factura
         cxc = JSON.parse(localStorage.getItem('cxc'));
