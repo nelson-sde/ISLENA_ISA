@@ -29,6 +29,9 @@ export class ResumenRecPage {
         this.isa.transmitiendo.push(this.recibo.numeroRecibo);
         console.log('Retransmitiendo recibo');
         this.isaCobros.retransmitirRecibo( this.recibo );
+      } else if ( this.recibo.tipoDoc === 'T' ) {
+        console.log('Retransmitiendo Transferencia');
+        this.isaCobros.reciboSimple( this.recibo, false );
       } else {
         const idRecibo = this.recibo.numeroRecibo.slice( 0, 4 ) + 'R' + this.recibo.numeroRecibo.slice(5);
         console.log('Retransmitiendo Recibo Anulado: ', idRecibo);

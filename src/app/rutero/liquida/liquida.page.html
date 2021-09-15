@@ -33,6 +33,10 @@
           <ion-col size="4">Cheques Dol:</ion-col>
           <ion-col size="6">{{ montoChequeD | colones  : 2 : "." : "," : "$"}}</ion-col>
         </ion-row>
+        <ion-row>
+          <ion-col size="4">Transferencias:</ion-col>
+          <ion-col size="6">{{ montoTransfer | colones }}</ion-col>
+        </ion-row>
       </ion-grid>
     </ion-item>
 
@@ -76,6 +80,9 @@
             </div>
             <div *ngIf="(item.tipoDoc === 'A')">
               <ion-icon slot="start" name="skull-outline" color="danger"></ion-icon>
+            </div>
+            <div *ngIf="(item.tipoDoc === 'T')">
+              <ion-icon slot="start" name="business-outline" color="primary"></ion-icon>
             </div>
           </ion-col>
           <ion-col size="12">{{item.codCliente}} - {{item.codCliente | cliente}}</ion-col>

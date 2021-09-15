@@ -256,16 +256,54 @@ export class IsaCobrosService {
     }
   }
 
-  reciboSimple( recibo: Recibo ){
+  reciboSimple( recibo: Recibo, nuevo: boolean ){     // nuevo = true: se inserta el recibo en el Local Storage
     let email: Email;
     let cheque: Cheque = new Cheque('','','','','',0);
-    const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
+    let reciboBD: RecAnulado = {
+      coD_CIA:       'ISLENA',
+      nuM_REC:       recibo.numeroRecibo,
+      coD_TIP_DC:    recibo.tipoDoc,
+      ruta:          recibo.numeroRuta,
+      coD_CLT:       recibo.codCliente,
+      feC_PRO:       recibo.fecha,
+      moN_DOC_LOC:   recibo.montoLocal,
+      moN_DOC_DOL:   recibo.montoDolar,
+      moN_EFE_LOCAL: recibo.montoEfectivoL,
+      moN_EFE_DOLAR: recibo.montoEfectivoD,
+      moN_CHE_DOLAR: recibo.montoChequeD,
+      moN_CHE_LOCAL: recibo.montoChequeD,
+      doC_LIQ:       'N',
+      feC_LIQ:       null,
+      ejecutivA_CXC: null,
+      aplicacion:    'ISA',
+      recordDate:    new Date(),
+      createdBy:     'ISA',
+      updatedBy:     'ISA',
+      createDate:    new Date(),
+      inD_MON:       recibo.moneda
+    }
 
-    console.log('Creando un recibo de Transferencia');
+    const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
     email = new Email( cliente.email, `NOTIFICACION POR COBRO DE DINERO RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque, cliente.nombre, false) );
-    this.isa.enviarEmail( email );
-    email.toEmail = this.isa.varConfig.emailCxC;
-    this.isa.enviarEmail( email );
+    if (nuevo) {
+      this.guardarRecibo( recibo );                              // Se guarda el recibo en el Local Stotage
+    }
+    this.postTransfer( reciboBD ).subscribe(
+      resp => {
+        console.log('Recibo de Transferencia Insertado', resp);
+        this.isa.enviarEmail( email );
+        email.toEmail = this.isa.varConfig.emailCxC;
+        this.isa.enviarEmail( email );
+        this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
+        this.actualizaEstadoRecibo(recibo.numeroRecibo, true);
+        this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
+      }, error => {
+        console.log('Error en Recibo ', error);
+        this.isa.addBitacora( false, 'TR', `Recibo FALLÓ... ${error.message}.`);
+        console.log('debemos borrar el enca del recibo...');
+        this.isa.presentaToast( 'Error de Envío...!!!' );
+      }
+    );
   }
 
   private actualizaEstadoRecibo( numRecibo: string, estado: boolean ){
@@ -286,17 +324,22 @@ export class IsaCobrosService {
     let texto: string = '';
     let efectivo: string = '  ';
     let hayCheque: string = '  ';
+    let etiqueta: string = 'Recibo de Dinero';
     let day = new Date(recibo.fecha).getDate();
     let month = new Date(recibo.fecha).getMonth()+1;
     let year = new Date(recibo.fecha).getFullYear();
     let saldoAnterior: number = 0;
     let saldoActual: number = 0;
 
-    body.push(`<TABLE BORDER  CELLPADDING=5 CELLSPACING=0>`);
-    body.push(`<Tr><Th ROWSPAN=2><img src="https://di.cr/image/catalog/logotipo_front_home1.png"  width="227" height="70"></Th><Th ROWSPAN=2>Distribuidora Isleña de Alimentos S.A.<Br>Cédula Juridica 3-101-109180</Th><Th>Recibo de Dinero</Th></Tr>`);
-    if ( numRecibo ){
-      body.push(`<Tr><Td><font color="red">${recibo.numeroRecibo}</font></Td></Tr>`);
+    if (recibo.tipoDoc === 'T'){
+      etiqueta = 'Transferencia';
     }
+
+    body.push(`<TABLE BORDER  CELLPADDING=5 CELLSPACING=0>`);
+    body.push(`<Tr><Th ROWSPAN=2><img src="https://di.cr/image/catalog/logotipo_front_home1.png"  width="227" height="70"></Th><Th ROWSPAN=2>Distribuidora Isleña de Alimentos S.A.<Br>Cédula Juridica 3-101-109180</Th><Th>${etiqueta}</Th></Tr>`);
+    
+    body.push(`<Tr><Td><font color="red">${recibo.numeroRecibo}</font></Td></Tr>`);
+    
     if ( nulo ){ 
       body.push(`<Tr><Td ALIGN=center COLSPAN=2><font color="red">**** NULO ****</font></Td><Td ALIGN=right>Fecha: ${day} - ${month} - ${year}</Td></Tr>`);
     } else {
@@ -429,6 +472,17 @@ export class IsaCobrosService {
       }
     };
     return this.http.post( URL, JSON.stringify(detalle), options );
+  }
+
+  private postTransfer( recibo: RecAnulado ){
+    const URL = this.isa.getURL( environment.LiquidURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(recibo), options );
   }
 
   private postCheque( cheque: ChequeBD ){

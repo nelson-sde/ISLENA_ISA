@@ -17,6 +17,7 @@ export class LiquidaPage implements OnInit {
   montoEfectivoD: number = 0;
   montoChequeL: number = 0;
   montoChequeD: number = 0;
+  montoTransfer: number = 0;
   ejecutiva: Ejecutivas = {
     empleado:         '',
     usuario:          '',
@@ -38,6 +39,7 @@ export class LiquidaPage implements OnInit {
         if ( d.moneda === 'L' ){
           this.montoEfectivoL += d.montoEfectivoL;
           this.montoChequeL += d.montoChequeL;
+          this.montoTransfer += d.montoDepositoL;
         } else {
           this.montoEfectivoD += d.montoEfectivoD;
           this.montoChequeD += d.montoChequeD;

@@ -79,7 +79,12 @@
     </ion-item>
     <ion-item color="light" *ngIf="edicion">
       <ion-label>
-        <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.deposito">Deposito:</ion-input>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.deposito">Transferencia:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.numTR">Tranferencia#:</ion-input>
       </ion-label>
     </ion-item>
     <ion-item color="light" *ngIf="edicion">

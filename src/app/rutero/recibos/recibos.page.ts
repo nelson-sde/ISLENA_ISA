@@ -69,11 +69,11 @@ export class RecibosPage {
       this.docsPagar.forEach( e => {
         if (e.tipoDocumen == '1'){
           this.hayFactura = true;
-          this.recibo.montoLocal = this.recibo.montoLocal + e.saldoLocal;
+          this.recibo.montoLocal += e.saldoLocal;
           this.recibo.montoDolar = this.recibo.montoLocal / this.tipoCambio;
           det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, true, e.fechaDoc, 0, 0, e.montoLocal / this.tipoCambio, e.montoLocal, e.saldoLocal, e.saldoLocal / this.tipoCambio );
           this.recibo.detalle.push(det);
-          this.saldoFactura = e.saldoLocal;
+          this.saldoFactura += e.saldoLocal;
         } else {
           this.hayNC = true;
           this.cantNC++;
@@ -103,7 +103,7 @@ export class RecibosPage {
       this.reciboTemp.abono = this.recibo.montoDolar;
       this.reciboTemp.efectivo = this.recibo.montoDolar;
       this.recibo.moneda = 'D';
-      this.saldoFactura = this.recibo.detalle[0].abonoDolar;
+      //this.saldoFactura = this.recibo.detalle[0].abonoDolar;
     } else {
       this.etiquetaMoneda = 'Colones';
       this.moneda = "¢";
@@ -111,17 +111,13 @@ export class RecibosPage {
       this.reciboTemp.abono = this.recibo.montoLocal;
       this.reciboTemp.efectivo = this.recibo.montoLocal;
       this.recibo.moneda = 'L';
-      this.saldoFactura = this.recibo.detalle[0].abonoDolar;
+      //this.saldoFactura = this.recibo.detalle[0].abonoDolar;
     }
   }
 
-  modificarRecibo(){
-    const montoAntLocal = this.recibo.detalle[0].abonoLocal;
-    const montoAntDolar = this.recibo.detalle[0].abonoDolar;
-
+  modificarRecibo(){ //debugger
     if ( this.cantNC == this.asignadasNC ){
       if ( this.edicion ){                    // Se estaba modificando los valores del recibo
-        console.log(this.recibo);            // Valida la información del efectivo
         if ( this.reciboTemp.efectivo > 0 ) {
           if ( this.reciboTemp.efectivo <= this.reciboTemp.monto ){
             if ( this.dolares ){
@@ -204,6 +200,7 @@ export class RecibosPage {
         }
         if ( this.reciboTemp.tarjeta > 0 ) {    // Valida los montos de las tarjetas
           if ( this.reciboTemp.tarjeta <= this.reciboTemp.monto ){
+            this.recibo.tipoDoc = 'T';
             if ( this.dolares ){
               this.recibo.montoTarjetaD = this.reciboTemp.tarjeta;
               this.recibo.montoTarjetaL = this.reciboTemp.tarjeta * this.tipoCambio;
@@ -219,16 +216,22 @@ export class RecibosPage {
           this.recibo.montoTarjetaD = 0;
           this.recibo.montoTarjetaL = 0;
         }
-        if ( this.recibo.montoDepositoL > 0 ) {
+        if ( this.reciboTemp.deposito > 0 ) {
           if ( this.reciboTemp.deposito <= this.reciboTemp.monto ){
-            if ( this.dolares ){
-              this.recibo.montoDepositoD = this.reciboTemp.deposito;
-              this.recibo.montoDepositoL = this.reciboTemp.deposito * this.tipoCambio;
+            this.recibo.tipoDoc = 'T';
+            if ( this.recibo.numTR !== null ) {
+              this.recibo.numeroRecibo = 'RU06T' + this.recibo.numTR;
+              if ( this.dolares ){
+                this.recibo.montoDepositoD = this.reciboTemp.deposito;
+                this.recibo.montoDepositoL = this.reciboTemp.deposito * this.tipoCambio;
+              } else {
+                this.recibo.montoDepositoL = this.reciboTemp.deposito;
+                this.recibo.montoDepositoD = this.recibo.montoDepositoL / this.tipoCambio;
+              }
+              this.edicion = false;
             } else {
-              this.recibo.montoDepositoL = this.reciboTemp.deposito;
-              this.recibo.montoDepositoD = this.recibo.montoDepositoL / this.tipoCambio;
+              this.isa.presentAlertW('Depósito', 'El número de la Transferencia no puede ser nulo...!!!');
             }
-            this.edicion = false;
           } else {
             this.isa.presentAlertW('Depósito', 'El monto del Deposito no puede ser mayor al monto del Recibo');
           }
@@ -250,6 +253,7 @@ export class RecibosPage {
           this.isa.presentAlertW('Recibo', 'El monto de los componentes del Recibo no pueden ser mayores al monto del recibo');
           this.edicion = true;
         }
+        console.log(this.recibo);            // Valida la información del efectivo
       } else {
         this.edicion = true;
       }
@@ -295,6 +299,13 @@ export class RecibosPage {
     let saldoActual: number = 0;
     let efectivo: string = '  ';
     let hayCheque: string = '  ';
+    let etiqueta: string = 'Recibo de Dinero';
+    let numRecibo: string = this.recibo.numeroRecibo;
+
+    if ( this.recibo.tipoDoc === 'T' ){
+      etiqueta = 'Transferencia Dinero';
+      numRecibo = this.recibo.numTR;
+    }
 
     pdf.info({
       title: this.recibo.numeroRecibo,
@@ -309,11 +320,11 @@ export class RecibosPage {
     pdf.add(new Table([
       [ await new Img('/assets/img/islena.png').build(), 
         new Txt('Distribuidora Isleña de Alimentos S.A.').alignment('center').end, 
-        new Txt('Recibo de Dinero').alignment('center').end
+        new Txt(etiqueta).alignment('center').end
       ],
       [ this.isa.varConfig.numRuta, 
         new Txt('Cédula Jurídica 3-101-109180').alignment('center').end, 
-        new Txt(this.recibo.numeroRecibo).alignment('center').end
+        new Txt(numRecibo).alignment('center').end
       ],
     ]).widths([ '*', '*', '*' ]).end);
     pdf.add(pdf.ln(1));
@@ -402,7 +413,7 @@ export class RecibosPage {
           this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
           this.isa.guardarVarConfig();
         } else {
-          this.isaCobros.reciboSimple( this.recibo );
+          this.isaCobros.reciboSimple( this.recibo, true );
         }
         this.navController.back();
         this.navController.back();
