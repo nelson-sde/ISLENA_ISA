@@ -48,6 +48,14 @@
           <ion-col size="4">Cheque:</ion-col>
           <ion-col size="6">{{ reciboTemp.cheque | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
+        <ion-row>
+          <ion-col size="4">NC:</ion-col>
+          <ion-col size="6">{{ reciboTemp.monto_NC | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Otros Mov:</ion-col>
+          <ion-col size="6">{{ reciboTemp.otrosMov | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
       </ion-grid>
       <ion-button slot="end" (click)="modificarRecibo()" expand="block" shape="round">
         Editar
@@ -85,6 +93,16 @@
     <ion-item color="light" *ngIf="edicion">
       <ion-label>
         <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.numTR">Tranferencia#:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.monto_NC">Notas Crédito:</ion-input>
+      </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion">
+      <ion-label>
+        <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.otrosMov">Otros Cargos:</ion-input>
       </ion-label>
     </ion-item>
     <ion-item color="light" *ngIf="edicion">
@@ -132,7 +150,7 @@
             <div class="ion-text-center">Factura</div>
           </ion-col>
           <ion-col size="5">
-            <div class="ion-text-center">Abono</div>
+            <div class="ion-text-center">Montos</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -147,6 +165,17 @@
           </ion-col>
           <ion-col size="7">
             <div>{{item.numeroDocumen}}</div>
+          </ion-col>
+          <ion-col size="4">
+            <div class="ion-text-end">{{item.montoLocal | colones}}</div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="1">
+            <div></div>
+          </ion-col>
+          <ion-col size="7">
+            <div class="ion-text-right">Abono:</div>
           </ion-col>
           <ion-col size="4">
             <div class="ion-text-end">{{item.abonoLocal | colones}}</div>

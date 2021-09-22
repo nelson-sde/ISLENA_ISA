@@ -107,6 +107,8 @@ export class Recibo {
     anulado: boolean;
     tipoDoc: string;
     numTR: string;           // Número de la transferencia
+    otrosMov: number;
+    monto_NC: number;
     detalle: Det_Recibo[];
 
     constructor ( ruta: string, cliente: string, recibo: string, fecha: Date, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
@@ -132,6 +134,8 @@ export class Recibo {
         this.anulado = false;
         this.tipoDoc = 'R';
         this.numTR = null;
+        this.otrosMov = 0;
+        this.monto_NC = 0;
         this.detalle = [];
     }
 }
@@ -266,6 +270,15 @@ export interface RecAnulado {    // Interface de ISA_Liquid
     updatedBy:     string;
     createDate:    Date;
     inD_MON:       string;
+}
+
+export interface Otros_Mov {
+    ruta: string,
+    cod_Clt: string,
+    num_Rec: string,
+    monto: number,
+    monto_NC: number,
+    descripcion: string
 }
 
 

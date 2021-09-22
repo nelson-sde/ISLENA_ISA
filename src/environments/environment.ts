@@ -26,6 +26,7 @@ export const environment = {
   LiquidURL:    'Liquid/',
   maxchar:      107,
   maxCharCodigoProd: 6,
+  OtrosMovURL:  'Otros_Mov/',
   PedEncaURL:   'FAC_enc_ped/',
   PedDetaURL:   'FAC_det_ped/',
   productosURL:   'productos/',

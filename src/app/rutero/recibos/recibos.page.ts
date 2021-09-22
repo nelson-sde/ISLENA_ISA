@@ -48,7 +48,9 @@ export class RecibosPage {
     efectivo: 0,
     tarjeta: 0,
     deposito: 0,
-    cheque: 0
+    cheque: 0,
+    otrosMov: 0,
+    monto_NC: 0
   }
 
   constructor( private isa: IsaService,
@@ -118,6 +120,7 @@ export class RecibosPage {
   modificarRecibo(){ //debugger
     if ( this.cantNC == this.asignadasNC ){
       if ( this.edicion ){                    // Se estaba modificando los valores del recibo
+        this.reiniciaSaldos();
         if ( this.reciboTemp.efectivo > 0 ) {
           if ( this.reciboTemp.efectivo <= this.reciboTemp.monto ){
             if ( this.dolares ){
@@ -126,22 +129,14 @@ export class RecibosPage {
               this.recibo.montoLocal = this.recibo.montoEfectivoL;
               this.recibo.montoDolar = this.recibo.montoEfectivoD;
               this.reciboTemp.monto = this.recibo.montoDolar;
-              this.recibo.detalle[0].abonoLocal = this.recibo.montoEfectivoL;
-              this.recibo.detalle[0].abonoDolar = this.recibo.montoEfectivoD;
-              this.recibo.detalle[0].saldoLocal = this.recibo.detalle[0].montoLocal - this.recibo.detalle[0].abonoLocal;
-              this.recibo.detalle[0].saldoDolar = this.recibo.detalle[0].montoDolar - this.recibo.detalle[0].abonoDolar;
-              this.saldo = this.recibo.detalle[0].saldoDolar;
+              this.modificarDetalle( this.recibo.montoEfectivoL, this.recibo.montoEfectivoD );
             } else {
               this.recibo.montoEfectivoL = this.reciboTemp.efectivo;
               this.recibo.montoEfectivoD = this.recibo.montoEfectivoL / this.tipoCambio;
               this.recibo.montoLocal = this.recibo.montoEfectivoL;
               this.recibo.montoDolar = this.recibo.montoEfectivoD;
               this.reciboTemp.monto = this.recibo.montoLocal;
-              this.recibo.detalle[0].abonoLocal = this.recibo.montoEfectivoL;
-              this.recibo.detalle[0].abonoDolar = this.recibo.montoEfectivoD;
-              this.recibo.detalle[0].saldoLocal = this.recibo.detalle[0].montoLocal - this.recibo.detalle[0].abonoLocal;
-              this.recibo.detalle[0].saldoDolar = this.recibo.detalle[0].montoDolar - this.recibo.detalle[0].abonoDolar;
-              this.saldo = this.recibo.detalle[0].saldoLocal;
+              this.modificarDetalle( this.recibo.montoEfectivoL, this.recibo.montoEfectivoD );
             }
             this.edicion = false;
           } else {
@@ -164,22 +159,14 @@ export class RecibosPage {
                     this.recibo.montoChequeL = this.cheque.monto * this.tipoCambio;
                     this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.efectivo;
                     this.recibo.montoDolar = this.reciboTemp.abono;
-                    this.recibo.detalle[0].abonoLocal = this.recibo.montoEfectivoL + this.recibo.montoChequeL;
-                    this.recibo.detalle[0].abonoDolar = this.recibo.montoEfectivoD + this.recibo.montoChequeD;
-                    this.recibo.detalle[0].saldoLocal = this.recibo.detalle[0].montoLocal - this.recibo.detalle[0].abonoLocal;
-                    this.recibo.detalle[0].saldoDolar = this.recibo.detalle[0].montoDolar - this.recibo.detalle[0].abonoDolar;
-                    this.saldo = this.recibo.detalle[0].saldoDolar;
+                    this.modificarDetalle( this.recibo.montoChequeL, this.recibo.montoChequeD);
                     this.reciboTemp.monto = this.recibo.montoDolar;
                  } else {
                     this.recibo.montoChequeL = this.cheque.monto;
                     this.recibo.montoChequeD = this.cheque.monto / this.tipoCambio;
                     this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.efectivo;
                     this.recibo.montoLocal = this.reciboTemp.abono;
-                    this.recibo.detalle[0].abonoLocal = this.recibo.montoEfectivoL + this.recibo.montoChequeL;
-                    this.recibo.detalle[0].abonoDolar = this.recibo.montoEfectivoD + this.recibo.montoChequeD;
-                    this.recibo.detalle[0].saldoLocal = this.recibo.detalle[0].montoLocal - this.recibo.detalle[0].abonoLocal;
-                    this.recibo.detalle[0].saldoDolar = this.recibo.detalle[0].montoDolar - this.recibo.detalle[0].abonoDolar;
-                    this.saldo = this.recibo.detalle[0].saldoLocal;
+                    this.modificarDetalle( this.recibo.montoChequeL, this.recibo.montoChequeD);
                     this.reciboTemp.monto = this.recibo.montoLocal;
                  }
                  this.reciboCheque = true;
@@ -216,7 +203,7 @@ export class RecibosPage {
           this.recibo.montoTarjetaD = 0;
           this.recibo.montoTarjetaL = 0;
         }
-        if ( this.reciboTemp.deposito > 0 ) {
+        if ( this.reciboTemp.deposito > 0 ) {          // Valida si el pago es con un deposito bancario
           if ( this.reciboTemp.deposito <= this.reciboTemp.monto ){
             this.recibo.tipoDoc = 'T';
             if ( this.recibo.numTR !== null ) {
@@ -224,9 +211,11 @@ export class RecibosPage {
               if ( this.dolares ){
                 this.recibo.montoDepositoD = this.reciboTemp.deposito;
                 this.recibo.montoDepositoL = this.reciboTemp.deposito * this.tipoCambio;
+                this.modificarDetalle( this.recibo.montoDepositoL, this.recibo.montoDepositoD );
               } else {
                 this.recibo.montoDepositoL = this.reciboTemp.deposito;
                 this.recibo.montoDepositoD = this.recibo.montoDepositoL / this.tipoCambio;
+                this.modificarDetalle( this.recibo.montoDepositoL, this.recibo.montoDepositoD );
               }
               this.edicion = false;
             } else {
@@ -239,7 +228,15 @@ export class RecibosPage {
           this.recibo.montoDepositoD = 0;
           this.recibo.montoDepositoL = 0;
         }
-        if (( this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta ) <= this.saldoFactura ){
+        if (this.reciboTemp.otrosMov > 0){     // Se registraron otros movimientos que restan el saldo
+          this.recibo.otrosMov = this.reciboTemp.otrosMov;
+          //this.saldo -= this.recibo.otrosMov;
+        }
+        if (this.reciboTemp.monto_NC > 0){     // Se registraron Notas de Crédito que restan el saldo
+          this.recibo.monto_NC = this.reciboTemp.monto_NC;
+          //this.saldo -= this.recibo.monto_NC;
+        }
+        if (( this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta + this.reciboTemp.otrosMov + this.reciboTemp.monto_NC) <= this.saldoFactura ){
           this.edicion = false;
           this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta;
           if ( this.dolares ){
@@ -262,31 +259,72 @@ export class RecibosPage {
     }
   }
 
-  async salvarRecibo(){
-    const alert = await this.alertCtrl.create({
-      cssClass: 'my-custom-class',
-      header: 'Salvar Recibo...!!!',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-        }, {
-          text: 'Email',
-          handler: () => {
-            this.procesaRecibo();
-          }
-        },
-        {
-          text: 'PDF & Email',
-          handler: () => {
-            this.procesaRecibo();
-            this.procesaPDF();
-          }
-        },
-      ]
+  modificarDetalle( montoL: number, montoD: number ){
+    let abonoL: number = montoL;
+    let abonoD: number = montoD;
+
+    this.recibo.detalle.forEach( d => {
+      if ( d.saldoLocal > 0 ){
+        if ( d.saldoLocal < abonoL ){
+          d.abonoLocal += d.saldoLocal;
+          d.abonoDolar += d.saldoDolar;
+          abonoL -= d.saldoLocal;
+          abonoD -= d.saldoDolar;
+          this.saldo -= d.saldoLocal;
+          d.saldoLocal = 0;
+          d.saldoDolar = 0;
+        } else {
+          d.abonoLocal += abonoL;
+          d.abonoDolar += abonoD;
+          d.saldoLocal = d.montoLocal - d.abonoLocal;
+          d.saldoDolar = d.montoDolar - d.abonoDolar;
+          this.saldo -= abonoL;
+          abonoL = 0;
+          abonoD = 0;
+        }
+      }
     });
-    await alert.present();
+  }
+
+  reiniciaSaldos(){
+    this.recibo.detalle.forEach( d => {
+      d.abonoDolar = 0;
+      d.abonoLocal = 0;
+      d.saldoLocal = d.montoLocal;
+      d.saldoDolar = d.montoDolar;
+      this.saldo += d.saldoLocal; 
+    });
+  }
+
+  async salvarRecibo(){
+    if (!this.edicion){ 
+      const alert = await this.alertCtrl.create({
+        cssClass: 'my-custom-class',
+        header: 'Salvar Recibo...!!!',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'secondary',
+          }, {
+            text: 'Email',
+            handler: () => {
+              this.procesaRecibo();
+            }
+          },
+          {
+            text: 'PDF & Email',
+            handler: () => {
+              this.procesaRecibo();
+              this.procesaPDF();
+            }
+          },
+        ]
+      });
+      await alert.present();
+    } else {
+      this.isa.presentAlertW('Salvar', 'No se puede salvar el recibo de dinero si está editando el recibo...');
+    }
   }
 
   async procesaPDF(){
@@ -338,7 +376,9 @@ export class RecibosPage {
       saldoAnterior += d.montoLocal;
       saldoActual += d.saldoLocal; 
     });
+    
     saldoAnterior = saldoActual + this.recibo.montoLocal;
+    const saldoFinal = saldoActual - this.recibo.otrosMov - this.recibo.monto_NC;
     pdf.add(new Txt(`POR CONCEPTO DE: Abono a Factura${texto}. ${this.recibo.observaciones}`).end);
     pdf.add(pdf.ln(1));
 
@@ -361,10 +401,24 @@ export class RecibosPage {
       [ 'Saldo actual', 
         new Txt(`${this.isaCobros.colones(saldoActual)}`).alignment('right').end
       ],
+      [ 'Notas Credito', 
+        new Txt(`- ${this.isaCobros.colones(this.recibo.monto_NC)}`).alignment('right').end
+      ],
+      [ 'Otros Creditos', 
+        new Txt(`- ${this.isaCobros.colones(this.recibo.otrosMov)}`).alignment('right').end
+      ],
+      [ 'Saldo', 
+        new Txt(`${this.isaCobros.colones(saldoFinal)}`).alignment('right').end
+      ],
     ]).end);
     pdf.add(pdf.ln(1));
-    pdf.add(new Txt('Nota: La validez de este recibo queda sujeta a que el banco honre su cheque.').end);
-    pdf.add(pdf.ln(1));
+    if ( this.recibo.tipoDoc === 'T') {
+      pdf.add(new Txt('Nota: La validez de esta transacción queda sujeta a qué se compruebe la confirmación de los fondos en nuestras cuentas bancarias.').end);
+      pdf.add(pdf.ln(1));
+    } else {
+      pdf.add(new Txt('Nota: La validez de este recibo queda sujeta a que el banco honre su cheque.').end);
+      pdf.add(pdf.ln(1));
+    }
     pdf.add(new Txt('Atentamente.').end);
     pdf.add(pdf.ln(1));
     pdf.add(new Txt('Departamento de Crédito y Cobro.').end);

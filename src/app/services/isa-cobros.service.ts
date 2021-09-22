@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Pen_Cobro, RecAnulado, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
+import { Otros_Mov, Pen_Cobro, RecAnulado, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
 import { IsaService } from './isa.service';
 import { environment } from 'src/environments/environment';
 import { Cheque, ChequeBD } from '../models/cheques';
@@ -183,6 +183,9 @@ export class IsaCobrosService {
           console.log('Success RecEnca...', resp);
           this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
           this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque, email );
+          if ( recibo.otrosMov > 0 ){
+            this.transmitirOtrosMov( recibo );
+          }
         }, error => {
           console.log('Error RecEnca ', error);
           this.isa.addBitacora( false, 'TR', `Recibo: ${recibo.numeroRecibo}, falla en Encabezado. ${error.message}`);
@@ -296,6 +299,9 @@ export class IsaCobrosService {
         this.isa.enviarEmail( email );
         this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
         this.actualizaEstadoRecibo(recibo.numeroRecibo, true);
+        if ( recibo.otrosMov > 0 ){
+          this.transmitirOtrosMov( recibo );
+        }
         this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
       }, error => {
         console.log('Error en Recibo ', error);
@@ -368,15 +374,24 @@ export class IsaCobrosService {
     if (recibo.montoChequeL > 0){
       hayCheque = 'X';
     }
+    const saldo = saldoActual - recibo.monto_NC - recibo.otrosMov;
+
     body.push(`[${efectivo}] Efectivo   [${hayCheque}] Cheque No. ${cheque.numeroCheque}, Banco: ${cheque.codigoBanco}<br>`);
     body.push(`<br>`);
     body.push(`<TABLE BORDER  CELLPADDING=5 CELLSPACING=0>`);
     body.push(`<Tr><Td>Saldo Anterior: </Td><Td ALIGN=right>${this.colones(saldoAnterior)}</Td></Tr>`);
     body.push(`<Tr><Td>Este abono: </Td><Td ALIGN=right>${this.colones(recibo.montoLocal)}</Td></Tr>`);
     body.push(`<Tr><Td>Saldo Actual: </Td><Td ALIGN=right>${this.colones(saldoActual)}</Td></Tr>`);
+    body.push(`<Tr><Td>Notas Crédito: - </Td><Td ALIGN=right>${this.colones(recibo.monto_NC)}</Td></Tr>`);
+    body.push(`<Tr><Td>Otros Cargos: - </Td><Td ALIGN=right>${this.colones(recibo.otrosMov)}</Td></Tr>`);
+    body.push(`<Tr><Td>Saldo: </Td><Td ALIGN=right>${this.colones(saldo)}</Td></Tr>`);
     body.push(`</TABLE>`);
     body.push(`<br>`);
-    body.push(`(*)La validez de este recibo queda sujeta a que el banco honre su cheque<br>`);
+    if ( recibo.tipoDoc === 'T'){
+      body.push(`Nota: La validez de esta transacción queda sujeta a qué se compruebe la confirmación de los fondos en nuestras cuentas bancarias.<br>`);
+    } else {
+      body.push(`Nota: La validez de este recibo queda sujeta a que el banco honre su cheque.<br>`);
+    }
     body.push(`<br>`);
     body.push(`Atentamente<br/>`);
     body.push(`Departamento de Crédito y Cobro.<br>`);
@@ -437,6 +452,26 @@ export class IsaCobrosService {
     );
   }
 
+  private transmitirOtrosMov( recibo: Recibo ){
+    let otrosMov: Otros_Mov = {
+      ruta: recibo.numeroRuta,
+      cod_Clt: recibo.codCliente,
+      num_Rec: recibo.numeroRecibo,
+      monto: recibo.otrosMov,
+      monto_NC: recibo.monto_NC,
+      descripcion: recibo.observaciones
+    }
+
+    this.postOtrosMov( otrosMov ).subscribe(
+      resp => {
+        console.log('Otros Movimientos Insertado');
+      }, error => {
+        this.isa.addBitacora( false, 'TR', `Recibo FALLÓ en Otros Movimientos... ${error.message}.`);
+        console.log('Error al insertar Otros Movimientos...!!!');
+      }
+    );
+  }
+
   borrarRecibos( completo: boolean ){    // Si completo = true, borra todos los recibos de la tabla Pedidos
                                         // de lo contrario solo borra los que envioExitoso = true){
     let recibosLS: Recibo[] = [];
@@ -483,6 +518,17 @@ export class IsaCobrosService {
       }
     };
     return this.http.post( URL, JSON.stringify(recibo), options );
+  }
+
+  private postOtrosMov( otrosMov: Otros_Mov ){
+    const URL = this.isa.getURL( environment.OtrosMovURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(otrosMov), options );
   }
 
   private postCheque( cheque: ChequeBD ){
@@ -543,6 +589,8 @@ export class IsaCobrosService {
         email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre, true, true) );
         this.isa.enviarEmail( email );
         email.toEmail = this.isa.varConfig.emailVendedor;
+        this.isa.enviarEmail( email );
+        email.toEmail = this.isa.varConfig.emailCxC;
         this.isa.enviarEmail( email );
         this.isa.presentaToast( 'Recibo Anulado con Exito...' );
       }, error => {
