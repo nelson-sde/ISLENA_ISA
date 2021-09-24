@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Otros_Mov, Pen_Cobro, RecAnulado, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
+import { Liquidaciones, Pen_Cobro, RecAnulado, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
 import { IsaService } from './isa.service';
 import { environment } from 'src/environments/environment';
 import { Cheque, ChequeBD } from '../models/cheques';
@@ -183,9 +183,7 @@ export class IsaCobrosService {
           console.log('Success RecEnca...', resp);
           this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
           this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque, email );
-          if ( recibo.otrosMov > 0 ){
-            this.transmitirOtrosMov( recibo );
-          }
+          this.transmitirISA_Liquid( recibo );       // inserta el recibo en ISA_Liquidaciones
         }, error => {
           console.log('Error RecEnca ', error);
           this.isa.addBitacora( false, 'TR', `Recibo: ${recibo.numeroRecibo}, falla en Encabezado. ${error.message}`);
@@ -278,12 +276,14 @@ export class IsaCobrosService {
       doC_LIQ:       'N',
       feC_LIQ:       null,
       ejecutivA_CXC: null,
-      aplicacion:    'ISA',
+      aplicacion:    recibo.observaciones,
       recordDate:    new Date(),
       createdBy:     'ISA',
       updatedBy:     'ISA',
       createDate:    new Date(),
-      inD_MON:       recibo.moneda
+      inD_MON:       recibo.moneda,
+      montO_OTR:     recibo.otrosMov,
+      montO_NC:      recibo.monto_NC
     }
 
     const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
@@ -299,9 +299,7 @@ export class IsaCobrosService {
         this.isa.enviarEmail( email );
         this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
         this.actualizaEstadoRecibo(recibo.numeroRecibo, true);
-        if ( recibo.otrosMov > 0 ){
-          this.transmitirOtrosMov( recibo );
-        }
+        //this.transmitirISA_Liquid( recibo );
         this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
       }, error => {
         console.log('Error en Recibo ', error);
@@ -452,22 +450,39 @@ export class IsaCobrosService {
     );
   }
 
-  private transmitirOtrosMov( recibo: Recibo ){
-    let otrosMov: Otros_Mov = {
-      ruta: recibo.numeroRuta,
-      cod_Clt: recibo.codCliente,
-      num_Rec: recibo.numeroRecibo,
-      monto: recibo.otrosMov,
-      monto_NC: recibo.monto_NC,
-      descripcion: recibo.observaciones
+  private transmitirISA_Liquid( recibo: Recibo ){
+    let liquid: Liquidaciones = {
+      coD_CIA:       'ISLENA',
+      nuM_REC:       recibo.numeroRecibo,
+      coD_TIP_DC:    recibo.tipoDoc,
+      ruta:          recibo.numeroRuta,
+      coD_CLT:       recibo.codCliente,
+      feC_PRO:       recibo.fecha,
+      moN_DOC_LOC:   recibo.montoLocal,
+      moN_DOC_DOL:   recibo.montoDolar,
+      moN_EFE_LOCAL: recibo.montoEfectivoL,
+      moN_EFE_DOLAR: recibo.montoEfectivoD,
+      moN_CHE_DOLAR: recibo.montoChequeD,
+      moN_CHE_LOCAL: recibo.montoChequeL,
+      doC_LIQ:       'N',
+      feC_LIQ:       null,
+      ejecutivA_CXC: null,
+      aplicacion:    recibo.observaciones,
+      recordDate:    new Date(),
+      createdBy:     'ISA',
+      updatedBy:     null,
+      createDate:    new Date(),
+      inD_MON:       recibo.moneda,
+      montO_OTR:     recibo.otrosMov,
+      montO_NC:      recibo.monto_NC
     }
 
-    this.postOtrosMov( otrosMov ).subscribe(
+    this.postISA_Liquid( liquid ).subscribe(
       resp => {
         console.log('Otros Movimientos Insertado');
       }, error => {
-        this.isa.addBitacora( false, 'TR', `Recibo FALLÓ en Otros Movimientos... ${error.message}.`);
-        console.log('Error al insertar Otros Movimientos...!!!');
+        this.isa.addBitacora( false, 'TR', `Recibo FALLÓ en ISA_Liquidación... ${error.message}.`);
+        console.log('Error al insertar Otros Movimientos...!!!', error);
       }
     );
   }
@@ -520,15 +535,16 @@ export class IsaCobrosService {
     return this.http.post( URL, JSON.stringify(recibo), options );
   }
 
-  private postOtrosMov( otrosMov: Otros_Mov ){
-    const URL = this.isa.getURL( environment.OtrosMovURL, '' );
+  private postISA_Liquid( liquid: Liquidaciones ){
+    const URL = this.isa.getURL( environment.LiquidURL, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
       }
     };
-    return this.http.post( URL, JSON.stringify(otrosMov), options );
+    console.log('ISA_Liquidacion:', JSON.stringify(liquid));
+    return this.http.post( URL, JSON.stringify(liquid), options );
   }
 
   private postCheque( cheque: ChequeBD ){
@@ -570,12 +586,14 @@ export class IsaCobrosService {
       doC_LIQ:       'N',
       feC_LIQ:       null,
       ejecutivA_CXC: null,
-      aplicacion:    'ISA',
+      aplicacion:    recibo.observaciones,
       recordDate:    new Date(),
       createdBy:     'ISA',
       updatedBy:     'ISA',
       createDate:    new Date(),
-      inD_MON:       reciboAnulado.moneda
+      inD_MON:       reciboAnulado.moneda,
+      montO_OTR:     recibo.otrosMov,
+      montO_NC:      recibo.monto_NC
     }
     let email: Email;
     let cheque: Cheque = new Cheque('', '', '', '', '', 0);

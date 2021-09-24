@@ -69,17 +69,18 @@ export class RecibosPage {
     this.docsPagar = this.isaCobros.cxc.filter( d => d.pago );
     if ( this.docsPagar.length > 0 ){
       this.docsPagar.forEach( e => {
-        if (e.tipoDocumen == '1'){
+        if (e.tipoDocumen == '1'){    // Es una factura
           this.hayFactura = true;
           this.recibo.montoLocal += e.saldoLocal;
           this.recibo.montoDolar = this.recibo.montoLocal / this.tipoCambio;
-          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, true, e.fechaDoc, 0, 0, e.montoLocal / this.tipoCambio, e.montoLocal, e.saldoLocal, e.saldoLocal / this.tipoCambio );
+          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, true, e.fechaDoc, 0, 0, e.montoLocal / this.tipoCambio, 
+            e.montoLocal, e.saldoLocal, e.saldoLocal / this.tipoCambio, e.saldoLocal, e.saldoDolar );
           this.recibo.detalle.push(det);
           this.saldoFactura += e.saldoLocal;
-        } else {
+        } else {              // es una devolución
           this.hayNC = true;
           this.cantNC++;
-          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, false, e.fechaDoc, 0, 0, e.montoLocal / this.tipoCambio, e.montoLocal, e.saldoLocal, e.saldoLocal / this.tipoCambio );
+          det = new Det_Recibo( e.tipoDocumen, e.numeroDocumen, false, e.fechaDoc, 0, 0, e.montoLocal / this.tipoCambio, e.montoLocal, e.saldoLocal, e.saldoLocal / this.tipoCambio, e.saldoLocal, e.saldoDolar );
           this.recibo.detalle.push(det);
         }
       });
@@ -207,7 +208,7 @@ export class RecibosPage {
           if ( this.reciboTemp.deposito <= this.reciboTemp.monto ){
             this.recibo.tipoDoc = 'T';
             if ( this.recibo.numTR !== null ) {
-              this.recibo.numeroRecibo = 'RU06T' + this.recibo.numTR;
+              this.recibo.numeroRecibo =  `${this.recibo.numeroRuta}T${this.recibo.numTR}`;
               if ( this.dolares ){
                 this.recibo.montoDepositoD = this.reciboTemp.deposito;
                 this.recibo.montoDepositoL = this.reciboTemp.deposito * this.tipoCambio;
@@ -230,11 +231,11 @@ export class RecibosPage {
         }
         if (this.reciboTemp.otrosMov > 0){     // Se registraron otros movimientos que restan el saldo
           this.recibo.otrosMov = this.reciboTemp.otrosMov;
-          //this.saldo -= this.recibo.otrosMov;
+          this.saldo -= this.recibo.otrosMov;
         }
         if (this.reciboTemp.monto_NC > 0){     // Se registraron Notas de Crédito que restan el saldo
           this.recibo.monto_NC = this.reciboTemp.monto_NC;
-          //this.saldo -= this.recibo.monto_NC;
+          this.saldo -= this.recibo.monto_NC;
         }
         if (( this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta + this.reciboTemp.otrosMov + this.reciboTemp.monto_NC) <= this.saldoFactura ){
           this.edicion = false;
@@ -276,8 +277,8 @@ export class RecibosPage {
         } else {
           d.abonoLocal += abonoL;
           d.abonoDolar += abonoD;
-          d.saldoLocal = d.montoLocal - d.abonoLocal;
-          d.saldoDolar = d.montoDolar - d.abonoDolar;
+          d.saldoLocal = d.saldoAntL - d.abonoLocal;
+          d.saldoDolar = d.saldoAntD - d.abonoDolar;
           this.saldo -= abonoL;
           abonoL = 0;
           abonoD = 0;
@@ -287,11 +288,12 @@ export class RecibosPage {
   }
 
   reiniciaSaldos(){
+    this.saldo = 0;
     this.recibo.detalle.forEach( d => {
       d.abonoDolar = 0;
       d.abonoLocal = 0;
-      d.saldoLocal = d.montoLocal;
-      d.saldoDolar = d.montoDolar;
+      d.saldoLocal = d.saldoAntL;
+      d.saldoDolar = d.saldoAntD;
       this.saldo += d.saldoLocal; 
     });
   }
