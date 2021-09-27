@@ -49,9 +49,6 @@ export class IsaCobrosService {
     APLICACION : '',
   }
 
-  detalleReciboBD: RecDetaBD[] = [];
-  detalleRec: RecDetaBD;
-
   constructor( private isa: IsaService,
                private http: HttpClient ) { }
 
@@ -117,9 +114,7 @@ export class IsaCobrosService {
   }
 
   transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
-
     let rowPointer: string = '';
-    this.detalleReciboBD = [];
     let email: Email;
     const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
 
@@ -146,32 +141,7 @@ export class IsaCobrosService {
       this.reciboBD.rowPointer = rowPointer;
       this.reciboBD.APLICACION = recibo.observaciones;
       this.reciboBD.inD_MON = recibo.moneda;
-
-      for (let i = 0; i < recibo.detalle.length; i++) {
-        rowPointer = this.isa.generate();
-        this.detalleRec = new RecDetaBD();
-        if ( recibo.detalle[i].tipoDocumen == '1' ){
-          this.detalleRec.coD_TIP_DC = '5';
-          this.detalleRec.nuM_DOC = recibo.numeroRecibo;
-          this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoLocal;
-          this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoDolar;
-        } else {
-          this.detalleRec.coD_TIP_DC = '7';
-          this.detalleRec.nuM_DOC = recibo.detalle[i].numeroDocumen;
-          this.detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoNCFL;
-          this.detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoNCFD;
-        }
-        this.detalleRec.coD_ZON = this.isa.varConfig.numRuta;
-        this.detalleRec.coD_CLT = recibo.codCliente.toString();
-        this.detalleRec.nuM_REC = recibo.numeroRecibo;
-        this.detalleRec.nuM_DOC_AF = recibo.detalle[i].numeroDocumenAf;
-        this.detalleRec.feC_DOC = recibo.detalle[i].fechaDocu;
-        this.detalleRec.moN_MOV_LOCAL = recibo.detalle[i].abonoLocal;
-        this.detalleRec.moN_MOV_DOL = recibo.detalle[i].abonoDolar;
-        
-        this.detalleRec.rowPointer = rowPointer;
-        this.detalleReciboBD.push(this.detalleRec);
-      } 
+ 
       if (nuevo) {
         this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
         if (hayCheque){
@@ -182,7 +152,7 @@ export class IsaCobrosService {
         resp => {
           console.log('Success RecEnca...', resp);
           this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
-          this.agregarDetalle( this.detalleReciboBD, cheque, hayCheque, email );
+          this.agregarDetalle( recibo, cheque, hayCheque, email );
           this.transmitirISA_Liquid( recibo );       // inserta el recibo en ISA_Liquidaciones
         }, error => {
           console.log('Error RecEnca ', error);
@@ -191,19 +161,49 @@ export class IsaCobrosService {
         }
       );
       console.log('Encabezado JSON',JSON.stringify(this.reciboBD));
-      console.log('Detalle JSON',JSON.stringify(this.detalleReciboBD));
     } else {
       this.isa.presentAlertW( 'Transmitir Recibo', 'Imposible transmitir recibo. Datos del cliente inconsistentes');
     }
   }
 
-  agregarDetalle( detalle: RecDetaBD[], cheque: Cheque, hayCheque: boolean, email: Email ) {
+  agregarDetalle( recibo: Recibo, cheque: Cheque, hayCheque: boolean, email: Email ) {
+    let detalleRec: RecDetaBD;
+    let detalleRecBD: RecDetaBD[] = [];
+    let rowPointer: string;
+
+    for (let i = 0; i < recibo.detalle.length; i++) {
+      rowPointer = this.isa.generate();
+      detalleRec = new RecDetaBD();
+      if ( recibo.detalle[i].tipoDocumen == '1' ){
+        detalleRec.coD_TIP_DC = '5';
+        detalleRec.nuM_DOC = recibo.numeroRecibo;
+        detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoLocal;
+        detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoDolar;
+      } else {
+        detalleRec.coD_TIP_DC = '7';
+        detalleRec.nuM_DOC = recibo.detalle[i].numeroDocumen;
+        detalleRec.moN_SAL_LOC = recibo.detalle[i].saldoNCFL;
+        detalleRec.moN_SAL_DOL = recibo.detalle[i].saldoNCFD;
+      }
+      detalleRec.coD_ZON = this.isa.varConfig.numRuta;
+      detalleRec.coD_CLT = recibo.codCliente.toString();
+      detalleRec.nuM_REC = recibo.numeroRecibo;
+      detalleRec.nuM_DOC_AF = recibo.detalle[i].numeroDocumenAf;
+      detalleRec.feC_DOC = recibo.detalle[i].fechaDocu;
+      detalleRec.moN_MOV_LOCAL = recibo.detalle[i].abonoLocal;
+      detalleRec.moN_MOV_DOL = recibo.detalle[i].abonoDolar;
+      
+      detalleRec.rowPointer = rowPointer;
+      detalleRecBD.push(detalleRec);
+    }
     console.log('Inicia detalle');
-    this.postReciboDetalle( detalle ).subscribe(
+    console.log('Detalle JSON',JSON.stringify(detalleRecBD));
+
+    this.postReciboDetalle( detalleRecBD, recibo.tipoDoc ).subscribe(
       resp2 => {
         console.log('Success Detalle...', resp2);
         this.isa.addBitacora( true, 'TR', `Recibo: transmitido Detalle con exito`);
-        this.actualizaEstadoRecibo(detalle[0].nuM_DOC, true);
+        this.actualizaEstadoRecibo(detalleRecBD[0].nuM_DOC, true);
         if ( hayCheque ){
           this.transmitirCheque( cheque );
         }
@@ -294,12 +294,8 @@ export class IsaCobrosService {
     this.postTransfer( reciboBD ).subscribe(
       resp => {
         console.log('Recibo de Transferencia Insertado', resp);
-        this.isa.enviarEmail( email );
-        email.toEmail = this.isa.varConfig.emailCxC;
-        this.isa.enviarEmail( email );
         this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
-        this.actualizaEstadoRecibo(recibo.numeroRecibo, true);
-        //this.transmitirISA_Liquid( recibo );
+        this.agregarDetalle( recibo, cheque, false, email );
         this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
       }, error => {
         console.log('Error en Recibo ', error);
@@ -513,8 +509,13 @@ export class IsaCobrosService {
     return this.http.post( URL, JSON.stringify(recEncaBD), options );
   }
 
-  private postReciboDetalle( detalle: RecDetaBD[] ){
-    const URL = this.isa.getURL( environment.RecDetaURL, '' );
+  private postReciboDetalle( detalle: RecDetaBD[], tipo: string ){
+    let URL: string;
+    if ( tipo === 'R' ){ 
+      URL = this.isa.getURL( environment.RecDetaURL, '' );
+    } else {
+      URL = this.isa.getURL( environment.ISA_Mov_DirURL, '' );
+    }
     const options = {
       headers: {
           'Content-Type': 'application/json',

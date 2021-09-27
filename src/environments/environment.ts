@@ -23,6 +23,7 @@ export const environment = {
   EmailURL:     'Email/',
   Existencias:  'Existencias/',
   ExoneracionesURL: 'Exoneraciones/',
+  ISA_Mov_DirURL:   'Mov_Dir/',
   LiquidURL:    'Liquid/',
   maxchar:      107,
   maxCharCodigoProd: 6,
@@ -40,7 +41,7 @@ export const environment = {
   adminClave: '@dmin2021*',
   version:    '1.3.3',
   aplicarNC:  false,
-  prdMode:    false,
+  prdMode:    true,
 };
 
 /*
