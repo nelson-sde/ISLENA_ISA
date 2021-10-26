@@ -107,9 +107,10 @@ export class Tab3ConfigPage implements OnInit{
 
   cargaConfig(){
     if ( this.isa.varConfig.numRuta.length > 0 &&
-         this.isa.varConfig.clave.length > 0 &&
          this.isa.varConfig.usuario.length > 0) {
+      this.isa.varConfig.ultimaLiquid = new Date();
       this.isa.guardarVarConfig();                              // Actualiza la informacion de entorno
+      this.isa.syncInfo();
       this.isa.clienteAct.id = '';
       this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
       this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos
@@ -155,6 +156,13 @@ export class Tab3ConfigPage implements OnInit{
             this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
             this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
             this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
+            this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+            this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
+            if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
+              this.isa.varConfig.usaRecibos = true;
+            } else {
+              this.isa.varConfig.usaRecibos = false;
+            }
           }
         }
       ]

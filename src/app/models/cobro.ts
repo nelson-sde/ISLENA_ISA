@@ -136,7 +136,7 @@ export class Recibo {
         this.envioExitoso = false;
         this.liquidado = false;
         this.anulado = false;
-        this.tipoDoc = 'R';
+        this.tipoDoc = null;
         this.numTR = null;
         this.otrosMov = 0;
         this.monto_NC = 0;

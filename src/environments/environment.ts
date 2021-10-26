@@ -29,19 +29,20 @@ export const environment = {
   maxCharCodigoProd: 6,
   PedEncaURL:   'FAC_enc_ped/',
   PedDetaURL:   'FAC_det_ped/',
-  productosURL:   'productos/',
+  productosURL: 'productos/',
   RecEncaURL:   'RecEnca/',
   RecDetaURL:   'RecDeta/',
   rutasURL:     'rutas/',
   SugeridoURL:  'Sugerido/',
-  tipoCambio:   616,
+  SyncInfoURL:  'SyncInfo/',
+  tipoCambio:   620,
   UbicacionURL: 'Ubicacion/',
   VisitaURL:    'Visita/',
   
   adminClave: '@dmin2021*',
-  version:    '1.3.3',
+  version:    '1.4.0',
   aplicarNC:  false,
-  prdMode:    true,
+  prdMode:    false,
 };
 
 /*

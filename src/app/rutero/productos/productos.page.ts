@@ -20,6 +20,7 @@ export class ProductosPage {
   tamPagina: number = 30;            // Cantidad de registros a mostrar en la pagina 
   paginaIni: number = 0;
   paginaFin: number = 30;
+  faltantes: number = 0;
 
   @ViewChild ( IonInfiniteScroll ) infiniteScroll: IonInfiniteScroll;
 
@@ -33,12 +34,17 @@ export class ProductosPage {
     if ( this.mostrar ){
       this.incrementaPagina();
     }
-    
   }
 
-  incrementaPagina(){
+  incrementaPagina(){ 
     let producto: Productos;
     let productos: Productos[] = [];
+
+    this.faltantes = this.cardexIn.length - this.paginaFin;
+    if ( this.paginaFin > this.cardexIn.length ){
+      this.paginaFin = this.cardexIn.length;
+      this.faltantes = 0;
+    } 
 
     const array = this.cardexIn.slice( this.paginaIni, this.paginaFin );
     array.forEach( d => {
@@ -47,13 +53,16 @@ export class ProductosPage {
     })
     this.busquedaProd = this.busquedaProd.concat( productos );
     this.paginaIni += this.tamPagina;
-    this.paginaFin += this.tamPagina;
+    
+    if ( this.paginaFin < this.cardexIn.length ){
+      this.paginaFin += this.tamPagina;
+    }
   }
 
   loadData( event ){
     if (this.mostrar && this.texto.length === 0){ 
       setTimeout(() => { 
-          if (this.paginaFin >= this.cardexIn.length ) {
+          if (this.faltantes === 0 ) {
             this.infiniteScroll.complete();
             this.infiniteScroll.disabled = true;
             return;

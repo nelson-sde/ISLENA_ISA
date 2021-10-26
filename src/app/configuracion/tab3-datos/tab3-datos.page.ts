@@ -50,26 +50,47 @@ export class Tab3DatosPage {
   }
 
   actualizaVarconfig( ruta: string ){
+    const fecha = new Date();
+    const day = new Date(fecha).getDate();
+    const dayLiquid = new Date(this.isa.varConfig.ultimaLiquid).getDate();
+
     const i = this.isa.rutas.findIndex( d => d.ruta === ruta );
     if ( i >= 0 ){
-      this.isa.varConfig.numRuta = this.isa.rutas[i].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
-      this.isa.varConfig.nomVendedor = this.isa.rutas[i].agente;
-      this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
-      this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
-      this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
-      this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
-      this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
-      this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
-      this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
-      this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
-      this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
-      if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
-        this.isa.varConfig.usaRecibos = true;
-      } else {
-        this.isa.varConfig.usaRecibos = false;
+      if ( day !== dayLiquid ){                                       // Si la ultima sincronización es diferente a hoy
+        this.isa.varConfig.numRuta = this.isa.rutas[i].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
+        this.isa.varConfig.nomVendedor = this.isa.rutas[i].agente;
+        this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
+        this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
+        this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
+        this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
+        this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
+        this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
+        this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
+        this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+        this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
+        if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
+          this.isa.varConfig.usaRecibos = true;
+        } else {
+          this.isa.varConfig.usaRecibos = false;
+        }
+        this.isa.guardarVarConfig();
+        this.actualizar = true;
+      } else {                                                      // Si ya había sincronizado no actualiza consecutivos
+        this.isa.varConfig.nomVendedor = this.isa.rutas[i].agente;
+        this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
+        this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
+        this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
+        this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
+        this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+        this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
+        if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
+          this.isa.varConfig.usaRecibos = true;
+        } else {
+          this.isa.varConfig.usaRecibos = false;
+        }
+        this.isa.guardarVarConfig();
+        this.actualizar = true;
       }
-      this.isa.guardarVarConfig();
-      this.actualizar = true;
     }
   }
 
@@ -99,9 +120,12 @@ export class Tab3DatosPage {
   }
 
   realizarSinc(){
+    this.isa.varConfig.ultimaLiquid = new Date();
+    this.isa.guardarVarConfig();
     this.isa.borrarBitacora();                                   // Se borra la bitácora de primero para que los movimientos generados en la Sync queden registrados.
     this.isaCobros.retransRecibosPen();                         // Este método retransmite los recibos pendientes hasta ahora.
     this.isa.actualizarVisitas();                              // Este procedimiento inserta las visitas y ubicaciones Visita y Visita_Ubicacion
+    this.isa.syncInfo();                                      // Registra la ubicación e info de Sincronizacion
     this.isa.clienteAct.id = '';
     this.isa.syncClientes(this.isa.varConfig.numRuta);       // Carga la BD de Clientes de la ruta
     this.isa.syncProductos(this.isa.varConfig.numRuta);     // Actualiza la BD de productos

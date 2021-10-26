@@ -14,8 +14,9 @@ export interface RutaConfig {
     emailVendedor: string
     usaRecibos: boolean;
     usuarioCxC: string;
-    claveCxC: string;
+    claveCxC:   string;
     tipoCambio: number;
+    ultimaLiquid: Date;
 }
   
 export interface Ruta {
@@ -176,6 +177,14 @@ export class UbicacionBD {
         this.updatedBy = 'ISA';
         this.createDate = new Date();
     }
+}
+
+export interface VisitaDiaria {
+    ID:             string,
+    ruta:           string,
+    horaSincroniza: Date,
+    latitud:        number,
+    longitud:       number
 }
 
 

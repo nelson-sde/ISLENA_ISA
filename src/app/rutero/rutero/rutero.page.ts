@@ -10,6 +10,7 @@ import { Plugins } from '@capacitor/core';
 import { Rutero } from 'src/app/models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NuevoPage } from 'src/app/configuracion/nuevo/nuevo.page';
+import { Email } from 'src/app/models/email';
 
 const { App } = Plugins;
 
@@ -50,15 +51,23 @@ export class RuteroPage {
   }
 
   abrirPedidos(){
+    const fecha = new Date();
+    const day = new Date(fecha).getDate();
+    const dayLiquid = new Date(this.isa.varConfig.ultimaLiquid).getDate();
+
     this.codigoCliente = this.isa.clienteAct.id;
     if (this.codigoCliente !== '' && this.texto.length !== 0){
-      this.router.navigate(['/pedidos', {
-                            codCliente: this.codigoCliente,
-                            nombreCliente: this.texto,
-                            dirCliente: this.direccion
-      }]);
+      if ( day === dayLiquid ) { 
+        this.router.navigate(['/pedidos', {
+                              codCliente: this.codigoCliente,
+                              nombreCliente: this.texto,
+                              dirCliente: this.direccion
+        }]);
+      } else {
+        this.presentAlert('Pedidos', 'No puede realizar pedidos sino ha sincronizado hoy...!!!');
+      }
     } else {
-      this.presentAlert('Pedidos', 'Debe seleccionar un cliente para ingresar un pedido.')
+      this.presentAlert('Pedidos', 'Debe seleccionar un cliente para ingresar un pedido.');
     }
   }
 
@@ -122,17 +131,8 @@ export class RuteroPage {
         this.dir = false;
         this.codigoCliente = '';
       } else if (this.buscarClientes.length == 1){                        // La coincidencia es exacta
-        this.texto = this.buscarClientes[0].nombre;
-        this.direccion = this.buscarClientes[0].direccion;
-        this.codigoCliente = this.buscarClientes[0].id;
-        this.dir = true;
         this.isa.clienteAct = this.buscarClientes[0];
-        this.isa.cargaListaPrecios();
-        this.isa.cargarExoneraciones();
-        this.agregarRutero();
-        if (this.isa.existencias.length === 0){
-          this.isa.cargarExistencias();
-        }
+        this.cargarCliente();
       } else {                                                           // Se debe abrir el modal para busqueda de clientes
         this.clientesPopover( ev );
       }
@@ -156,22 +156,32 @@ export class RuteroPage {
     const {data} = await popover.onWillDismiss();
     if ( data !== undefined){
       if (data.codCliente == this.isa.clienteAct.id){
-        this.codigoCliente = this.isa.clienteAct.id;
-        this.texto = this.isa.clienteAct.nombre;
-        this.direccion = this.isa.clienteAct.direccion;
-        this.dir = true;
-        this.isa.cargaListaPrecios();
-        this.isa.cargarExoneraciones();
-        this.agregarRutero();
-        if (this.isa.existencias.length === 0){
-          this.isa.cargarExistencias();
-        }
+        this.cargarCliente();
       } else {
         this.codigoCliente = '';
         this.texto = '';
         this.direccion = '';
         this.dir = false;
       }
+    }
+  }
+
+  cargarCliente(){
+    this.codigoCliente = this.isa.clienteAct.id;
+    this.texto = this.isa.clienteAct.nombre;
+    this.direccion = this.isa.clienteAct.direccion;
+    this.dir = true;
+    this.isa.cargaListaPrecios();
+    this.isa.cargarExoneraciones();
+    this.agregarRutero();
+    if (this.isa.existencias.length === 0){
+      this.isa.cargarExistencias();
+    }
+    if ( this.isa.clienteAct.letraCambio ){
+      const email = new Email( this.isa.varConfig.emailCxC, `Notificación: Letra de Cambio Cliente ${this.isa.clienteAct.id} - ${this.isa.varConfig.numRuta}`, 
+        `Se reporta visita por parte del vendedor al cliente ${this.isa.clienteAct.id}, ${this.isa.clienteAct.nombre}, el cual tiene pendiente actualizar o firmar la letra de Cambio.`);
+      this.isa.enviarEmail( email );
+      this.isa.presentAlertW('Letra de Cambio', 'El Cliente tiene pendiente de firmar la letra de cambio.  Favor gestionar.');
     }
   }
 

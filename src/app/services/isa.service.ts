@@ -11,7 +11,8 @@ import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
-import { Cuota, Ruta, RutaConfig, Rutero, UbicacionBD, VisitaBD } from '../models/ruta';
+import { Cuota, Ruta, RutaConfig, Rutero, UbicacionBD, VisitaBD, VisitaDiaria } from '../models/ruta';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,8 @@ export class IsaService {
     usaRecibos: false,
     usuarioCxC: '',
     claveCxC: '',
-    tipoCambio: environment.tipoCambio
+    tipoCambio: environment.tipoCambio,
+    ultimaLiquid: null,
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero
@@ -56,12 +58,13 @@ export class IsaService {
                private http: HttpClient,
                private loadingCtrl: LoadingController,
                private toastCtrl: ToastController,
+               private geoLocation: Geolocation,
                private isaLS: IsaLSService ) {
 
     this.cargarVarConfig();
     this.cargarExistencias();
     this.cargarBitacora();
-    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null);
+    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null, 'N');
   }
 
   private cargarVarConfig(){
@@ -263,7 +266,7 @@ export class IsaService {
         resp.forEach(e => {
           cliente = new Cliente(e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
             e.nom_Cto, 0, e.lim_Cre, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
-            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud);
+            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud, e.usa_Letra);
           this.clientes.push( cliente );
         });
         console.log( 'Arreglo', this.clientes );
@@ -608,6 +611,63 @@ export class IsaService {
         this.presentaToast( 'Error actualizando GeoReferencia...' );
       }
     );
+  }
+
+  private postSyncInfo( info: VisitaDiaria ){
+    const URL = this.getURL( environment.SyncInfoURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(info), options );
+  }
+
+  private transmitirInfo( info: VisitaDiaria ){
+    this.postSyncInfo( info ).subscribe(
+      resp => {
+        console.log('Success SyncInfo...', resp);
+      }, error => {
+        console.log('ERROR: guardando SyncInfo...!!! ', error);
+      }
+    )
+  }
+
+  private getID(){
+    const fecha: Date = new Date();
+    let day = new Date(fecha).getDate();
+    let month = new Date(fecha).getMonth() + 1;
+    let year = new Date(fecha).getFullYear();
+    let dia: string = day.toString();
+    let mes: string = month.toString();
+
+    if ( month >= 0 && month <= 9 ) {
+      mes = `0${month}`;
+    }
+    if ( day >= 0 && day <= 9 ){
+      dia = `0${day}`;
+    }
+    return `${year}${mes}${dia}`
+  }
+
+  syncInfo(){
+    const fecha = new Date();
+    let info: VisitaDiaria = {
+      ID: this.getID(),
+      ruta: this.varConfig.numRuta,
+      horaSincroniza: new Date(fecha.getTime() - (fecha.getTimezoneOffset() * 60000)),
+      latitud: null,
+      longitud: null
+    }
+
+    this.geoLocation.getCurrentPosition().then((resp) => {
+      info.latitud = resp.coords.latitude;
+      info.longitud = resp.coords.longitude;
+      this.transmitirInfo(info);
+    }).catch((error) => {
+      console.log('Error getting location', error);
+    });
   }
 
   private postEmail( email: Email ){

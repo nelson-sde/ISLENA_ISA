@@ -21,7 +21,8 @@ export class InventarioPage {
   filtra: boolean = false;
   tamPagina: number = 30;            // Cantidad de registros a mostrar en la pagina 
   paginaIni: number = 0;
-  paginaFin: number = 30;
+  paginaFin: number = 0;
+  faltantes: number = 0;
 
   @ViewChild( IonInfiniteScroll ) infiniteScroll: IonInfiniteScroll;
 
@@ -34,16 +35,21 @@ export class InventarioPage {
   }
 
   incrementaPagina(){
+    this.paginaFin += this.tamPagina;
+    if ( this.paginaFin > this.cardexHistorico.length ){
+      this.paginaFin = this.cardexHistorico.length;
+      this.faltantes = 0;
+    } else {
+      this.faltantes = this.cardexHistorico.length - this.paginaFin;
+    }
     const array = this.cardexHistorico.slice( this.paginaIni, this.paginaFin );
     this.historico = this.historico.concat( array );
     this.paginaIni += this.tamPagina;
-    this.paginaFin += this.tamPagina;
   }
 
   loadData( event ){
     setTimeout(() => {
-
-      if (this.paginaFin >= this.cardexHistorico.length ) {
+      if ( this.faltantes === 0 ) {
         this.infiniteScroll.complete();
         this.infiniteScroll.disabled = true;
         return;
