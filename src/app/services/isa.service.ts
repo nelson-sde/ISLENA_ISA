@@ -776,7 +776,7 @@ export class IsaService {
         this.rutero[0].fin = new Date();
       }
       this.rutero.forEach( d => {
-        visita = new VisitaBD(d.cliente, d.ruta, d.inicio, d.razon, d.fin, d.fecha_Plan, d.tipo, d.notas, null);
+        visita = new VisitaBD(d.cliente, d.ruta, d.inicio, d.razon, d.fin, d.fecha_Plan, d.tipo, d.notas, null, d.latitud, d.longitud);
         visita.rowPointer = this.generate();
         visitas.push( visita );
       });
@@ -784,7 +784,7 @@ export class IsaService {
       this.postVisita( visitas ).subscribe(
         resp => {
           console.log('Sincronizando Visitas', resp);
-          this.actualizarVisitaUbicacion();
+          //this.actualizarVisitaUbicacion();             // La ubicación en la BD se insertará en un trigger After Insert de la tabla erpadmin.Visita
         }, error => {
           console.log('Error Sincronizando Visitas...!!!', error.message);
           console.log(JSON.stringify(visitas));

@@ -23,6 +23,7 @@ export class InventarioPage {
   paginaIni: number = 0;
   paginaFin: number = 0;
   faltantes: number = 0;
+  textoBuscar: string = '';
 
   @ViewChild( IonInfiniteScroll ) infiniteScroll: IonInfiniteScroll;
 
@@ -60,7 +61,7 @@ export class InventarioPage {
   }
 
   async reordenaHistorico(parametro: string){
-    let i = 0;
+    /* let i = 0;
     let j = 1;
 
     this.cardexHistorico = await this.isaCardex.cargarCardex(parametro);
@@ -72,9 +73,12 @@ export class InventarioPage {
         i = j;
         j++;
       }
-    }
-    this.incrementaPagina();
+    }*/
+    this.cardexHistorico = await this.isaCardex.cargarCardex(parametro);
     this.cargarProductos();
+    this.cardexHistorico = this.productos.slice(0);
+    this.incrementaPagina();
+    
   }
 
   cargarProductos(){
@@ -182,6 +186,10 @@ export class InventarioPage {
       ]
     });
     await alert.present();
+  }
+
+  onSearchChange(event){
+    this.textoBuscar = event.detail.value;
   }
 
   regresar(){

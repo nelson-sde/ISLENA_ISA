@@ -99,6 +99,8 @@ export class VisitaBD {
     createdBy:      string;
     updatedBy:      string;
     createDate:     Date;
+    latitud:        number;
+    longitud:       number;
 
     constructor ( 
         cliente:        string,
@@ -109,7 +111,9 @@ export class VisitaBD {
         fechA_PLAN:     Date,
         tipo:           string,
         notas:          string,
-        doC_PRO:        string){
+        doC_PRO:        string,
+        latitud:        number,
+        longitud:       number){
         this.cliente = cliente;
         this.ruta = ruta;
         this.inicio = inicio;
@@ -119,6 +123,8 @@ export class VisitaBD {
         this.tipo = tipo;
         this.notas = notas;
         this.doC_PRO = doC_PRO;
+        this.latitud = latitud;
+        this.longitud = longitud;
         this.noteExistsFlag = 0;
         this.recordDate = new Date();
         this.rowPointer = '';

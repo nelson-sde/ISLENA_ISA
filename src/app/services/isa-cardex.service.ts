@@ -53,7 +53,7 @@ export class IsaCardexService {
       }
       consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
     }
-    
+    console.log('Tamaño Cardex: ', consulta.length);
     return consulta;
   }
 

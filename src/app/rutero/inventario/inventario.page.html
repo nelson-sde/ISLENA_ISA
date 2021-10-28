@@ -10,6 +10,7 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+  <ion-searchbar mode="ios" palceholder="Buscar item" inputmode="text" (ionChange)="onSearchChange($event)" debounce="250" ></ion-searchbar>
 </ion-header>
 
 <ion-content class="ion-padding">
@@ -17,9 +18,6 @@
     <ion-text color="primary">
       <h2>{{ isa.clienteAct.nombre }}</h2>
     </ion-text>
-    <ion-button slot="end" (click)="filtraProductos()" fill="clear" size="large">
-      <ion-icon [name]="!filtra? 'search-outline' : 'close-outline'" color="primary" size="medium"></ion-icon>
-    </ion-button>
   </ion-item>
   
   <ion-list>

@@ -87,6 +87,7 @@ export class RecibosPage {
       this.reciboSinSalvar = true;
       this.recibo.montoEfectivoL = this.recibo.montoLocal;
       this.recibo.montoEfectivoD = this.recibo.montoDolar;
+      this.recibo.tipoDoc = 'R';
       
       this.reciboTemp.monto = this.recibo.montoLocal;
       this.reciboTemp.abono = this.recibo.montoLocal;
@@ -330,30 +331,34 @@ export class RecibosPage {
 
   async salvarRecibo(){
     if (!this.edicion){ 
-      const alert = await this.alertCtrl.create({
-        cssClass: 'my-custom-class',
-        header: 'Salvar Recibo...!!!',
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-            cssClass: 'secondary',
-          }, {
-            text: 'Email',
-            handler: () => {
-              this.procesaRecibo();
-            }
-          },
-          {
-            text: 'PDF & Email',
-            handler: () => {
-              this.procesaRecibo();
-              this.procesaPDF();
-            }
-          },
-        ]
-      });
-      await alert.present();
+      if ( this.recibo.montoLocal > 0 && this.hayFactura ){         // valida si se está abonando almenos una factura
+        const alert = await this.alertCtrl.create({
+          cssClass: 'my-custom-class',
+          header: 'Salvar Recibo...!!!',
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+            }, {
+              text: 'Email',
+              handler: () => {
+                this.procesaRecibo();
+              }
+            },
+            {
+              text: 'PDF & Email',
+              handler: () => {
+                this.procesaRecibo();
+                this.procesaPDF();
+              }
+            },
+          ]
+        });
+        await alert.present();
+      } else {
+        this.isa.presentAlertW( 'Salvar Recibo', 'No es posible guardar el Recibo si no se aplica un abono a una factura' );
+      }
     } else {
       this.isa.presentAlertW('Salvar', 'No se puede salvar el recibo de dinero si está editando el recibo...');
     }
@@ -485,30 +490,27 @@ export class RecibosPage {
     let cxc: Pen_Cobro[] = [];
     let j: number;
 
-    if ( this.recibo.montoLocal > 0 && this.hayFactura ){         // valida si se está abonando almenos una factura
-      if (this.cantNC == this.asignadasNC ){                     // Valida si no quedó una NC sin asignar a una factura
-        cxc = JSON.parse(localStorage.getItem('cxc'));
-        for (let i = 0; i < this.recibo.detalle.length; i++) {                                  // Actualiza CxC con los nuevos saldos por recibo
-          j = cxc.findIndex( d => d.numeroDocumen == this.recibo.detalle[i].numeroDocumen );
-          cxc[j].saldoLocal = this.recibo.detalle[i].saldoLocal;
-          cxc[j].saldoDolar = this.recibo.detalle[i].saldoDolar;
-        }
-        localStorage.setItem('cxc', JSON.stringify(cxc));                                     // Actualiza CxC en el Local Storage
-        if (this.recibo.montoEfectivoL > 0 || this.recibo.montoChequeL > 0) {
-          this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque, true );
-          this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
-          this.isa.guardarVarConfig();
-        } else {
-          this.isaCobros.reciboSimple( this.recibo, true );
-        }
-        this.navController.back();
-        this.navController.back();
-      } else {
-        this.isa.presentAlertW( 'Salvar Recibo', 'No es posible transmitir el Recibo si no se aplica la NC a una factura' );
+    if (this.cantNC == this.asignadasNC ){                     // Valida si no quedó una NC sin asignar a una factura
+      cxc = JSON.parse(localStorage.getItem('cxc'));
+      for (let i = 0; i < this.recibo.detalle.length; i++) {                                  // Actualiza CxC con los nuevos saldos por recibo
+        j = cxc.findIndex( d => d.numeroDocumen == this.recibo.detalle[i].numeroDocumen );
+        cxc[j].saldoLocal = this.recibo.detalle[i].saldoLocal;
+        cxc[j].saldoDolar = this.recibo.detalle[i].saldoDolar;
       }
+      localStorage.setItem('cxc', JSON.stringify(cxc));                                     // Actualiza CxC en el Local Storage
+      if (this.recibo.tipoDoc === 'R') {
+        this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque, true );
+        this.isa.varConfig.consecutivoRecibos = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoRecibos);
+        this.isa.guardarVarConfig();
+      } else {
+        this.isaCobros.reciboSimple( this.recibo, true );
+      }
+      this.navController.back();
+      this.navController.back();
     } else {
-      this.isa.presentAlertW( 'Salvar Recibo', 'No es posible guardar el Recibo si no se aplica un abono a una factura' );
+      this.isa.presentAlertW( 'Salvar Recibo', 'No es posible transmitir el Recibo si no se aplica la NC a una factura' );
     }
+    
   }
 
   async asignaFactura( i: number, ev ){    // recibo.detalle[i] es la NC que se está asignando a una factura
