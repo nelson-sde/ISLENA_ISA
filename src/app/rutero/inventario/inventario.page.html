@@ -41,7 +41,7 @@
     </ion-item>
     
 
-    <ion-item *ngFor="let item of historico; let i = index" (click)="abrirCardex(i)">
+    <ion-item *ngFor="let item of cardexHistorico | filtro : textoBuscar:'desProducto'; let i = index" (click)="abrirCardex(i)">
       <ion-grid fixed>
         <ion-row>
           <ion-col size="7">
@@ -70,10 +70,11 @@
     </ion-item>
   </ion-list>
 
+  <!-- 
   <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
     <ion-infinite-scroll-content
       loadingSpinner="bubbles"
       loadingText="Cargando mas data...">
     </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+  </ion-infinite-scroll> -->
 </ion-content>

@@ -18,6 +18,7 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 
+
 @NgModule({
   declarations: [AppComponent ],
   entryComponents: [],

@@ -254,11 +254,91 @@ export class RuteroPage {
       if (this.isa.rutero.length > 0){
         if (this.isa.rutero[0].fin == null){
           this.isa.rutero[0].fin = new Date();
+          if ( this.isa.rutero[0].razon === 'N' ){ 
+            this.cierraVisita(this.isa.rutero[0].cliente);
+          }
         }
       }
       this.isa.rutero.unshift(item);
       this.getGeo( item.cliente );
     }
+  }
+
+  async cierraVisita( codCliente: string ){
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Cierre Visita',
+      inputs: [
+        {
+          name: 'radio1',
+          type: 'radio',
+          label: 'Baja Rotación',
+          value: 'BAJA ROTACION',
+          handler: () => {
+            console.log('Radio 1 selected');
+          },
+          checked: true
+        },
+        {
+          name: 'radio2',
+          type: 'radio',
+          label: 'Cliente no quiso Comprar',
+          value: 'CLIENTE NO COMPRO',
+          handler: () => {
+            console.log('Radio 2 selected');
+          }
+        },
+        {
+          name: 'radio3',
+          type: 'radio',
+          label: 'Cliente sin Efectivo',
+          value: 'CLIENTE SIN EFECTIVO',
+          handler: () => {
+            console.log('Radio 3 selected');
+          }
+        },
+        {
+          name: 'radio4',
+          type: 'radio',
+          label: 'Encargado Ausente',
+          value: 'ENCARGADO AUSENTE',
+          handler: () => {
+            console.log('Radio 4 selected');
+          }
+        },
+        {
+          name: 'radio5',
+          type: 'radio',
+          label: 'Solo consulta',
+          value: 'CONSULTA',
+          handler: () => {
+            console.log('Radio 5 selected');
+          }
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Ok',
+          handler: (data) => {
+            console.log('Confirm Ok', data);
+            const i = this.isa.rutero.findIndex( d => d.cliente === codCliente );
+            if ( i >= 0 ){
+              this.isa.rutero[i].notas = data;
+              localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   getGeo( idCliente: string ){

@@ -785,6 +785,8 @@ export class IsaService {
         resp => {
           console.log('Sincronizando Visitas', resp);
           //this.actualizarVisitaUbicacion();             // La ubicación en la BD se insertará en un trigger After Insert de la tabla erpadmin.Visita
+          this.rutero = [];
+          localStorage.removeItem('rutero');
         }, error => {
           console.log('Error Sincronizando Visitas...!!!', error.message);
           console.log(JSON.stringify(visitas));

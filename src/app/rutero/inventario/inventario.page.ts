@@ -77,7 +77,7 @@ export class InventarioPage {
     this.cardexHistorico = await this.isaCardex.cargarCardex(parametro);
     this.cargarProductos();
     this.cardexHistorico = this.productos.slice(0);
-    this.incrementaPagina();
+    //this.incrementaPagina();
     
   }
 
