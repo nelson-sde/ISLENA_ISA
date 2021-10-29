@@ -259,6 +259,7 @@ export class RecibosPage {
         } else {
           this.recibo.montoDepositoD = 0;
           this.recibo.montoDepositoL = 0;
+          this.recibo.numTR = null;
         }
         if (this.reciboTemp.otrosMov > 0){     // Se registraron otros movimientos que restan el saldo
           this.recibo.otrosMov = this.reciboTemp.otrosMov;
@@ -327,6 +328,7 @@ export class RecibosPage {
       d.saldoDolar = d.saldoAntD;
       this.saldo += d.saldoLocal; 
     });
+
   }
 
   async salvarRecibo(){
