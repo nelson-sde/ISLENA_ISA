@@ -190,6 +190,7 @@ export class InventarioPage {
 
   onSearchChange(event){
     this.textoBuscar = event.detail.value;
+    console.log(this.textoBuscar);
   }
 
   regresar(){

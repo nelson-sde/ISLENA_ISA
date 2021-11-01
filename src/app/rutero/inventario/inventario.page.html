@@ -41,7 +41,7 @@
     </ion-item>
     
 
-    <ion-item *ngFor="let item of cardexHistorico | filtro : textoBuscar:'desProducto'; let i = index" (click)="abrirCardex(i)">
+    <ion-item *ngFor="let item of cardexHistorico | filtro : textoBuscar : 'desProducto'; let i = index" (click)="abrirCardex(i)">
       <ion-grid fixed>
         <ion-row>
           <ion-col size="7">

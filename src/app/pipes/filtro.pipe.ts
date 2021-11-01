@@ -5,12 +5,14 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class FiltroPipe implements PipeTransform {
 
-  transform(arreglo: any[], texto: string ='', columna: string = 'agente' ): any[] {
+  transform(arreglo: any[], texto: string ='', columna: string = 'desProducto' ): any[] {
     if(texto=== ''){
       return arreglo;
     }
-    texto.toLocaleLowerCase();
-    return arreglo.filter(item => item[columna].toLocaleLowerCase().includes(texto));
+    const texto2 = texto.toLocaleUpperCase();
+    console.log(texto2);
+    //console.log(JSON.stringify(arreglo.filter(item => item[columna].includes(texto2))));
+    return arreglo.filter(item => item[columna].includes(texto2));
    }
 
 }
