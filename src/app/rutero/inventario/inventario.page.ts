@@ -134,16 +134,16 @@ export class InventarioPage {
     }
   }
 
-  async abrirCardex( i: number ){
+  async abrirCardex( item: Cardex ){
     let codProducto: string = null;
     let nombre: string = null;
     let descuento: number = 0;
 
-    if (i >= 0){
-      codProducto = this.cardexHistorico[i].codProducto;
-      descuento = this.cardexHistorico[i].descuento;
-      nombre = this.cardexHistorico[i].desProducto;
-    }
+    console.log(item);
+    codProducto = item.codProducto;
+    descuento = item.descuento;
+    nombre = item.desProducto;
+    
     const modal = await this.modalCtrl.create({
       component: CardexPage,
       componentProps: {
