@@ -6,7 +6,7 @@ export const environment = {
   production:    false,
   preURL:       'http://api_isa',
   TestURL:      '_test',
-  postURL:      '.soportecr.xyz/api/',
+  postURL:      '.di-apps.co.cr/api/',
   BancosURL:    'Bancos/',
   cantLineasMaxPedido: 35,
   CardexURL:    'ISA_Estad_Ventas/',
