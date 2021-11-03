@@ -29,7 +29,7 @@ export class CardexPage {
                private navController: NavController,
                private isaCardex: IsaCardexService,
                private alertCtrl: AlertController) {
-
+    //debugger
     this.codProducto = this.navParams.get('codProd');
     this.descuento = this.navParams.get('desc');
     this.nomProducto = this.navParams.get('nombre');

@@ -134,6 +134,29 @@ export class InventarioPage {
     }
   }
 
+  async abrirDirecto(){
+    let codProducto: string = null;
+    let nombre: string = null;
+    let descuento: number = 0;
+    
+    const modal = await this.modalCtrl.create({
+      component: CardexPage,
+      componentProps: {
+        'codProd': codProducto,
+        'nombre': nombre,
+        'desc': descuento,
+        //'cardex': this.cardex,
+        'productos': this.productos,
+      },
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+    const {data} = await modal.onWillDismiss();
+    if ( data !== undefined){
+      // this.cardex = data.cardex.slice(0);
+    }
+  }
+
   async abrirCardex( item: Cardex ){
     let codProducto: string = null;
     let nombre: string = null;
