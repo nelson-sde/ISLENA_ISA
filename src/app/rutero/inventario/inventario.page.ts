@@ -74,15 +74,23 @@ export class InventarioPage {
         j++;
       }
     }*/
+    this.tamPagina = 30;            // Cantidad de registros a mostrar en la pagina 
+    this.paginaIni = 0;
+    this.paginaFin = 0;
+    this.historico = [];
+    if ( this.infiniteScroll !== undefined ){
+      this.infiniteScroll.disabled = false;
+    }
     this.cardexHistorico = await this.isaCardex.cargarCardex(parametro);
     this.cargarProductos();
     this.cardexHistorico = this.productos.slice(0);
-    //this.incrementaPagina();
+    this.incrementaPagina();
     
   }
 
   cargarProductos(){
     let i: number;
+    this.productos = [];
 
     this.cardexHistorico.forEach( d => {
       i = this.productos.findIndex( f => f.codProducto === d.codProducto );
@@ -214,6 +222,7 @@ export class InventarioPage {
   onSearchChange(event){
     this.textoBuscar = event.detail.value;
     console.log(this.textoBuscar);
+    this.reordenaHistorico(this.textoBuscar);
   }
 
   regresar(){

@@ -35,10 +35,11 @@ export class IsaCardexService {
   async cargarCardex( texto: string ){    // 'TODO' indica que se consultarán todos los productos del cliente.  Si TODO se sustituye por un código de producto, filtra por ITEM
     // let cardex: Cardex[] = [];
     let cardex2: Cardex[] = [];
+    let cardex3: Cardex[] = [];
     let consulta: Cardex[] = [];
     let j: number;
 
-    const cardex = await this.isaLS.getHistVentas();
+    /*const cardex = await this.isaLS.getHistVentas();
     if ( texto == 'TODO' ){ 
       cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id);
     } else {
@@ -52,6 +53,27 @@ export class IsaCardexService {
         }
       }
       consulta = cardex2.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+    }*/
+
+    // Nuevo filtro para implementar la search bar
+//debugger
+    const cardex = await this.isaLS.getHistVentas();
+    cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id);
+    if (cardex2.length > 0){
+      cardex2.forEach( f => {
+        j = this.isa.productos.findIndex(d => d.id === f.codProducto);
+        if (j >= 0){
+          f.desProducto = this.isa.productos[j].nombre;
+        } else {
+          f.desProducto = 'ND';
+        }
+      });
+      if ( texto !== 'TODO' ){ 
+        cardex3 = cardex2.filter(d => d.desProducto.includes(texto));
+      } else {
+        cardex3 = cardex2.slice(0);
+      }
+      consulta = cardex3.sort((a,b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
     }
     console.log('Tamaño Cardex: ', consulta.length);
     return consulta;
