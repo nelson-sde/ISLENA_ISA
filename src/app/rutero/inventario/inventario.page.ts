@@ -24,6 +24,8 @@ export class InventarioPage {
   paginaFin: number = 0;
   faltantes: number = 0;
   textoBuscar: string = '';
+  ordenABC: boolean = true;      // True = ordena el cardex alfabéticamente; sino lo hace por fecha.
+  etiqueta: string = 'Abc';
 
   @ViewChild( IonInfiniteScroll ) infiniteScroll: IonInfiniteScroll;
 
@@ -32,6 +34,17 @@ export class InventarioPage {
                private modalCtrl: ModalController,
                private navController: NavController,
                private alertController: AlertController ) {
+    this.reordenaHistorico('TODO');
+  }
+
+  cambiaBusqueda(){
+    if ( this.ordenABC ){
+      this.ordenABC = false;
+      this.etiqueta = 'Fecha';
+    } else {
+      this.ordenABC = true;
+      this.etiqueta = 'Abc';
+    }
     this.reordenaHistorico('TODO');
   }
 
@@ -61,19 +74,9 @@ export class InventarioPage {
   }
 
   async reordenaHistorico(parametro: string){
-    /* let i = 0;
-    let j = 1;
 
     this.cardexHistorico = await this.isaCardex.cargarCardex(parametro);
-    while (i < this.cardexHistorico.length && j < this.cardexHistorico.length) {
-      if(new Date(this.cardexHistorico[j].fecha).getDate() == new Date(this.cardexHistorico[i].fecha).getDate()){
-        this.cardexHistorico[j].fecha = null;
-        j++
-      } else {
-        i = j;
-        j++;
-      }
-    }*/
+    
     this.tamPagina = 30;            // Cantidad de registros a mostrar en la pagina 
     this.paginaIni = 0;
     this.paginaFin = 0;
@@ -82,10 +85,26 @@ export class InventarioPage {
       this.infiniteScroll.disabled = false;
     }
     this.cardexHistorico = await this.isaCardex.cargarCardex(parametro);
+    console.log('Cardex:', this.cardexHistorico);
     this.cargarProductos();
-    this.cardexHistorico = this.productos.slice(0);
+    if ( this.ordenABC ){
+      this.cardexHistorico = this.productos.slice(0);
+    } else {
+      //debugger
+      let i = 0;
+      let j = 1;
+      while (i < this.cardexHistorico.length && j < this.cardexHistorico.length) {
+        if(new Date(this.cardexHistorico[j].fecha).getDate() == new Date(this.cardexHistorico[i].fecha).getDate()){
+          this.cardexHistorico[j].fecha = null;
+          j++
+        } else {
+          i = j;
+          j++;
+        }
+      }
+    }
+    console.log('Tamaño ordenado: ', this.cardexHistorico.length);
     this.incrementaPagina();
-    
   }
 
   cargarProductos(){

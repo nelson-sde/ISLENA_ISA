@@ -56,7 +56,7 @@ export class IsaCardexService {
     }*/
 
     // Nuevo filtro para implementar la search bar
-//debugger
+
     const cardex = await this.isaLS.getHistVentas();
     cardex2 = cardex.filter(d => d.codCliente == this.isa.clienteAct.id);
     if (cardex2.length > 0){
@@ -69,7 +69,7 @@ export class IsaCardexService {
         }
       });
       if ( texto !== 'TODO' ){ 
-        cardex3 = cardex2.filter(d => d.desProducto.includes(texto));
+        cardex3 = cardex2.filter(d => d.desProducto.includes(texto.toUpperCase()));
       } else {
         cardex3 = cardex2.slice(0);
       }

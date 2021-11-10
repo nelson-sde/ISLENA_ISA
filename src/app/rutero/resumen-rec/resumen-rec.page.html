@@ -8,6 +8,9 @@
       <ion-button *ngIf="(recibo.envioExitoso && !recibo.anulado && recibo.tipoDoc === 'R')" fill="clear" slot="end" size="medium" (click)="anularRecibo()">
         <ion-icon name="trash-outline" size="large"></ion-icon>
       </ion-button>
+      <ion-button fill="clear" slot="end" size="medium" (click)="reenviarEmail()">
+        <ion-icon name="mail-outline" size="large"></ion-icon>
+      </ion-button>
       <ion-button *ngIf="!recibo.envioExitoso" fill="clear" slot="end" size="medium" (click)="transmitirRecibo()">
         <ion-icon name="paper-plane-outline" [color]="recibo.envioExitoso ? 'success' : 'danger'" size="large"></ion-icon>
       </ion-button>

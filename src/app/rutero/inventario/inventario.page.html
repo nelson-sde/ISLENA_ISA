@@ -11,6 +11,10 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-searchbar mode="ios" palceholder="Buscar item" inputmode="text" (ionChange)="onSearchChange($event)" debounce="250" ></ion-searchbar>
+  <ion-item>
+    <ion-label>Ordena por: {{etiqueta}}</ion-label>
+    <ion-toggle color="dark" (ionChange)="cambiaBusqueda()"></ion-toggle>
+  </ion-item>
 </ion-header>
 
 <ion-content class="ion-padding">

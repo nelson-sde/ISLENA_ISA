@@ -319,7 +319,7 @@ export class IsaCobrosService {
     }
   }
 
-  private getBody ( recibo: Recibo, cheque: Cheque, nombre: string, numRecibo: boolean = true, nulo: boolean = false ){
+  getBody ( recibo: Recibo, cheque: Cheque, nombre: string, numRecibo: boolean = true, nulo: boolean = false ){
     let body: string[] = [];
     let texto: string = '';
     let efectivo: string = '  ';

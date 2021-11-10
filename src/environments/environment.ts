@@ -40,7 +40,7 @@ export const environment = {
   VisitaURL:    'Visita/',
   
   adminClave: '@dmin2021*',
-  version:    '1.4.2',
+  version:    '1.4.3',
   aplicarNC:  false,
   prdMode:    true,
 };

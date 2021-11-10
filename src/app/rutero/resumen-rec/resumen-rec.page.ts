@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
+import { Cheque } from 'src/app/models/cheques';
 import { Recibo } from 'src/app/models/cobro';
+import { Email } from 'src/app/models/email';
 import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 import { IsaService } from 'src/app/services/isa.service';
 
@@ -86,6 +88,34 @@ export class ResumenRecPage {
       ]
     });
     await alert.present();
+  }
+
+  reenviarEmail(){
+    let hayCheque: boolean = false;
+    let cheque: Cheque;
+    let subject: string = '';
+    const cliente = this.isa.clientes.find( d => d.id === this.recibo.codCliente );
+    
+    this.isa.addBitacora( true, 'START', `Reenvía Emial de Recibo: ${this.recibo.numeroRecibo}`);
+    cheque = this.isaCobros.consultarCheque( this.recibo.numeroRecibo );
+    if ( cheque !== undefined ){
+      hayCheque = true;
+    } else {
+      cheque = new Cheque('', '', '', '', '', 0);
+    }
+    const email = new Email( cliente.email, subject, this.isaCobros.getBody( this.recibo, cheque, cliente.nombre) );
+
+    if ( this.recibo.tipoDoc === 'R' ){
+      subject = `RECIBO DE DINERO ${this.recibo.numeroRecibo}`, this.isaCobros.getBody(this.recibo, cheque, cliente.nombre);
+    } else {
+      subject = `NOTIFICACION POR COBRO DE DINERO RUTA: ${this.recibo.numeroRuta}`, this.isaCobros.getBody(this.recibo, cheque, cliente.nombre, false);
+    }
+    email.subject = subject;
+    this.isa.enviarEmail( email );
+    email.toEmail = this.isa.varConfig.emailVendedor;
+    this.isa.enviarEmail( email );
+    email.toEmail = this.isa.varConfig.emailCxC;
+    this.isa.enviarEmail( email );
   }
 
   regresar(){
