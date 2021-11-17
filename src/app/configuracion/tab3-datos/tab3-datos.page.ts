@@ -62,8 +62,15 @@ export class Tab3DatosPage {
         this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
         this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
         this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
-        this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
-        this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
+
+        // Si el consecutivo del servidor es mayor al del celular se cambia el consecutivo, sino se deja el del App
+
+        if ( this.getConsecutivo(this.isa.rutas[i].pedido) > this.getConsecutivo(this.isa.varConfig.consecutivoPedidos) ){
+          this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
+        }
+        if ( this.getConsecutivo(this.isa.rutas[i].recibo) > this.getConsecutivo(this.isa.varConfig.consecutivoRecibos) ){
+          this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
+        }
         this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
         this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
         this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
@@ -92,6 +99,10 @@ export class Tab3DatosPage {
         this.actualizar = true;
       }
     }
+  }
+
+  getConsecutivo( consecutivo: string ): number {
+    return +consecutivo.slice(5);
   }
 
   async sincronizar(){
