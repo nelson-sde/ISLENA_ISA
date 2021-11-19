@@ -150,48 +150,43 @@ export class RecibosPage {
           this.recibo.montoEfectivoD = 0;
           this.recibo.tipoDoc = null;
         }
-        if ( this.cheque.monto > 0 ){
-          if ( this.hayCheque && this.cheque.monto > 0 ){                                 // Valida la información del Cheque
+        if ( this.hayCheque ){
+          if ( this.cheque.monto > 0 && this.cheque.numeroCheque !== null  && this.cheque.numeroCuenta !== null && this.banco.banco !== ''){                                 // Valida la información del Cheque
             this.recibo.tipoDoc = 'R';
             if ( (this.cheque.monto + this.reciboTemp.efectivo) <= this.saldoFactura ){
-                if ( this.cheque.numeroCheque !== null  && this.cheque.numeroCuenta !== null && this.banco.banco !== '' ) {
-                  this.cheque.codCliente = this.recibo.codCliente.toString();
-                  this.cheque.codigoBanco = this.banco.banco;
-                  this.cheque.numeroRecibo = this.recibo.numeroRecibo;
-                  this.reciboTemp.cheque = this.cheque.monto;
-                  if ( this.dolares ){
-                    this.recibo.montoChequeD = this.cheque.monto;
-                    this.recibo.montoChequeL = this.cheque.monto * this.tipoCambio;
-                    this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.efectivo;
-                    this.recibo.montoDolar = this.reciboTemp.abono;
-                    this.modificarDetalle( this.recibo.montoChequeL, this.recibo.montoChequeD);
-                    this.reciboTemp.monto = this.recibo.montoDolar;
-                  } else {
-                    this.recibo.montoChequeL = this.cheque.monto;
-                    this.recibo.montoChequeD = this.cheque.monto / this.tipoCambio;
-                    this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.efectivo;
-                    this.recibo.montoLocal = this.reciboTemp.abono;
-                    this.modificarDetalle( this.recibo.montoChequeL, this.recibo.montoChequeD);
-                    this.reciboTemp.monto = this.recibo.montoLocal;
-                  }
-                  this.reciboCheque = true;
-                  this.edicion = false;
-                  this.hayCheque = false;
-                } else {
-                  this.isa.presentAlertW('Cheque', 'Faltan campos obligatorios en el cheque.');
-                }
+              this.cheque.codCliente = this.recibo.codCliente.toString();
+              this.cheque.codigoBanco = this.banco.banco;
+              this.cheque.numeroRecibo = this.recibo.numeroRecibo;
+              this.reciboTemp.cheque = this.cheque.monto;
+              if ( this.dolares ){
+                this.recibo.montoChequeD = this.cheque.monto;
+                this.recibo.montoChequeL = this.cheque.monto * this.tipoCambio;
+                this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.efectivo;
+                this.recibo.montoDolar = this.reciboTemp.abono;
+                this.modificarDetalle( this.recibo.montoChequeL, this.recibo.montoChequeD);
+                this.reciboTemp.monto = this.recibo.montoDolar;
+              } else {
+                this.recibo.montoChequeL = this.cheque.monto;
+                this.recibo.montoChequeD = this.cheque.monto / this.tipoCambio;
+                this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.efectivo;
+                this.recibo.montoLocal = this.reciboTemp.abono;
+                this.modificarDetalle( this.recibo.montoChequeL, this.recibo.montoChequeD);
+                this.reciboTemp.monto = this.recibo.montoLocal;
+              }
+              this.reciboCheque = true;
+              this.edicion = false;
+              this.hayCheque = false;
             } else {
               this.isa.presentAlertW('Cheque', 'La suma de los montos del Cheque y el efectivo no puede ser mayores al saldo de la factura...');
             }
           } else {
-            this.isa.presentAlertW('Cheque', 'El sistema esperaba la información del cheque, pero está incompleta.');
+            this.isa.presentAlertW('Cheque', 'ERROR: Información del cheque, incompleta.');
             //this.hayCheque = false;
             this.recibo.montoChequeD = 0;
             this.recibo.montoChequeL = 0;
-            this.reciboTemp.cheque = 0;
+            //this.reciboTemp.cheque = 0;
             this.recibo.tipoDoc = null;
-            this.edicion = false;
-            this.hayCheque = false;
+            //this.edicion = false;
           }
         } else {
           this.recibo.montoChequeD = 0;
@@ -270,7 +265,7 @@ export class RecibosPage {
           this.saldo -= this.recibo.monto_NC;
         }
         if (( this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta + this.reciboTemp.otrosMov + this.reciboTemp.monto_NC) <= this.saldoFactura ){
-          this.edicion = false;
+          //this.edicion = false;
           this.reciboTemp.abono = this.cheque.monto + this.reciboTemp.deposito + this.reciboTemp.efectivo + this.reciboTemp.tarjeta;
           if ( this.dolares ){
             this.recibo.montoDolar = this.reciboTemp.abono;
