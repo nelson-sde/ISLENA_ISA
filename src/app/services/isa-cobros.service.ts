@@ -80,30 +80,30 @@ export class IsaCobrosService {
   transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
     let reciboBD: RecEncaBD = {
       coD_CIA : 'ISLENA',
-      nuM_REC : '',
-      coD_CLT : '',
+      nuM_REC : recibo.numeroRecibo,
+      coD_CLT : recibo.codCliente,
       coD_TIP_DC : '5',
       coD_ZON : this.isa.varConfig.numRuta,
-      feC_PRO : new Date(),
+      feC_PRO : recibo.fecha,
       inD_ANL : 'A',
-      inD_MON : 'L',
-      moN_DOC_LOC : 0,
-      moN_DOC_DOL : 0,
-      moN_EFE_LOCAL : 0,
-      moN_EFE_DOLAR : 0,
-      moN_CHE_DOLAR : 0,
-      moN_CHE_LOCAL : 0,
+      inD_MON : recibo.moneda,
+      moN_DOC_LOC : recibo.montoLocal,
+      moN_DOC_DOL : recibo.montoDolar,
+      moN_EFE_LOCAL : recibo.montoEfectivoL,
+      moN_EFE_DOLAR : recibo.montoEfectivoD,
+      moN_CHE_DOLAR : recibo.montoChequeD,
+      moN_CHE_LOCAL : recibo.montoChequeL,
       hoR_INI : new Date(),
       hoR_FIN : new Date(),
       doC_PRO : null,
       impreso : 'N',
       ncfmodificado : null,
-      moN_TAR_LOCAL : 0,
-      moN_TAR_DOLAR : 0,
+      moN_TAR_LOCAL : recibo.montoTarjetaL,
+      moN_TAR_DOLAR : recibo.montoTarjetaD,
       moN_TRANS_LOCAL : 0,
       moN_TRANS_DOLAR : 0,
-      moN_DEP_LOCAL : 0,
-      moN_DEP_DOLAR : 0,
+      moN_DEP_LOCAL : recibo.montoDepositoL,
+      moN_DEP_DOLAR : recibo.montoDepositoD,
       moN_BONCER_LOCAL : 0,
       moN_BONCER_DOLAR : 0,
       createDate : new Date(),
@@ -112,7 +112,7 @@ export class IsaCobrosService {
       recordDate : new Date(),
       rowPointer : '',
       updatedBy : 'ISA',
-      APLICACION : '',
+      APLICACION : recibo.observaciones,
     }
     let rowPointer: string = '';
     let email: Email;
@@ -123,25 +123,9 @@ export class IsaCobrosService {
       email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
 
       rowPointer = this.isa.generate();
+      reciboBD.rowPointer = rowPointer;
       this.actualizaVisita( recibo.codCliente );
 
-      reciboBD.nuM_REC = recibo.numeroRecibo;
-      reciboBD.coD_CLT = recibo.codCliente.toString();
-      reciboBD.coD_ZON = this.isa.varConfig.numRuta;
-      reciboBD.moN_DOC_LOC = recibo.montoLocal;
-      reciboBD.moN_DOC_DOL = recibo.montoDolar;
-      reciboBD.moN_EFE_LOCAL = recibo.montoEfectivoL;
-      reciboBD.moN_EFE_DOLAR = recibo.montoEfectivoD;
-      reciboBD.moN_CHE_DOLAR = recibo.montoChequeD;
-      reciboBD.moN_CHE_LOCAL = recibo.montoChequeL;
-      reciboBD.moN_TAR_LOCAL = recibo.montoTarjetaL;
-      reciboBD.moN_TAR_DOLAR = recibo.montoTarjetaD;
-      reciboBD.moN_DEP_LOCAL = recibo.montoDepositoL;
-      reciboBD.moN_DEP_DOLAR = recibo.montoDepositoD;
-      reciboBD.rowPointer = rowPointer;
-      reciboBD.APLICACION = recibo.observaciones;
-      reciboBD.inD_MON = recibo.moneda;
- 
       if (nuevo) {
         this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
         if (hayCheque){
