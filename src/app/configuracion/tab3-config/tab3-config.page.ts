@@ -80,6 +80,7 @@ export class Tab3ConfigPage implements OnInit{
     const {data} = await popover.onWillDismiss();
     console.log(data);
     if (data !== undefined) {
+      
       this.isa.varConfig.numRuta = this.isa.rutas[data.indice].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
       this.isa.varConfig.nomVendedor = this.isa.rutas[data.indice].agente;
       this.isa.varConfig.usuario = this.isa.rutas[data.indice].ruta;
@@ -90,6 +91,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[data.indice].devolucion;
       this.isa.varConfig.emailCxC = this.isa.rutas[data.indice].emaiL_EJECUTIVA;
       this.isa.varConfig.emailVendedor = this.isa.rutas[data.indice].emaiL_VENDEDOR;
+      this.isa.varConfig.emailSupervisor = this.isa.rutas[data.indice].emaiL_SUPERVISOR;
       this.isa.varConfig.tipoCambio = this.isa.rutas[data.indice].tcom;
       if ( this.isa.rutas[data.indice].usA_RECIBOS === 'S') {
         this.isa.varConfig.usaRecibos = true;
@@ -156,6 +158,7 @@ export class Tab3ConfigPage implements OnInit{
             this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
             this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
             this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+            this.isa.varConfig.emailSupervisor = this.isa.rutas[i].emaiL_SUPERVISOR;
             this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
             if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
               this.isa.varConfig.usaRecibos = true;

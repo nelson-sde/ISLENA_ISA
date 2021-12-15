@@ -11,6 +11,8 @@ import { Rutero } from 'src/app/models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NuevoPage } from 'src/app/configuracion/nuevo/nuevo.page';
 import { Email } from 'src/app/models/email';
+import { IsaCobrosService } from '../../services/isa-cobros.service';
+import { Pen_Cobro } from '../../models/cobro';
 
 const { App } = Plugins;
 
@@ -29,6 +31,7 @@ export class RuteroPage {
   constructor( private alertController: AlertController,
                private router: Router,
                private isa: IsaService,
+               private isaCobro: IsaCobrosService,
                private popoverCtrl: PopoverController,
                private modalCtrl: ModalController,
                private platform: Platform,
@@ -173,6 +176,8 @@ export class RuteroPage {
     this.dir = true;
     this.isa.cargaListaPrecios();
     this.isa.cargarExoneraciones();
+    this.cargarSaldos( this.isa.clienteAct.id );
+
     this.agregarRutero();
     if (this.isa.existencias.length === 0){
       this.isa.cargarExistencias();
@@ -181,7 +186,20 @@ export class RuteroPage {
       const email = new Email( this.isa.varConfig.emailCxC, `Notificación: Letra de Cambio Cliente ${this.isa.clienteAct.id} - ${this.isa.varConfig.numRuta}`, 
         `Se reporta visita por parte del vendedor al cliente ${this.isa.clienteAct.id}, ${this.isa.clienteAct.nombre}, el cual tiene pendiente actualizar o firmar la letra de Cambio.`);
       this.isa.enviarEmail( email );
+      email.toEmail = this.isa.varConfig.emailSupervisor;
+      this.isa.enviarEmail( email );
       this.isa.presentAlertW('Letra de Cambio', 'El Cliente tiene pendiente de firmar la letra de cambio.  Favor gestionar.');
+    }
+  }
+
+  cargarSaldos( idCliente: string ){
+    let cxc: Pen_Cobro[] = [];
+
+    this.isaCobro.cargarCxC ( idCliente );
+    cxc = this.isaCobro.cxc.slice(0);
+    this.isa.clienteAct.saldoCredito = 0;
+    if ( cxc.length > 0 ){
+      cxc.forEach( e => this.isa.clienteAct.saldoCredito += e.saldoLocal );
     }
   }
 

@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Email } from '../models/email';
 import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
 import { IsaService } from './isa.service';
+import { Pen_Cobro } from '../models/cobro';
 
 
 @Injectable({
@@ -24,6 +25,18 @@ export class IsaPedidoService {
     }
     pedidosLS.push( pedido );
     localStorage.setItem('pedidos', JSON.stringify(pedidosLS));
+  }
+
+  private guardarEnCxC( pedido: Pedido ){
+    let cxcLS: Pen_Cobro[] = [];
+
+    if (localStorage.getItem('cxc')){
+      cxcLS = JSON.parse( localStorage.getItem('cxc'));
+    }
+    const cxcItem = new Pen_Cobro( this.isa.varConfig.numRuta, '0', pedido.numPedido, pedido.codCliente, 0, pedido.total, 0, pedido.total, pedido.fecha,
+                          pedido.fecha, this.isa.clienteAct.diasCredito.toString() );
+    cxcLS.unshift( cxcItem );
+    localStorage.setItem('cxc', JSON.stringify(cxcLS));
   }
 
   borrarPedidos( completo: boolean ){    // Si completo = true, borra todos los pedidos de la tabla Pedidos
@@ -166,6 +179,7 @@ export class IsaPedidoService {
     let rowPointer: string = '';
     let tax: number;
     let email: Email;
+    let email2: Email;
     const fechaPedido = new Date(new Date(pedido.fecha).getTime() - (new Date(pedido.fecha).getTimezoneOffset() * 60000));
     const fechaEntrega = new Date(new Date(pedido.fechaEntrega).getTime() - (new Date(pedido.fechaEntrega).getTimezoneOffset() * 60000));
     const fechaFin = new Date(new Date(pedido.horaFin).getTime() - (new Date(pedido.horaFin).getTimezoneOffset() * 60000));
@@ -181,6 +195,7 @@ export class IsaPedidoService {
 
       if ( tipo == 'N' ){
         this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
+        this.guardarEnCxC( pedido );
       }
       const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', fechaFin, fechaPedido, 
                                     fechaEntrega, fechaPedido, pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, 
@@ -201,9 +216,19 @@ export class IsaPedidoService {
       } 
       this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
         resp => {
+
           console.log('Success Encabezado...', resp);
           this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
           this.agregarDetalle( numPedido, arrDetBD, email );                                                       // Si es exitoso envia el detalle
+
+          if ( pedido.total + this.isa.clienteAct.saldoCredito > this.isa.clienteAct.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
+            const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;
+            email2 = new Email( this.isa.varConfig.emailCxC, `${this.isa.varConfig.numRuta}. Limite de Credito Excedido`, texto);
+            this.isa.enviarEmail( email2 );
+            email2.toEmail = this.isa.varConfig.emailSupervisor;
+            this.isa.enviarEmail( email2 );
+          }
+          this.isa.clienteAct.saldoCredito += pedido.total; 
         }, error => {
           console.log('Error Encabezado ', error.message );
           this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);

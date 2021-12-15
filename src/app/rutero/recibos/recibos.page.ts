@@ -502,12 +502,23 @@ export class RecibosPage {
       } else {
         this.isaCobros.reciboSimple( this.recibo, true );
       }
+      this.cargarSaldos( this.isa.clienteAct.id );
       this.navController.back();
       this.navController.back();
     } else {
       this.isa.presentAlertW( 'Salvar Recibo', 'No es posible transmitir el Recibo si no se aplica la NC a una factura' );
     }
-    
+  }
+
+  cargarSaldos( idCliente: string ){
+    let cxc: Pen_Cobro[] = [];
+
+    this.isaCobros.cargarCxC ( idCliente );
+    cxc = this.isaCobros.cxc.slice(0);
+    this.isa.clienteAct.saldoCredito = 0;
+    if ( cxc.length > 0 ){
+      cxc.forEach( e => this.isa.clienteAct.saldoCredito += e.saldoLocal );
+    }
   }
 
   async asignaFactura( i: number, ev ){    // recibo.detalle[i] es la NC que se está asignando a una factura

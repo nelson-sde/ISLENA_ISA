@@ -10,6 +10,7 @@ export class Cliente {
     nombreContacto: string;
     montoCredito: number;
     limiteCredito: number;
+    saldoCredito: number;
     diasCredito: number;
     listaPrecios: number;
     descuento: number;
@@ -58,6 +59,7 @@ export class Cliente {
         } else {
             this.letraCambio = false;
         }
+        this.saldoCredito = 0;
     }
 }
 

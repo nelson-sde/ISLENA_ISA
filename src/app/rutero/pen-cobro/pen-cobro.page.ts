@@ -23,7 +23,7 @@ export class PenCobroPage {
                private router: Router,
                private popoverCtrl: PopoverController ) {
 
-    this.isaCobro.cargarCxC ( isa.clienteAct.id );
+    // this.isaCobro.cargarCxC ( isa.clienteAct.id );
     this.cxc = isaCobro.cxc.slice(0);
     if ( this.cxc.length > 0 ){
       this.cxc.forEach( e => this.saldo += e.saldoLocal );

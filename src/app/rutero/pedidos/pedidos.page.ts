@@ -10,6 +10,7 @@ import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component'
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { environment } from 'src/environments/environment';
+import { Email } from '../../models/email';
 
 
 
@@ -51,7 +52,7 @@ export class PedidosPage implements OnInit {
 
   @ViewChild('myList') ionList: IonList;
 
-  constructor( private isaConfig: IsaService,
+  constructor( private isa: IsaService,
                private isaPedido: IsaPedidoService,
                private isaCardex: IsaCardexService,
                private alertController: AlertController,
@@ -62,22 +63,22 @@ export class PedidosPage implements OnInit {
 
   ngOnInit(){
     const fecha = new Date();
-    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
     this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
-    this.isaConfig.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isaConfig.clienteAct.nombre}`);
+    this.isa.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isa.clienteAct.nombre}`);
     this.validaSiCardex();
-    this.isaConfig.transmitiendo = [];
+    this.isa.transmitiendo = [];
   }
 
   validaSiCardex(){
     let prod: Productos[] = [];
     let result: Cardex[] = [];
 
-    result = this.isaCardex.cargarCardexCliente(this.isaConfig.clienteAct.id);
+    result = this.isaCardex.cargarCardexCliente(this.isa.clienteAct.id);
     if ( result.length > 0 ){
       this.hayCardex = true;
       for (let i = 0; i < result.length; i++) {
-        prod = this.isaConfig.productos.filter(p => p.id == result[i].codProducto);
+        prod = this.isa.productos.filter(p => p.id == result[i].codProducto);
         if (prod.length > 0){ 
           this.esFrio( prod[0].frio );
           if ( result[i].cantPedido > 0 ){
@@ -149,27 +150,27 @@ export class PedidosPage implements OnInit {
     if (isNaN(+this.texto)) {            // Se buscará por código de producto
       // Se recorre el arreglo para buscar coincidencias
       this.mostrarProducto = false;
-      for (let i = 0; i < this.isaConfig.productos.length; i++) {
-        if (this.isaConfig.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-            this.busquedaProd.push(this.isaConfig.productos[i]);
+      for (let i = 0; i < this.isa.productos.length; i++) {
+        if (this.isa.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
+            this.busquedaProd.push(this.isa.productos[i]);
         }
       }
     } else {                      // la busqueda es por codigo de producto
       const codigo = this.texto.toString();
       if ( codigo.length <= environment.maxCharCodigoProd ){    // Busca por código de Producto Isleña
-        const product = this.isaConfig.productos.find( e => e.id == this.texto );
+        const product = this.isa.productos.find( e => e.id == this.texto );
         if ( product !== undefined ){
           this.busquedaProd.push(product);
         }
       } else {     // busca por código de barras
-        const product = this.isaConfig.productos.find( e => e.codigoBarras == this.texto );
+        const product = this.isa.productos.find( e => e.codigoBarras == this.texto );
         if ( product !== undefined ){
           this.busquedaProd.push(product);
         }
       }
     }
     if (this.busquedaProd.length == 0){                    // no hay coincidencias
-      this.isaConfig.presentAlertW( this.texto, 'No hay coincidencias' );
+      this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
       this.texto = '';
       this.mostrarListaProd = false;
       this.mostrarProducto = false;
@@ -251,7 +252,7 @@ export class PedidosPage implements OnInit {
 
   cantidadBodega( codProducto: string ){
 
-    const cant = this.isaConfig.existencias.find( d => d.articulo == codProducto );
+    const cant = this.isa.existencias.find( d => d.articulo == codProducto );
     if ( cant !== undefined ){
       return cant.existencia;
     } else {
@@ -271,7 +272,7 @@ export class PedidosPage implements OnInit {
 
   calculaLineaPedido(){           // Boton de aceptar la linea de pedido
     if ( this.descuento > environment.DescuentoMaxLinea ){
-      this.isaConfig.presentAlertW('Descuento', 'El descuento es superior al límite permitido');
+      this.isa.presentAlertW('Descuento', 'El descuento es superior al límite permitido');
       return;
     }
     if ( this.cantidad > 0 ){ 
@@ -323,7 +324,7 @@ export class PedidosPage implements OnInit {
       this.montoExonerado = 0;
       this.defaultCant = true;
     } else {
-      this.isaConfig.presentAlertW( 'Cantidad', 'La cantidad no puede ser 0');
+      this.isa.presentAlertW( 'Cantidad', 'La cantidad no puede ser 0');
     }
   }
 
@@ -331,7 +332,7 @@ export class PedidosPage implements OnInit {
     if (this.defaultCant){
       this.cantidad = this.cantidad + 1;
     } else {
-      this.descuento = this.descuento + this.descuentoPermitido( this.isaConfig.clienteAct.id, this.producto.id );
+      this.descuento = this.descuento + this.descuentoPermitido( this.isa.clienteAct.id, this.producto.id );
     }
   }
 
@@ -368,7 +369,7 @@ export class PedidosPage implements OnInit {
       }
     ];
 
-    if ( !this.hayCardex ){
+    if ( !this.hayCardex ){        // Si no hay un cardex definido no se habilita el botón de Proforma.
       botones = [
         {
           text: 'Cancel',
@@ -397,15 +398,18 @@ export class PedidosPage implements OnInit {
       });
       await alert.present();
     } else {
-      this.isaConfig.presentAlertW('Salvar Pedido', 'No se puede transmitir el pedido si se está editando o modificando una línea.');
+      this.isa.presentAlertW('Salvar Pedido', 'No se puede transmitir el pedido si se está editando o modificando una línea.');
     }
   }
 
   transmitir(){
+    if ( this.pedido.total + this.isa.clienteAct.saldoCredito > this.isa.clienteAct.limiteCredito && this.isa.clienteAct.diasCredito > 1){             // Se valida el límite de Crédito
+      this.isa.presentAlertW('CREDITO', 'El monto del pedido supera el límite de Crédito del Cliente. Llame a Credito para evitar inconvenientes!!!');
+    }
     this.pedido.horaFin = new Date();
     this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
-    this.isaCardex.actualizaAplicado(this.isaConfig.clienteAct.id);
-    this.isaConfig.nextPedido();    // Incrementa el consecutivo de los pedidos
+    this.isaCardex.actualizaAplicado(this.isa.clienteAct.id);
+    this.isa.nextPedido();    // Incrementa el consecutivo de los pedidos
     this.pedidoSinSalvar = false;
     this.texto = '';
     this.mostrarListaProd = false;
@@ -422,11 +426,11 @@ export class PedidosPage implements OnInit {
     this.montoExonerado = 0;
     this.exonerado = 0;
     const fecha = new Date()
-    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
     this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
     //this.getGeo();
     this.numLineas = this.pedido.detalle.length;
-    this.isaConfig.transmitiendo = [];
+    this.isa.transmitiendo = [];
   }
 
   enviarProforma(){
@@ -447,7 +451,7 @@ export class PedidosPage implements OnInit {
     this.montoExonerado = 0;
     this.exonerado = 0;
     const fecha = new Date()
-    this.pedido = new Pedido( this.isaConfig.varConfig.consecutivoPedidos, this.isaConfig.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', fecha, false, null);
+    this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', fecha, false, null);
     this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
     //this.getGeo();
     this.numLineas = this.pedido.detalle.length;
@@ -482,7 +486,7 @@ export class PedidosPage implements OnInit {
       }
       this.numLineas = this.pedido.detalle.length;
     } else {
-      this.isaConfig.presentAlertW( 'Borrado', 'No se puede borrar una línea si se estaba editando otra.');
+      this.isa.presentAlertW( 'Borrado', 'No se puede borrar una línea si se estaba editando otra.');
       this.ionList.closeSlidingItems();
     }
     
@@ -501,7 +505,7 @@ export class PedidosPage implements OnInit {
     if ( !this.modificando ){      // Valida si se está editando una línea... en ese caso no se puede editar.
       this.cantidad = this.pedido.detalle[i].cantidad;
       this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
-      this.producto = this.isaConfig.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
+      this.producto = this.isa.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
       this.texto = this.producto.nombre;
       this.cantBodega = this.cantidadBodega( this.producto.id );
       this.impuesto = this.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
@@ -516,7 +520,7 @@ export class PedidosPage implements OnInit {
       this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
       this.ionList.closeSlidingItems();
     } else {
-      this.isaConfig.presentAlertW( 'Edición', 'No se puede editar una línea si se estaba editando otra.');
+      this.isa.presentAlertW( 'Edición', 'No se puede editar una línea si se estaba editando otra.');
       this.ionList.closeSlidingItems();
     }
     
@@ -568,7 +572,7 @@ export class PedidosPage implements OnInit {
           placeholder: '%',
           value: this.pedido.porcentajeDescGeneral,
           min: -0,
-          max: this.isaConfig.clienteAct.descuento,
+          max: this.isa.clienteAct.descuento,
         },
       ],
       buttons: [
@@ -597,7 +601,7 @@ export class PedidosPage implements OnInit {
     let tax: number;
 
     if ( this.pedido.porcentajeDescGeneral > environment.DescuentoMaxGen ){
-      this.isaConfig.presentAlertW('Descuento','El descuento es superior al máximo permitido...');
+      this.isa.presentAlertW('Descuento','El descuento es superior al máximo permitido...');
     } else if (this.pedido.detalle.length > 0){
       for (let i = 0; i < this.pedido.detalle.length; i++) {
         tax = this.calculaImpuesto(this.pedido.detalle[i].impuesto, this.pedido.detalle[i].codProducto );
@@ -719,8 +723,8 @@ export class PedidosPage implements OnInit {
         break;
     }
     console.log('impuesto', impuesto);
-    console.log('exonerado', this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto ));
-    this.exonerado = this.isaConfig.consultarExoneracion( this.isaConfig.clienteAct.id, codProducto )/100;
+    console.log('exonerado', this.isa.consultarExoneracion( this.isa.clienteAct.id, codProducto ));
+    this.exonerado = this.isa.consultarExoneracion( this.isa.clienteAct.id, codProducto )/100;
     impuesto -= this.exonerado;
     return impuesto < 0 ? 0 : impuesto;
   }
@@ -780,11 +784,11 @@ export class PedidosPage implements OnInit {
         console.log('Barcode data', barcodeData);
         if ( !barcodeData.cancelled ){
           texto = barcodeData.text;
-          const item = this.isaConfig.productos.find( d => d.codigoBarras == texto )
+          const item = this.isa.productos.find( d => d.codigoBarras == texto )
           if ( item ){
             this.texto = item.id;
           } else {
-            this.isaConfig.presentAlertW('Scan', 'Producto no existe' + texto);
+            this.isa.presentAlertW('Scan', 'Producto no existe' + texto);
           }
         } 
        }).catch(err => {

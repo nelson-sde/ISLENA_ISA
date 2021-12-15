@@ -49,7 +49,7 @@ export class Tab3DatosPage {
     );                                // Actualiza la lista de rutas en ISA
   }
 
-  actualizaVarconfig( ruta: string ){
+  actualizaVarconfig( ruta: string ){ 
     const fecha = new Date();
     const day = new Date(fecha).getDate();
     const dayLiquid = new Date(this.isa.varConfig.ultimaLiquid).getDate();
@@ -74,6 +74,7 @@ export class Tab3DatosPage {
         this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
         this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
         this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+        this.isa.varConfig.emailSupervisor = this.isa.rutas[i].emaiL_SUPERVISOR;
         this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
         if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
           this.isa.varConfig.usaRecibos = true;
@@ -89,6 +90,7 @@ export class Tab3DatosPage {
         this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
         this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
         this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+        this.isa.varConfig.emailSupervisor = this.isa.rutas[i].emaiL_SUPERVISOR;
         this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
         if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
           this.isa.varConfig.usaRecibos = true;
