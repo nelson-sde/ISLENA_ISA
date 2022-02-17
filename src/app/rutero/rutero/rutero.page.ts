@@ -92,6 +92,15 @@ export class RuteroPage {
     }
   }
 
+  abrirDev(){
+    this.codigoCliente = this.isa.clienteAct.id;
+    if (this.codigoCliente !== '' && this.texto.length !== 0){
+      this.router.navigate(['/inventario-dev']);
+    } else {
+      this.presentAlert('Devoluciones', 'Debe seleccionar un cliente para realizar una Devolución...');
+    }
+  }
+
   abrirResumen(){
     this.router.navigate(['/resumen']);
   }

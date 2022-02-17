@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-title class="ion-text-center">Histórico Ventas</ion-title>
+      <ion-button (click)="abrirDirecto()" fill="clear" slot="end" size="medium">
+        <ion-icon name="arrow-forward-outline" [color]="isaCardex.cardexSinSalvar ? 'danger' : 'success'" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-item color="light">
+    <ion-text color="primary">
+      <h2>{{isa.clienteAct.id}}-{{ isa.clienteAct.nombre }}</h2>
+    </ion-text>
+  </ion-item>
+  <ion-searchbar mode="ios" palceholder="Buscar item" inputmode="text" (ionChange)="onSearchChange($event)" debounce="250" ></ion-searchbar>
+  <ion-item>
+    <ion-label>Ordena por: {{etiqueta}}</ion-label>
+    <ion-toggle color="dark" (ionChange)="cambiaBusqueda()"></ion-toggle>
+  </ion-item>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item color="light">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <div class="ion-text-center">Fecha</div>
+          </ion-col>
+          <ion-col size="2">
+            <div>Tipo</div>
+          </ion-col>
+          <ion-col size="2">
+            <div>Desc</div>
+          </ion-col>
+          <ion-col size="2">
+            <div class="ion-text-center">Q</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    
+    <ion-item *ngFor="let item of historico; let i = index" (click)="abrirCardex(item)">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="7">
+            <div>
+              <ion-text color="danger">{{ item.fecha | date: shortDate }}</ion-text>
+            </div>
+          </ion-col>
+          <ion-col size="1">
+            <div>{{ item.tipoDocumento[0] }}</div>
+          </ion-col>
+          <ion-col size="2">
+            <div>{{ item.descuento }}%</div>
+          </ion-col>
+          <ion-col size="2">
+            <div class="ion-text-end">
+              <ion-text color="danger">{{ item.cantPedido }}</ion-text>
+            </div>
+          </ion-col>
+          <ion-col size="12">
+            <div>
+              <ion-text color="primary">{{item.codProducto}}-{{ item.desProducto }}</ion-text>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando mas data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

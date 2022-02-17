@@ -101,6 +101,10 @@ const routes: Routes = [
   {
     path: 'nuevo',
     loadChildren: () => import('./configuracion/nuevo/nuevo.module').then( m => m.NuevoPageModule)
+  },
+  {
+    path: 'inventario-dev',
+    loadChildren: () => import('./rutero/inventario-dev/inventario-dev.module').then( m => m.InventarioDevPageModule)
   }
 ];
 @NgModule({
