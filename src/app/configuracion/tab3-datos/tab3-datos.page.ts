@@ -16,6 +16,7 @@ export class Tab3DatosPage {
   version: string = '';
   ambiente: string = '';
   actualizar: boolean = false;
+  darkMode: boolean = true;
 
   constructor( private navController: NavController,
                private alertCtrl: AlertController,
@@ -23,6 +24,9 @@ export class Tab3DatosPage {
                private isaPedidos: IsaPedidoService,
                private isaCobros: IsaCobrosService,
                private isaCardex: IsaCardexService ) { 
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    this.darkMode = prefersDark.matches;
 
     if (environment.prdMode){
       this.ambiente = 'PRD';
@@ -47,6 +51,11 @@ export class Tab3DatosPage {
         this.actualizar = false;
       }
     );                                // Actualiza la lista de rutas en ISA
+  }
+
+  cambioTheme(){
+    //this.darkMode = !this.darkMode;
+    document.body.classList.toggle('dark');
   }
 
   actualizaVarconfig( ruta: string ){ 

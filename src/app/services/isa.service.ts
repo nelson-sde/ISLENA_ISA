@@ -300,7 +300,8 @@ export class IsaService {
         console.log('CardexBD', resp );
         resp.forEach(e => {
           letra = e.tipO_DOCUMENTO[0];
-          cardex = new Cardex( e.cliente, e.articulo, 'ND', letra, e.fecha, 0, e.cantidad, e.descuento);
+          cardex = new Cardex( e.cliente, e.factura, e.articulo, 'ND', letra, e.fecha, 0, e.cantidad, e.descuento, e.desC_TOT_LINEA, 
+                      e.totaL_IMPUESTO1, e.preciO_TOTAL, e.preciO_UNITARIO);
           cardexArr.push(cardex);
         });
         console.log('Arreglo', cardexArr);

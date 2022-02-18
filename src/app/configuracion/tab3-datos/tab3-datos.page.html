@@ -12,6 +12,13 @@
 
 <ion-content class="ion-padding">
   <ion-list>
+
+    <ion-item>
+      <ion-icon slot="start" name="moon"></ion-icon>
+      <ion-label>Dark Theme</ion-label>
+      <ion-toggle [(ngModel)]="darkMode" (ionChange)="cambioTheme()"></ion-toggle>
+    </ion-item>
+
     <ion-item color="light">
       <ion-label>
         <h2><strong>Numero de Ruta: {{isa.varConfig.numRuta}}</strong></h2>

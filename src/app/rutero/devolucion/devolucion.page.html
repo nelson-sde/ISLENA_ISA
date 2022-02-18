@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-title class="ion-text-center">Devolución</ion-title>
+      <ion-button (click)="guardarDev()" fill="clear" slot="end" size="medium">
+        <ion-icon name="save-outline" [color]="dev.sinSalvar ? 'danger' : 'success'" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item color="light">
+      <ion-text color="primary">
+        <h1>{{item.codProducto}}-{{item.desProducto}}</h1>
+      </ion-text>
+    </ion-item>
+    <ion-item color="light">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="3">Factura:</ion-col>
+          <ion-col size="9">{{item.factura}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="3">Fecha:</ion-col>
+          <ion-col size="9">{{item.fecha | date : 'short'}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="4">Cant Fac:</ion-col>
+          <ion-col size="2">{{item.cantPedido}}</ion-col>
+          <ion-col size="3">Des:</ion-col>
+          <ion-col size="3">{{item.descuento}}%</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="3">*P/U*</ion-col>
+          <ion-col size="3">*Desc*</ion-col>
+          <ion-col size="3">*Imp*</ion-col>
+          <ion-col size="3">*Total*</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="3">{{item.precio}}</ion-col>
+          <ion-col size="3">{{item.montoDescuento}}</ion-col>
+          <ion-col size="3">{{item.impuesto}}</ion-col>
+          <ion-col size="3">{{item.monto}}</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <p></p>
+    <ion-item color="light">
+      <ion-label position="floating">Cantidad a Devolver:</ion-label>
+      <ion-input inputmode="numeric" [(ngModel)]="item.cantDev" (ionChange)="validaDev($event)" debounce="1000"></ion-input>
+    </ion-item>
+    <p></p>
+    <ion-button *ngIf="agregar" expand="block" (click)="agregarDev()" size="large" shape="round" color="primary">
+      Agregar
+    </ion-button>
+    <p></p>
+
+    <ion-item color="light">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="8">Factura</ion-col>
+          <ion-col size="4">Cantidad</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <ion-item *ngFor="let item of dev.devolucionDet">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="8">{{item.numFactura}}</ion-col>
+          <ion-col size="4">{{item.cantDevuelta}}</ion-col>
+          <ion-col size="12">{{item.articulo}}-{{item.descArticulo}}</ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+
+
+  </ion-list>
+
+</ion-content>

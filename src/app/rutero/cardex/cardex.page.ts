@@ -37,7 +37,8 @@ export class CardexPage {
     this.cardex = this.isaCardex.cargarCardexCliente( this.isa.clienteAct.id );
     console.log(this.codProducto);
     if (this.codProducto !== null){
-      const linea = new Cardex(this.isa.clienteAct.id, this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(this.codProducto), this.descuento);
+      const linea = new Cardex(this.isa.clienteAct.id, '', this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(this.codProducto), 
+                        this.descuento, 0, 0, 0, 0);
       linea.precio = this.consultarPrecio( linea.codProducto );
       this.agregaLineaCardex( linea );
     }
@@ -104,7 +105,7 @@ export class CardexPage {
     if (data.productos !== null){
       prodArray = data.productos.slice(0);
       prodArray.forEach( d => {
-        linea = new Cardex(this.isa.clienteAct.id, d.id, d.nombre, 'Pedido', new Date(), null, this.traerSugerido(d.id), 0);
+        linea = new Cardex(this.isa.clienteAct.id, '', d.id, d.nombre, 'Pedido', new Date(), null, this.traerSugerido(d.id), 0, 0, 0, 0, 0);
         linea.precio = this.consultarPrecio( linea.codProducto );
         this.agregaLineaCardex( linea );
       });

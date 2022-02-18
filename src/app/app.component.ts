@@ -24,4 +24,11 @@ export class AppComponent {
       this.splashScreen.hide();
     });
   }
+
+  checkDarkTheme(){
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    if ( prefersDark.matches ){
+      document.body.classList.toggle('dark');
+    }
+  }
 }

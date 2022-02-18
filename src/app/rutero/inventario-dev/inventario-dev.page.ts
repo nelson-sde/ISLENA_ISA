@@ -3,6 +3,8 @@ import { IsaService } from '../../services/isa.service';
 import { IsaCardexService } from '../../services/isa-cardex.service';
 import { ModalController, NavController, AlertController, IonInfiniteScroll } from '@ionic/angular';
 import { Cardex } from '../../models/cardex';
+import { DevolucionPage } from '../devolucion/devolucion.page';
+import { IsaDevService } from '../../services/isa-dev.service';
 
 @Component({
   selector: 'app-inventario-dev',
@@ -27,6 +29,7 @@ export class InventarioDevPage implements OnInit {
 
   constructor( private isa: IsaService,
                private isaCardex: IsaCardexService,
+               private isaDev: IsaDevService,
                private modalCtrl: ModalController,
                private navController: NavController,
                private alertController: AlertController) { }
@@ -93,6 +96,19 @@ export class InventarioDevPage implements OnInit {
     console.log('Productos:', this.productos);
   }
 
+  async abrirDev( item: Cardex ){
+    const modal = await this.modalCtrl.create({
+      component: DevolucionPage,
+      componentProps: { item },
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+    const {data} = await modal.onWillDismiss();
+    if ( data !== undefined){
+      // this.cardex = data.cardex.slice(0);
+    }
+  }
+
   loadData( event ){
     setTimeout(() => {
       if ( this.faltantes === 0 ) {
@@ -133,7 +149,7 @@ export class InventarioDevPage implements OnInit {
     const alert = await this.alertController.create({
       cssClass: 'my-custom-class',
       header: 'Cuidado!!!',
-      message: 'Desea salir del Cardex.  Se perdera la informacion no salvada.',
+      message: 'Desea salir de la Devolución.  Se perdera la informacion no salvada.',
       buttons: [
         {
           text: 'Cancel',
@@ -145,8 +161,8 @@ export class InventarioDevPage implements OnInit {
         }, {
           text: 'Si',
           handler: () => {
-            this.isaCardex.cardex = [];
-            this.isaCardex.cardexSinSalvar = false;
+            this.isaDev.devolucionDet = [];
+            this.isaDev.sinSalvar = false;
             this.navController.back();
           }
         }
@@ -162,7 +178,7 @@ export class InventarioDevPage implements OnInit {
   }
 
   regresar(){
-    if (this.isaCardex.cardexSinSalvar){
+    if (this.isaDev.sinSalvar){
       this.presentAlertSalir();
     } else {
       this.navController.back();
