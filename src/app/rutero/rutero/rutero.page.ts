@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ModalController, Platform, PopoverController } from '@ionic/angular';
 import { Cliente } from 'src/app/models/cliente';
@@ -21,7 +21,7 @@ const { App } = Plugins;
   templateUrl: './rutero.page.html',
   styleUrls: ['./rutero.page.scss'],
 })
-export class RuteroPage {
+export class RuteroPage implements OnInit {
   texto: string = '';                          // Campo de busqueda del cliente
   direccion: string = '';                     // Direccion del cliente en el rutero
   dir: boolean = false;                      // Hay direccion = true
@@ -37,12 +37,20 @@ export class RuteroPage {
                private platform: Platform,
                private geolocation: Geolocation ) {
 
-    this.isa.cargarClientes();
-    this.cargarRutero();
     this.platform.backButton.subscribeWithPriority(10, () => {
       console.log('Handler was called!');
       this.presentAlertSalir();
     });
+  }
+
+  ngOnInit(){
+    this.isa.cargarClientes();
+    this.cargarRutero();
+    this.checkDarkTheme();
+  }
+
+  checkDarkTheme(){
+    document.body.classList.toggle('dark', this.isa.varConfig.darkMode);
   }
 
   async clienteNuevo(){

@@ -18,6 +18,7 @@ export interface RutaConfig {
     claveCxC:   string;
     tipoCambio: number;
     ultimaLiquid: Date;
+    darkMode: boolean;
 }
   
 export interface Ruta {

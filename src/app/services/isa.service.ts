@@ -38,6 +38,7 @@ export class IsaService {
     tipoCambio: environment.tipoCambio,
     ultimaLiquid: null,
     emailSupervisor: '',
+    darkMode: null
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './tab3-datos.page.html',
   styleUrls: ['./tab3-datos.page.scss'],
 })
-export class Tab3DatosPage {
+export class Tab3DatosPage implements OnInit {
 
   version: string = '';
   ambiente: string = '';
@@ -25,8 +25,19 @@ export class Tab3DatosPage {
                private isaCobros: IsaCobrosService,
                private isaCardex: IsaCardexService ) { 
 
+                                 // Actualiza la lista de rutas en ISA
+  }
+
+  ngOnInit(){
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    console.log(prefersDark);
     this.darkMode = prefersDark.matches;
+    if (this.isa.varConfig.darkMode === undefined || this.isa.varConfig.darkMode === null) {
+      this.isa.varConfig.darkMode = prefersDark.matches;
+      this.isa.guardarVarConfig();
+    } else {
+      this.darkMode = this.isa.varConfig.darkMode;
+    }
 
     if (environment.prdMode){
       this.ambiente = 'PRD';
@@ -50,12 +61,15 @@ export class Tab3DatosPage {
         this.isa.presentAlertW('Cargando Rutas', error.message);
         this.actualizar = false;
       }
-    );                                // Actualiza la lista de rutas en ISA
+    );
   }
 
   cambioTheme(){
+    console.log(this.darkMode);
     //this.darkMode = !this.darkMode;
-    document.body.classList.toggle('dark');
+    this.isa.varConfig.darkMode = this.darkMode;
+    document.body.classList.toggle('dark', this.darkMode);
+    this.isa.guardarVarConfig();
   }
 
   actualizaVarconfig( ruta: string ){ 
