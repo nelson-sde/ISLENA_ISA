@@ -408,7 +408,7 @@ export class PedidosPage implements OnInit {
     }
     this.pedido.horaFin = new Date();
     this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
-    this.isaCardex.actualizaAplicado(this.isa.clienteAct.id);
+    this.isaCardex.actualizaAplicado(this.pedido.codCliente);
     this.isa.nextPedido();    // Incrementa el consecutivo de los pedidos
     this.pedidoSinSalvar = false;
     this.texto = '';

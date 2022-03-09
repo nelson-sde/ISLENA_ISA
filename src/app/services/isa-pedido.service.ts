@@ -221,14 +221,16 @@ export class IsaPedidoService {
           this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
           this.agregarDetalle( numPedido, arrDetBD, email );                                                       // Si es exitoso envia el detalle
 
-          if ( pedido.total + this.isa.clienteAct.saldoCredito > this.isa.clienteAct.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
+          if ( pedido.total + cliente.saldoCredito > cliente.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
             const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;
             email2 = new Email( this.isa.varConfig.emailCxC, `${this.isa.varConfig.numRuta}. Limite de Credito Excedido`, texto);
             this.isa.enviarEmail( email2 );
             email2.toEmail = this.isa.varConfig.emailSupervisor;
             this.isa.enviarEmail( email2 );
           }
-          this.isa.clienteAct.saldoCredito += pedido.total; 
+          if ( cliente.id === this.isa.clienteAct.id ){
+            this.isa.clienteAct.saldoCredito += pedido.total;
+          }
         }, error => {
           console.log('Error Encabezado ', error.message );
           this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);
