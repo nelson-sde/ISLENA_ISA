@@ -58,18 +58,13 @@ export class ResumenPage {
   }
 
   buscarPedidos( i: number ){      // Busca en la BD si el pedido "i" fue transmitido o no.  Si fue TR lo marca como true en EnvíoExitoso
-    this.isa.getPedido( this.pedidos[i].numPedido ).subscribe(
+    this.isa.getDetPedido( this.pedidos[i].numPedido ).subscribe(
       resp => {
         console.log('Pedido', resp );
         if (resp.length > 0){
-          const existe = resp.findIndex( d => d.coD_CLT === this.pedidos[i].codCliente);
-          if ( existe >= 0 ){
-            this.pedidos[i].envioExitoso = true;
-            localStorage.setItem( 'pedidos', JSON.stringify(this.pedidos));
-            console.log('Pedido Encontrado');
-          } else {
-            console.log('El pedido no corresponde con el cliente...');
-          }
+          this.pedidos[i].envioExitoso = true;
+          localStorage.setItem( 'pedidos', JSON.stringify(this.pedidos));
+          console.log('Pedido Encontrado');
         } else {
           console.log('Pedido no en BD');
           this.isa.presentAlertW('Pedido', `El pedido ${this.pedidos[i].numPedido} no está en la BD.  Por favor retransmita.`);

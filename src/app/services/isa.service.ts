@@ -6,7 +6,7 @@ import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
 import { Categorias, Cliente, ClienteBD, ClientePut, ClienteRT } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
-import { Exoneraciones, Existencias, PedEnca  } from '../models/pedido';
+import { Exoneraciones, Existencias, PedEnca, PedDeta } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
@@ -130,6 +130,11 @@ export class IsaService {
   getPedido( numPedido: string ){
     const URL = this.getURL( environment.PedEncaURL, numPedido );
     return this.http.get<PedEnca[]>( URL );
+  }
+
+  getDetPedido( numPedido: string ){
+    const URL = this.getURL( environment.PedDetaURL, numPedido );
+    return this.http.get<PedDeta[]>( URL );
   }
 
   getRecibo( numRecibo: string ){
