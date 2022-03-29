@@ -63,8 +63,8 @@ export class PedidosPage implements OnInit {
 
   ngOnInit(){
     const fecha = new Date();
-    this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
-    this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
+    this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', null, false, null);
+    //this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
     this.isa.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isa.clienteAct.nombre}`);
     this.validaSiCardex();
     this.isa.transmitiendo = [];
@@ -390,13 +390,17 @@ export class PedidosPage implements OnInit {
     }
 
     if (this.pedidoSinSalvar && !this.modificando && !this.mostrarListaProd ){
-      const alert = await this.alertController.create({
-        cssClass: 'my-custom-class',
-        header: 'Confirmación',
-        message: `Envío de Pedido <strong>${this.pedido.numPedido}</strong>`,
-        buttons: botones
-      });
-      await alert.present();
+      if ( this.pedido.fechaEntrega !== null ){
+        const alert = await this.alertController.create({
+          cssClass: 'my-custom-class',
+          header: 'Confirmación',
+          message: `Envío de Pedido <strong>${this.pedido.numPedido}</strong>`,
+          buttons: botones
+        });
+        await alert.present();
+      } else {
+        this.isa.presentAlertW('Fecha Entrega', 'No se puede enviar el pedido sin una fecha de entrega.');
+      }
     } else {
       this.isa.presentAlertW('Salvar Pedido', 'No se puede transmitir el pedido si se está editando o modificando una línea.');
     }
