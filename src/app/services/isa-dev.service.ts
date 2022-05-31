@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { DevolucionesDet } from '../models/cardex';
+import { LineasDev } from '../models/devolucion';
 
 @Injectable({
   providedIn: 'root'
 })
 export class IsaDevService {
 
-  devolucionDet: DevolucionesDet[] = [];
+  devolucionDet: LineasDev[] = [];
   sinSalvar: boolean = false;
 
   constructor() { 
