@@ -841,5 +841,36 @@ export class IsaService {
       console.log('Ubicacion JSON:', JSON.stringify(visitas));
     }
   }
+
+  calculaImpuesto( texto: string, codProducto: string ){
+    let impuesto: number;
+    let exonerado: number = 0;
+
+    switch ( texto ){
+      case '0101':
+        impuesto = 0;
+        break;
+      case '0102':
+        impuesto = 0.01;
+        break;
+      case '0103':
+        impuesto = 0.02;
+        break;
+      case '0104':
+        impuesto = 0.04;
+        break;
+      case '0108':
+        impuesto = 0.13;
+        break;
+      default:
+        impuesto = 0;
+        break;
+    }
+    console.log('impuesto', impuesto);
+    console.log('exonerado', this.consultarExoneracion( this.clienteAct.id, codProducto ));
+    exonerado = this.consultarExoneracion( this.clienteAct.id, codProducto )/100;
+    impuesto -= exonerado;
+    return impuesto < 0 ? 0 : impuesto;
+  }
   
 }

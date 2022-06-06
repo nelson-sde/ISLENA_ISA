@@ -82,7 +82,8 @@ export class PedidosPage implements OnInit {
         if (prod.length > 0){ 
           this.esFrio( prod[0].frio );
           if ( result[i].cantPedido > 0 ){
-            this.impuesto = this.calculaImpuesto( prod[0].impuesto, prod[0].id );
+            this.impuesto = this.isa.calculaImpuesto( prod[0].impuesto, prod[0].id );
+            this.exonerado = this.isa.consultarExoneracion( this.isa.clienteAct.id, prod[0].id )/100;
             this.montoSub = result[i].cantPedido * prod[0].precio;
             this.montoDescLinea = this.montoSub * result[i].descuento / 100;
             this.montoIVA = (this.montoSub - this.montoDescLinea) * this.impuesto;
@@ -188,7 +189,7 @@ export class PedidosPage implements OnInit {
       this.producto = this.busquedaProd[i];
       this.texto = this.busquedaProd[i].nombre;
       this.cantBodega = this.cantidadBodega( this.producto.id );
-      this.impuesto = this.calculaImpuesto( this.busquedaProd[i].impuesto, this.busquedaProd[i].id );
+      this.impuesto = this.isa.calculaImpuesto( this.busquedaProd[i].impuesto, this.busquedaProd[i].id );
       const j = this.existeEnDetalle(this.busquedaProd[i].id);
       if (j >= 0){          // Ya el Item había sido seleccionado anteriormente.
         this.cantidad = this.pedido.detalle[j].cantidad;
@@ -205,7 +206,8 @@ export class PedidosPage implements OnInit {
       for (let x = 0; x < this.busquedaProd.length; x++) {
         if ( this.existeEnDetalle(this.busquedaProd[x].id) < 0 ) {   // si el articulo no existe en el detalle se agrega
           this.esFrio( this.busquedaProd[x].frio );
-          this.impuesto = this.calculaImpuesto( this.busquedaProd[x].impuesto, this.busquedaProd[x].id );
+          this.impuesto = this.isa.calculaImpuesto( this.busquedaProd[x].impuesto, this.busquedaProd[x].id );
+          this.exonerado = this.isa.consultarExoneracion( this.isa.clienteAct.id, this.busquedaProd[x].id )/100;
           this.montoSub = 1 * this.busquedaProd[x].precio;
           this.montoExonerado = this.montoSub * this.exonerado;
           this.montoIVA = this.montoSub * this.impuesto;
@@ -512,7 +514,7 @@ export class PedidosPage implements OnInit {
       this.producto = this.isa.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
       this.texto = this.producto.nombre;
       this.cantBodega = this.cantidadBodega( this.producto.id );
-      this.impuesto = this.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
+      this.impuesto = this.isa.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
       this.mostrarListaProd = false;
       this.mostrarProducto = true;
       this.modificando = true;
@@ -608,7 +610,8 @@ export class PedidosPage implements OnInit {
       this.isa.presentAlertW('Descuento','El descuento es superior al máximo permitido...');
     } else if (this.pedido.detalle.length > 0){
       for (let i = 0; i < this.pedido.detalle.length; i++) {
-        tax = this.calculaImpuesto(this.pedido.detalle[i].impuesto, this.pedido.detalle[i].codProducto );
+        this.exonerado = this.isa.consultarExoneracion( this.isa.clienteAct.id, this.pedido.detalle[i].codProducto )/100;
+        tax = this.isa.calculaImpuesto(this.pedido.detalle[i].impuesto, this.pedido.detalle[i].codProducto );
         montoDescGen = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento) * this.pedido.porcentajeDescGeneral / 100;
         montoIVA = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento - montoDescGen) * tax;
         montoExo = (this.pedido.detalle[i].subTotal - this.pedido.detalle[i].descuento - montoDescGen) * this.exonerado;
@@ -701,36 +704,6 @@ export class PedidosPage implements OnInit {
     });
 
     await alert.present();
-  }
-
-  calculaImpuesto( texto: string, codProducto: string ){
-    let impuesto: number;
-
-    switch ( texto ){
-      case '0101':
-        impuesto = 0;
-        break;
-      case '0102':
-        impuesto = 0.01;
-        break;
-      case '0103':
-        impuesto = 0.02;
-        break;
-      case '0104':
-        impuesto = 0.04;
-        break;
-      case '0108':
-        impuesto = 0.13;
-        break;
-      default:
-        impuesto = 0;
-        break;
-    }
-    console.log('impuesto', impuesto);
-    console.log('exonerado', this.isa.consultarExoneracion( this.isa.clienteAct.id, codProducto ));
-    this.exonerado = this.isa.consultarExoneracion( this.isa.clienteAct.id, codProducto )/100;
-    impuesto -= this.exonerado;
-    return impuesto < 0 ? 0 : impuesto;
   }
 
   async ingresaCantidad(){
