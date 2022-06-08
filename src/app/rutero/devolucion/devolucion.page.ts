@@ -41,9 +41,12 @@ export class DevolucionPage implements OnInit {
   }
 
   agregarDev(){
+    const montoLinea = this.item.cantDev * this.item.precio;
+    const montoDesc = montoLinea * (this.item.descuento / 100);
+
     if ( this.dev.devolucionDet.findIndex( x => x.numFactura === this.item.factura && x.articulo === this.item.codProducto ) === -1 ){
       const devolucion = new LineasDev ( this.item.factura, this.item.fecha, this.item.codCliente, this.item.codProducto, this.item.desProducto, this.item.precio, this.item.cantPedido,
-                                         this.item.cantDev, this.item.montoDescuento, this.item.descuento, this.item.impuesto, this.item.monto, this.item.linea, this.item.bodega, 0 );
+                                         this.item.cantDev, this.item.descuento, montoDesc, this.item.impuesto, montoLinea, this.item.linea, this.item.bodega, 0 );
       this.dev.devolucionDet.unshift( devolucion );
       this.agregar = false;
       this.dev.sinSalvar = true;
@@ -102,49 +105,59 @@ export class DevolucionPage implements OnInit {
     let c: string = '';
     let devolucion: Devolucion;
     let detDev: DevolucionDet;
+    let porcenImp: number;
+    let montoImp: number;
 
     console.log('Devoluciones: ', this.dev.devolucionDet);
     if ( this.dev.sinSalvar && this.dev.devolucionDet.length > 0 ){
 
       this.dev.devolucionDet.forEach( x => {
+        p = this.isa.productos.find( y => y.id === x.articulo );   // Información del artículo seleccionado
         i = this.devoluciones.findIndex( z => z.numFactura === x.numFactura );
-        if ( i === -1 ){
-          p = this.isa.productos.find( y => y.id === x.articulo );
-          if ( p !== undefined ){ 
-            devolucion = new Devolucion(this.isa.varConfig.consecutivoDevoluciones, x.cliente, x.numFactura, new Date(), new Date(), x.fechaFac, this.observaciones, 
-                        1, this.isa.clienteAct.listaPrecios, x.monto, x.descuento, x.impuestos, x.bodega, p.nivelPrecio, 'L', this.isa.clienteAct.divGeografica1, 
-                        this.isa.clienteAct.divGeografica2, environment.actividadEco );
 
-            // incrementar el consecutivo de la devolución
-            c = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoDevoluciones);
-            this.isa.varConfig.consecutivoDevoluciones = c;
-
-            detDev = new DevolucionDet( x.articulo, x.monto, x.precio, x.cantDevuelta, null, x.montoDesc, x.descuento, p.impuesto.slice(0,2), p.impuesto.slice(2), 
-                      this.isa.calculaImpuesto( p.impuesto, x.articulo ) * 100 );
-            devolucion.lineas.push( detDev );
-
-            this.devoluciones.push( devolucion );
-          } else {
-            this.isa.presentAlertW('Producto Inactivo', `El producto ${x.articulo} ya no se encuentra activo.  No se puede devolver...!!!`);
-          }
+        if ( p !== undefined ){      // Se calcula el impuesto de la linea
+          porcenImp = this.isa.calculaImpuesto( p.impuesto, x.articulo );
+          montoImp = x.monto * porcenImp;
         } else {
+          this.isa.presentAlertW('Producto Inactivo', `El producto ${x.articulo} ya no se encuentra activo.  No se puede devolver...!!!`);
+          return
+        }
+
+        if ( i === -1 ){   // Si i = -1 la devolución no existe en el arreglo
+          // Se crea el encabezado de la devolución
+          devolucion = new Devolucion(this.isa.varConfig.consecutivoDevoluciones, x.cliente, x.numFactura, new Date(), new Date(), x.fechaFac, this.observaciones, 
+                      1, this.isa.clienteAct.listaPrecios, x.monto, x.descuento, montoImp, x.bodega, p.nivelPrecio, 'L', this.isa.clienteAct.divGeografica1, 
+                      this.isa.clienteAct.divGeografica2, environment.actividadEco );
+
+          // incrementar el consecutivo de la devolución
+          c = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoDevoluciones);
+          this.isa.varConfig.consecutivoDevoluciones = c;
+
+          // se agrega la línea de la devolución en el detalle
+          detDev = new DevolucionDet( x.articulo, x.monto, x.precio, x.cantDevuelta, null, x.montoDesc, x.descuento, p.impuesto.slice(0,2), p.impuesto.slice(2), 
+                    this.isa.calculaImpuesto( p.impuesto, x.articulo ) * 100 );
+          devolucion.lineas.push( detDev );
+
+          this.devoluciones.push( devolucion );
+        } else {       // SINO la devolución si existe y solo se agrega la línea en el detalle.  Se actualizan totales
           detDev = new DevolucionDet( x.articulo, x.monto, x.precio, x.cantDevuelta, null, x.montoDesc, x.descuento, p.impuesto.slice(0,2), p.impuesto.slice(2),
           this.isa.calculaImpuesto( p.impuesto, x.articulo ) * 100 );
           this.devoluciones[i].lineas.push(detDev);
           this.devoluciones[i].numItems += 1;
           this.devoluciones[i].montoSinIVA += x.monto;
-          this.devoluciones[i].montoImp += x.impuestos;
+          this.devoluciones[i].montoImp += montoImp;
           this.devoluciones[i].montoDesc += x.montoDesc;
         }
       });
+      
       this.dev.guardarDevoluciones(this.devoluciones);
       this.isa.guardarVarConfig();
+      this.dev.transmitirDev( this.devoluciones );     // Función que invoca el servicio HTTP y realiza el POST a la BD
 
       this.dev.devolucionDet = [];
       this.dev.sinSalvar = false;
       this.modalCtrl.dismiss();
       this.navCtrl.back();
-      this.isa.presentaToast('Devolución Exitosa...');
     }
   }
 

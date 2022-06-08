@@ -20,6 +20,7 @@ export const environment = {
   CxCURL:       'cxc/',
   DescuentoMaxLinea: 99.99,
   DescuentoMaxGen: 30,
+  DevURL:       'DevTemp',
   Ejecutivas:   'Ejecutivas/',
   EmailURL:     'Email/',
   Existencias:  'Existencias/',
@@ -44,7 +45,7 @@ export const environment = {
   adminClave: '@dmin2021*',
   version:    '1.6.0',
   aplicarNC:  false,
-  prdMode:    true,
+  prdMode:    false,
 };
 
 /*
