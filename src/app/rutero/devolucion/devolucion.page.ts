@@ -134,13 +134,13 @@ export class DevolucionPage implements OnInit {
           this.isa.varConfig.consecutivoDevoluciones = c;
 
           // se agrega la línea de la devolución en el detalle
-          detDev = new DevolucionDet( x.articulo, x.monto, x.precio, x.cantDevuelta, null, x.montoDesc, x.descuento, p.impuesto.slice(0,2), p.impuesto.slice(2), 
+          detDev = new DevolucionDet( x.articulo, p.nombre, x.monto, x.precio, x.cantDevuelta, null, x.montoDesc, x.descuento, p.impuesto.slice(0,2), p.impuesto.slice(2), 
                     this.isa.calculaImpuesto( p.impuesto, x.articulo ) * 100 );
           devolucion.lineas.push( detDev );
 
           this.devoluciones.push( devolucion );
         } else {       // SINO la devolución si existe y solo se agrega la línea en el detalle.  Se actualizan totales
-          detDev = new DevolucionDet( x.articulo, x.monto, x.precio, x.cantDevuelta, null, x.montoDesc, x.descuento, p.impuesto.slice(0,2), p.impuesto.slice(2),
+          detDev = new DevolucionDet( x.articulo, p.nombre, x.monto, x.precio, x.cantDevuelta, null, x.montoDesc, x.descuento, p.impuesto.slice(0,2), p.impuesto.slice(2),
           this.isa.calculaImpuesto( p.impuesto, x.articulo ) * 100 );
           this.devoluciones[i].lineas.push(detDev);
           this.devoluciones[i].numItems += 1;
@@ -149,7 +149,7 @@ export class DevolucionPage implements OnInit {
           this.devoluciones[i].montoDesc += x.montoDesc;
         }
       });
-      
+
       this.dev.guardarDevoluciones(this.devoluciones);
       this.isa.guardarVarConfig();
       this.dev.transmitirDev( this.devoluciones );     // Función que invoca el servicio HTTP y realiza el POST a la BD
@@ -159,6 +159,17 @@ export class DevolucionPage implements OnInit {
       this.modalCtrl.dismiss();
       this.navCtrl.back();
     }
+  }
+
+  mostrarDev( devoluciones: Devolucion[] ){  // Este procedimiento le indica al vendedor cuales fueron la Devoluciones generadas
+    let texto: string = ''
+    let array: string
+
+    devoluciones.forEach( x => {
+      array = texto.concat( `${x.numDevolucion} `)
+      texto = array
+    })
+    this.isa.presentAlertW('Devoluciones', 'Las devoluciones generadas son: ' + texto);
   }
 
   regresar(){

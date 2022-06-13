@@ -47,6 +47,7 @@ export class Devolucion {
 export class DevolucionDet {
     constructor (
         public articulo:        string,
+        public descripcion:     string,
         public montoLinea:      number,
         public precio:          number,
         public cantidadDev:     number,

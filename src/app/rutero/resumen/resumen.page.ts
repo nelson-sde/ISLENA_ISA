@@ -5,6 +5,8 @@ import { PedEnca, Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { ResumenPedPage } from '../resumen-ped/resumen-ped.page';
 import { ResumenRecPage } from '../resumen-rec/resumen-rec.page';
+import { Devolucion } from '../../models/devolucion';
+import { ResumenDevPage } from '../resumen-dev/resumen-dev.page';
 
 @Component({
   selector: 'app-resumen',
@@ -13,14 +15,16 @@ import { ResumenRecPage } from '../resumen-rec/resumen-rec.page';
 })
 export class ResumenPage {
 
-  pedidos: Pedido[] = [];
-  recibos: Recibo[] = [];
-  total: number = 0;
-  totalPedidos: number = 0;
-  totalRecibos: number = 0;
+  pedidos:        Pedido[] = [];
+  recibos:        Recibo[] = [];
+  devoluciones:   Devolucion[] = [];
+  total:          number = 0;
+  totalPedidos:   number = 0;
+  totalRecibos:   number = 0;
+  totalDev:       number = 0;
   mostrarPedidos: boolean = true;
   mostrarRecibos: boolean = false;
-  mostrarDevol: boolean = false;
+  mostrarDev:   boolean = false;
   mostrarBitacora: boolean = false;
 
   constructor( private navController: NavController,
@@ -28,6 +32,7 @@ export class ResumenPage {
                private isa: IsaService ) {
     this.cargarPedidos();
     this.cargarRecibos();
+    this.cargarDev();
     this.total = this.totalPedidos;
   }
 
@@ -102,25 +107,25 @@ export class ResumenPage {
     if (ev.detail.value == 'Pedidos'){
       this.total = this.totalPedidos;
       this.mostrarPedidos = true;
-      this.mostrarDevol = false;
+      this.mostrarDev = false;
       this.mostrarRecibos = false;
       this.mostrarBitacora = false;
     } else if (ev.detail.value == 'Recibos'){
       this.total = this.totalRecibos;
       this.mostrarPedidos = false;
-      this.mostrarDevol = false;
+      this.mostrarDev = false;
       this.mostrarRecibos = true;
       this.mostrarBitacora = false;
     } else if (ev.detail.value == 'Devoluciones'){
-      this.total = 0;
+      this.total = this.totalDev;
       this.mostrarPedidos = false;
-      this.mostrarDevol = true;
+      this.mostrarDev = true;
       this.mostrarRecibos = false;
       this.mostrarBitacora = false;
     } else if (ev.detail.value == 'Bitacora'){ 
       this.total = 0;
       this.mostrarPedidos = false;
-      this.mostrarDevol = false;
+      this.mostrarDev = false;
       this.mostrarRecibos = false;
       this.mostrarBitacora = true;
     }
@@ -147,6 +152,15 @@ export class ResumenPage {
     }
   }
 
+  cargarDev(){
+    if (localStorage.getItem('ISADev')){
+      this.devoluciones = JSON.parse( localStorage.getItem('ISADev'));
+      this.devoluciones.forEach(e => {
+        this.totalDev += e.montoSinIVA;
+      });
+    }
+  }
+
   async abrirDetallePedido( i: number ){
     const modal = await this.modalCtrl.create({
       component: ResumenPedPage,
@@ -163,6 +177,17 @@ export class ResumenPage {
       component: ResumenRecPage,
       componentProps: {
         'recibo': this.recibos[i]
+      },
+      cssClass: 'my-custom-class'
+    });
+    return await modal.present();
+  }
+
+  async abrirDetalleDev( i: number ){
+    const modal = await this.modalCtrl.create({
+      component: ResumenDevPage,
+      componentProps: {
+        'devolucion': this.devoluciones[i]
       },
       cssClass: 'my-custom-class'
     });

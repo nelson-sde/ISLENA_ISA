@@ -110,6 +110,46 @@
     </ion-item>
   </ion-list>
 
+  <ion-list *ngIf="mostrarDev">
+    <ion-item color="light">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="4">
+            <div>Cliente</div>
+          </ion-col>
+          <ion-col size="4">
+            <div>Devolución</div>
+          </ion-col>
+          <ion-col size="4">
+            <div>Monto</div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+    <ion-item *ngFor="let item of devoluciones; let i = index" (click)="abrirDetalleDev(i)">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="3">
+            <div>
+              <ion-text [color]="item.envioExitoso ? 'success' : 'danger'">{{item.cliente}}</ion-text>
+            </div>
+          </ion-col>
+          <ion-col size="5">
+            <div>{{item.numDevolucion}}</div>
+          </ion-col>
+          <ion-col size="4">
+            <div class="ion-text-end">{{item.montoSinIVA | colones}}</div>
+          </ion-col>
+          <ion-col size="12">
+            <div>
+              <ion-text color="primary">{{item.cliente | cliente}}</ion-text>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-list>
+
   <ion-list *ngIf="mostrarBitacora">
     <ion-item color="light">
       <ion-grid fixed>

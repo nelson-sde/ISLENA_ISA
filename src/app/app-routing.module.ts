@@ -109,6 +109,10 @@ const routes: Routes = [
   {
     path: 'devolucion',
     loadChildren: () => import('./rutero/devolucion/devolucion.module').then( m => m.DevolucionPageModule)
+  },
+  {
+    path: 'resumen-dev',
+    loadChildren: () => import('./rutero/resumen-dev/resumen-dev.module').then( m => m.ResumenDevPageModule)
   }
 ];
 @NgModule({
