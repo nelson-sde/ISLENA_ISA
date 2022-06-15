@@ -46,7 +46,8 @@ export class DevolucionPage implements OnInit {
 
     if ( this.dev.devolucionDet.findIndex( x => x.numFactura === this.item.factura && x.articulo === this.item.codProducto ) === -1 ){
       const devolucion = new LineasDev ( this.item.factura, this.item.fecha, this.item.codCliente, this.item.codProducto, this.item.desProducto, this.item.precio, this.item.cantPedido,
-                                         this.item.cantDev, this.item.descuento, montoDesc, this.item.impuesto, montoLinea, this.item.linea, this.item.bodega, 0 );
+                                         this.item.cantDev, this.item.descuento, montoDesc, this.item.impuesto, montoLinea, this.item.linea, 
+                                         this.item.bodega, this.item.descGeneral );
       this.dev.devolucionDet.unshift( devolucion );
       this.agregar = false;
       this.dev.sinSalvar = true;
@@ -126,7 +127,7 @@ export class DevolucionPage implements OnInit {
         if ( i === -1 ){   // Si i = -1 la devolución no existe en el arreglo
           // Se crea el encabezado de la devolución
           devolucion = new Devolucion(this.isa.varConfig.consecutivoDevoluciones, x.cliente, x.numFactura, new Date(), new Date(), x.fechaFac, this.observaciones, 
-                      1, this.isa.clienteAct.listaPrecios, x.monto, x.descuento, montoImp, x.bodega, p.nivelPrecio, 'L', this.isa.clienteAct.divGeografica1, 
+                      1, this.isa.clienteAct.listaPrecios, x.monto, x.descGeneral, montoImp, x.bodega, p.nivelPrecio, 'L', this.isa.clienteAct.divGeografica1, 
                       this.isa.clienteAct.divGeografica2, environment.actividadEco );
 
           // incrementar el consecutivo de la devolución
@@ -146,7 +147,7 @@ export class DevolucionPage implements OnInit {
           this.devoluciones[i].numItems += 1;
           this.devoluciones[i].montoSinIVA += x.monto;
           this.devoluciones[i].montoImp += montoImp;
-          this.devoluciones[i].montoDesc += x.montoDesc;
+          this.devoluciones[i].montoDesc += x.descGeneral;
         }
       });
 

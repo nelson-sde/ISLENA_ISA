@@ -16,6 +16,7 @@ export class Cardex {
         public precio: number,
         public linea: number = 0,
         public bodega: string = '',
+        public descGeneral: number = 0,
         public aplicado: boolean = false,
         public cantDev: number = 0
     ){}
