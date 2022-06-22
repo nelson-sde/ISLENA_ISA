@@ -43,11 +43,13 @@ export class DevolucionPage implements OnInit {
   agregarDev(){
     const montoLinea = this.item.cantDev * this.item.precio;
     const montoDesc = montoLinea * (this.item.descuento / 100);
+    const porcenDesGen = this.item.descGeneral * 100 / this.item.monto
+    const montoDescGen = (montoLinea - montoDesc) * porcenDesGen / 100;
 
     if ( this.dev.devolucionDet.findIndex( x => x.numFactura === this.item.factura && x.articulo === this.item.codProducto ) === -1 ){
       const devolucion = new LineasDev ( this.item.factura, this.item.fecha, this.item.codCliente, this.item.codProducto, this.item.desProducto, this.item.precio, this.item.cantPedido,
                                          this.item.cantDev, this.item.descuento, montoDesc, this.item.impuesto, montoLinea, this.item.linea, 
-                                         this.item.bodega, this.item.descGeneral );
+                                         this.item.bodega, montoDescGen, porcenDesGen );
       this.dev.devolucionDet.unshift( devolucion );
       this.agregar = false;
       this.dev.sinSalvar = true;
@@ -119,6 +121,7 @@ export class DevolucionPage implements OnInit {
         if ( p !== undefined ){      // Se calcula el impuesto de la linea
           porcenImp = this.isa.calculaImpuesto( p.impuesto, x.articulo );
           montoImp = x.monto * porcenImp;
+          console.log('Articulo', x.articulo, ': DG ', x.descGeneral, ', P ', x.precio, ', DL ', x.montoDesc, ', %L ', x.descuento, ', %G ', x.porcenDesGen);
         } else {
           this.isa.presentAlertW('Producto Inactivo', `El producto ${x.articulo} ya no se encuentra activo.  No se puede devolver...!!!`);
           return
@@ -128,7 +131,7 @@ export class DevolucionPage implements OnInit {
           // Se crea el encabezado de la devolución
           devolucion = new Devolucion(this.isa.varConfig.consecutivoDevoluciones, x.cliente, x.numFactura, new Date(), new Date(), x.fechaFac, this.observaciones, 
                       1, this.isa.clienteAct.listaPrecios, x.monto, x.descGeneral, montoImp, x.bodega, p.nivelPrecio, 'L', this.isa.clienteAct.divGeografica1, 
-                      this.isa.clienteAct.divGeografica2, environment.actividadEco );
+                      this.isa.clienteAct.divGeografica2, environment.actividadEco, x.porcenDesGen );
 
           // incrementar el consecutivo de la devolución
           c = this.isa.nextConsecutivo(this.isa.varConfig.consecutivoDevoluciones);

@@ -15,7 +15,8 @@ export class LineasDev {
         public monto:       number,      /// Agregarle los campos nuevos: Linea, Bodega, etc.
         public linea:       number,
         public bodega:      string,
-        public descGeneral: number
+        public descGeneral: number,
+        public porcenDesGen: number
     ){}
 }
 
@@ -39,6 +40,7 @@ export class Devolucion {
         public codGeo1:     string,
         public codGeo2:     string,
         public actividadCo: string,
+        public porcenDesc:  number,
         public envioExitoso: boolean = false,
         public lineas: DevolucionDet[] = []
     ){}
