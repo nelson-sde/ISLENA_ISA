@@ -99,7 +99,7 @@ export class InventarioDevPage implements OnInit {
   async abrirDev( item: Cardex ){
     const modal = await this.modalCtrl.create({
       component: DevolucionPage,
-      componentProps: { item },
+      componentProps: { item, "directo": false },
       cssClass: 'my-custom-class'
     });
     await modal.present();
@@ -175,6 +175,21 @@ export class InventarioDevPage implements OnInit {
     this.textoBuscar = event.detail.value;
     console.log(this.textoBuscar);
     this.reordenaHistorico(this.textoBuscar);
+  }
+
+  async abrirDirecto(){
+    const item = new Cardex( this.isa.clienteAct.id, null, '', 'ND', '', null, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, false, 0);
+
+    const modal = await this.modalCtrl.create({
+      component: DevolucionPage,
+      componentProps: { item, "directo": true },
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+    const {data} = await modal.onWillDismiss();
+    if ( data !== undefined){
+      // this.cardex = data.cardex.slice(0);
+    }
   }
 
   regresar(){

@@ -499,6 +499,7 @@ export class IsaService {
       header: 'Warning',
       subHeader: subtitulo,
       message: mensaje,
+      mode: 'ios',
       buttons: ['OK']
     });
 
@@ -517,6 +518,18 @@ export class IsaService {
   }
 
   nextConsecutivo( consecutivo: string ){
+    let consec: number;
+    let array: string;
+
+    array = '';
+    consec = +consecutivo.slice(10) + 1;
+    for (let i = 0; i < 10 - consec.toString().length; i++) {
+      array = array + '0';
+    }
+    return consecutivo.slice(0, 10) + array + consec.toString(); 
+  }
+
+  nextRecibo( consecutivo: string ){
     let consec: number;
     let array: string;
 

@@ -142,47 +142,6 @@ export class IsaDevService {
     body.push(`<Tr><Td ALIGN=right COLSPAN=4>TOTAL:</Td><Td ALIGN=right>${this.colones(subTotal - devolucion.montoDesc)}</Td></Tr>`);
     body.push(`</TABLE>`);  
     body.push(`<br>`);
-    /*
-    body.push(`RECIBIMOS DE: ${nombre}.<br>`);
-    body.push(`<br>`);
-    body.push(`Código: ${recibo.codCliente} LA SUMA DE: ${this.colones(recibo.montoLocal)} colones.<br>`);
-    body.push(`<br>`);
-    
-    recibo.detalle.forEach( d => {
-      texto = texto.concat(`, ${d.numeroDocumen}`);
-      saldoAnterior += d.montoLocal;
-      saldoActual += d.saldoLocal; 
-    });
-    saldoAnterior = saldoActual + recibo.montoLocal;
-    body.push(`POR CONCEPTO DE: Abono a Factura${texto}. ${recibo.observaciones}`);
-    body.push(`<br>`);
-    body.push(`<br>`);
-
-    if (recibo.montoEfectivoL > 0){
-      efectivo = 'X';
-    }
-    if (recibo.montoChequeL > 0){
-      hayCheque = 'X';
-    }
-    const saldo = saldoActual - recibo.monto_NC - recibo.otrosMov;
-
-    body.push(`[${efectivo}] Efectivo   [${hayCheque}] Cheque No. ${cheque.numeroCheque}, Banco: ${cheque.codigoBanco}<br>`);
-    body.push(`<br>`);
-    body.push(`<TABLE BORDER  CELLPADDING=5 CELLSPACING=0>`);
-    body.push(`<Tr><Td>Saldo Anterior: </Td><Td ALIGN=right>${this.colones(saldoAnterior)}</Td></Tr>`);
-    body.push(`<Tr><Td>Este abono: </Td><Td ALIGN=right>${this.colones(recibo.montoLocal)}</Td></Tr>`);
-    body.push(`<Tr><Td>Saldo Actual: </Td><Td ALIGN=right>${this.colones(saldoActual)}</Td></Tr>`);
-    body.push(`<Tr><Td>Notas Crédito: - </Td><Td ALIGN=right>${this.colones(recibo.monto_NC)}</Td></Tr>`);
-    body.push(`<Tr><Td>Otros Cargos: - </Td><Td ALIGN=right>${this.colones(recibo.otrosMov)}</Td></Tr>`);
-    body.push(`<Tr><Td>Saldo: </Td><Td ALIGN=right>${this.colones(saldo)}</Td></Tr>`);
-    body.push(`</TABLE>`);
-    body.push(`<br>`);
-    if ( recibo.tipoDoc === 'T'){
-      body.push(`Nota: La validez de esta transacción queda sujeta a qué se compruebe la confirmación de los fondos en nuestras cuentas bancarias.<br>`);
-    } else {
-      body.push(`Nota: La validez de este recibo queda sujeta a que el banco honre su cheque.<br>`);
-    }
-    */
     body.push(`<br>`);
     body.push(`Atentamente<br/>`);
     body.push(`Departamento de Crédito y Cobro.<br>`);

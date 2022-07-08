@@ -14,11 +14,36 @@
 
 <ion-content class="ion-padding">
   <ion-list>
-    <ion-item color="light">
-      <ion-text color="primary">
-        <h1>{{item.codProducto}}-{{item.desProducto}}</h1>
-      </ion-text>
+
+    <ion-item color="light" *ngIf="!directo">
+      <div>
+        <ion-text color="primary">
+          <h1>{{item.codProducto}}-{{item.desProducto}}</h1>
+        </ion-text>
+      </div>
     </ion-item>
+
+    <ion-item color="light" *ngIf="directo">
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="10">
+            <div>
+              <ion-text color="primary">
+                <h1>{{item.codProducto}} - {{item.desProducto}}</h1>
+              </ion-text>
+            </div>
+          </ion-col>
+          <ion-col size="2">
+            <div>
+              <ion-button (click)="agregarProducto()" fill="clear" slot="end" size="large">
+                <ion-icon name="add-circle-outline" size="large"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+     
     <ion-item color="light">
       <ion-grid fixed>
         <ion-row>
@@ -50,7 +75,15 @@
       </ion-grid>
     </ion-item>
     <p></p>
-    <ion-item color="light">
+    <ion-item color="light" *ngIf="directo">
+      <ion-label position="floating">Descuento: </ion-label>
+      <ion-input type="number" inputmode="numeric" [(ngModel)]="descuento"></ion-input>
+    </ion-item>
+    <ion-item color="light" *ngIf="directo">
+      <ion-label position="floating">Cantidad a Devolver:</ion-label>
+      <ion-input type="number" inputmode="numeric" [(ngModel)]="item.cantDev"></ion-input>
+    </ion-item>
+    <ion-item color="light" *ngIf="!directo">
       <ion-label position="floating">Cantidad a Devolver:</ion-label>
       <ion-input type="number" inputmode="numeric" [(ngModel)]="item.cantDev" (ionChange)="validaDev($event)" debounce="1000"></ion-input>
     </ion-item>

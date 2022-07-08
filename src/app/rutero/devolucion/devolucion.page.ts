@@ -6,6 +6,8 @@ import { IsaDevService } from 'src/app/services/isa-dev.service';
 import { Devolucion, LineasDev, DevolucionDet } from '../../models/devolucion';
 import { Productos } from '../../models/productos';
 import { environment } from '../../../environments/environment';
+import { ProductosPage } from '../productos/productos.page';
+import { IsaLSService } from '../../services/isa-ls.service';
 
 @Component({
   selector: 'app-devolucion',
@@ -15,9 +17,12 @@ import { environment } from '../../../environments/environment';
 export class DevolucionPage implements OnInit {
 
   @Input() item: Cardex;
+  @Input() directo: boolean;      // Si directo = True, significa que no se envía un item por parámetro
+
   agregar: boolean = false;
   devoluciones: Devolucion[] = [];
   observaciones: string = '';
+  descuento: number = 0;
 
   constructor( private isa: IsaService,
                private dev: IsaDevService,
@@ -40,21 +45,72 @@ export class DevolucionPage implements OnInit {
     }
   }
 
-  agregarDev(){
-    const montoLinea = this.item.cantDev * this.item.precio;
-    const montoDesc = montoLinea * (this.item.descuento / 100);
-    const porcenDesGen = this.item.descGeneral * 100 / this.item.monto
-    const montoDescGen = (montoLinea - montoDesc) * porcenDesGen / 100;
+  async agregarProducto(){
 
-    if ( this.dev.devolucionDet.findIndex( x => x.numFactura === this.item.factura && x.articulo === this.item.codProducto ) === -1 ){
-      const devolucion = new LineasDev ( this.item.factura, this.item.fecha, this.item.codCliente, this.item.codProducto, this.item.desProducto, this.item.precio, this.item.cantPedido,
-                                         this.item.cantDev, this.item.descuento, montoDesc, this.item.impuesto, montoLinea, this.item.linea, 
-                                         this.item.bodega, montoDescGen, porcenDesGen );
-      this.dev.devolucionDet.unshift( devolucion );
-      this.agregar = false;
-      this.dev.sinSalvar = true;
+    let productos: Cardex[] = [];
+    let prodArray: Productos[] = [];
+    let linea: Cardex;
+
+    this.isa.productos.forEach( x => {
+      linea = new Cardex(this.item.codCliente, '', x.id, x.nombre, '', null, 0, 0, 0, 0, 0, 0, x.precio, 0, '', 0, false, 0 );
+      productos.push( linea );
+    });
+
+    const modal = await this.modalCtrl.create({
+      component: ProductosPage,
+      componentProps: {
+        'cardex': productos,
+        'mostrar': true,
+      },
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+
+    const {data} = await modal.onDidDismiss();
+    
+    if (data.productos !== null){
+      this.item.cantDev = 0;
+      this.descuento = 0;
+      productos = [];
+      prodArray = data.productos.slice(0);
+      prodArray.forEach( d => {
+        linea = new Cardex(this.isa.clienteAct.id, '', d.id, d.nombre, 'P', new Date(), null, 0, 0, 0, 0, 0, d.precio, 0, this.isa.varConfig.bodega.toString(), 0, false, 0);
+        productos.push( linea );
+      });
+      this.item.codProducto = productos[0].codProducto;
+      this.item.desProducto = productos[0].desProducto;
+      this.item.precio = productos[0].precio;
+      this.item.bodega = productos[0].bodega;
+      this.agregar = true;
+    }
+  }
+
+  agregarDev(){
+    if ( this.item.cantDev > 0 ){
+      if ( this.directo ){                          // En caso de que el item a realizar la devolución sea sin referencia
+        this.item.descuento = this.descuento;      // Se calculan los montos
+        this.item.monto = this.item.cantDev * this.item.precio;
+        this.item.montoDescuento = this.item.monto * this.item.descuento / 100;
+        this.item.monto -= this.item.montoDescuento;
+      }
+      const montoLinea = this.item.cantDev * this.item.precio;
+      const montoDesc = montoLinea * (this.item.descuento / 100);
+      const porcenDesGen = this.item.descGeneral * 100 / this.item.monto
+      const montoDescGen = (montoLinea - montoDesc) * porcenDesGen / 100;
+
+      if ( this.dev.devolucionDet.findIndex( x => x.numFactura === this.item.factura && x.articulo === this.item.codProducto ) === -1 ){
+        const devolucion = new LineasDev ( this.item.factura, this.item.fecha, this.item.codCliente, this.item.codProducto, this.item.desProducto, this.item.precio, this.item.cantPedido,
+                                          this.item.cantDev, this.item.descuento, montoDesc, this.item.impuesto, montoLinea, this.item.linea, 
+                                          this.item.bodega, montoDescGen, porcenDesGen );
+        this.dev.devolucionDet.unshift( devolucion );
+        this.agregar = false;
+        this.dev.sinSalvar = true;
+        console.log('Devolución: ', devolucion);
+      } else {
+        this.isa.presentAlertW('Devolución', 'El artículo ya existe en la lista de devoluciones...');
+      }
     } else {
-      this.isa.presentAlertW('Devolución', 'El artículo ya existe en la lista de devoluciones...');
+      this.isa.presentAlertW('Agregar', 'No se puede agregar una línea en cero...!!!');
     }
   }
 
@@ -72,13 +128,7 @@ export class DevolucionPage implements OnInit {
           id: 'paragraph',
           type: 'textarea',
           placeholder: 'Texto',
-        },
-        {
-          name: 'entrega',
-          id: 'entrega',
-          type: 'date',
-          placeholder: 'Fecha entrega',
-        },
+        }
       ],
       buttons: [
         {
