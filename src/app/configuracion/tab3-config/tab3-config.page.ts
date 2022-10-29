@@ -19,6 +19,7 @@ export class Tab3ConfigPage implements OnInit{
   texto:string;
   ambiente: string = '';
   version: string = '';
+  actualizado = true;
   loading: HTMLIonLoadingElement;
 
   constructor( private isa: IsaService,
@@ -44,10 +45,17 @@ export class Tab3ConfigPage implements OnInit{
         resp => {
           console.log('RutasBD', resp );
           this.isa.rutas = resp;
+          if (this.isa.varConfig.numRuta !== 'R000'){
+            const i = this.isa.rutas.findIndex( x => x.ruta === this.isa.varConfig.numRuta );
+            if ( i >= 0){
+              this.actualizarVarConfig(i);
+            }
+          }
           //this.loadingDissmiss();
           this.isa.presentaToast('Rutas cargadas...');
           console.log( 'Arreglo', this.isa.rutas );
         }, error => {
+          this.actualizado = false;
           console.log(error.message);
           //this.loadingDissmiss();
           this.isa.presentAlertW('Cargando Rutas', error.message);
@@ -80,26 +88,31 @@ export class Tab3ConfigPage implements OnInit{
     const {data} = await popover.onWillDismiss();
     console.log(data);
     if (data !== undefined) {
-      
-      this.isa.varConfig.numRuta = this.isa.rutas[data.indice].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
-      this.isa.varConfig.nomVendedor = this.isa.rutas[data.indice].agente;
-      this.isa.varConfig.usuario = this.isa.rutas[data.indice].ruta;
-      this.isa.varConfig.clave = this.isa.rutas[data.indice].handHeld;
-      this.isa.varConfig.bodega = this.isa.rutas[data.indice].bodega;
-      this.isa.varConfig.consecutivoPedidos = this.isa.rutas[data.indice].pedido;
-      this.isa.varConfig.consecutivoRecibos = this.isa.rutas[data.indice].recibo;
-      this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[data.indice].devolucion;
-      this.isa.varConfig.emailCxC = this.isa.rutas[data.indice].emaiL_EJECUTIVA;
-      this.isa.varConfig.emailVendedor = this.isa.rutas[data.indice].emaiL_VENDEDOR;
-      this.isa.varConfig.emailSupervisor = this.isa.rutas[data.indice].emaiL_SUPERVISOR;
-      this.isa.varConfig.tipoCambio = this.isa.rutas[data.indice].tcom;
-      if ( this.isa.rutas[data.indice].usA_RECIBOS === 'S') {
-        this.isa.varConfig.usaRecibos = true;
-      } else {
-        this.isa.varConfig.usaRecibos = false;
-      }
-      this.isa.guardarVarConfig();
+      this.actualizarVarConfig(data.indice);
     }
+  }
+
+  actualizarVarConfig( i: number ){      // indice de la ruta en el arreglo de rutas
+    this.isa.varConfig.numRuta = this.isa.rutas[i].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
+    this.isa.varConfig.nomVendedor = this.isa.rutas[i].agente;
+    this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
+    this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
+    this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
+    this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
+    this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
+    this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
+    this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
+    this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
+    this.isa.varConfig.emailSupervisor = this.isa.rutas[i].emaiL_SUPERVISOR;
+    this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
+    this.isa.varConfig.actualizado = this.isa.rutas[i].actualizado;
+    this.isa.varConfig.borrarBD = this.isa.rutas[i].borraR_BD === 'S' ? true : false;
+    this.isa.varConfig.usaRecibos = this.isa.rutas[i].usA_RECIBOS === 'S' ? true : false;
+    this.isa.varConfig.usaDevoluciones = this.isa.rutas[i].usA_DEVOLUCIONES === 'S' ? true : false;
+    if (this.isa.varConfig.actualizado === 'N'){
+      this.actualizado = false;
+    }
+    this.isa.guardarVarConfig();
   }
 
   rutaEnter( ruta: string ){
@@ -108,7 +121,8 @@ export class Tab3ConfigPage implements OnInit{
 
   cargaConfig(){
     if ( this.isa.varConfig.numRuta.length > 0 &&
-         this.isa.varConfig.usuario.length > 0) {
+         this.isa.varConfig.usuario.length > 0 &&
+         this.actualizado ) {
       this.isa.varConfig.ultimaLiquid = new Date();
       this.isa.guardarVarConfig();                              // Actualiza la informacion de entorno
       this.isa.syncInfo();
@@ -131,7 +145,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.borrarBitacora();
       this.regresar();
     } else {
-      this.isa.presentAlertW(this.texto, 'Faltan datos claves para sincronizar la información.');
+      this.isa.presentAlertW(this.texto, 'Ruta Bloqueada... No se puede sincronizar...!!!');
     }
   }
 
@@ -148,23 +162,7 @@ export class Tab3ConfigPage implements OnInit{
         }, {
           text: 'Ok',
           handler: () => {
-            this.isa.varConfig.numRuta = this.isa.rutas[i].ruta;         // Asigna la nueva ruta a la varaible de entorno de ISA
-            this.isa.varConfig.nomVendedor = this.isa.rutas[i].agente;
-            this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
-            this.isa.varConfig.clave = this.isa.rutas[i].handHeld;
-            this.isa.varConfig.bodega = this.isa.rutas[i].bodega;
-            this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
-            this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
-            this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
-            this.isa.varConfig.emailCxC = this.isa.rutas[i].emaiL_EJECUTIVA;
-            this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
-            this.isa.varConfig.emailSupervisor = this.isa.rutas[i].emaiL_SUPERVISOR;
-            this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
-            if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
-              this.isa.varConfig.usaRecibos = true;
-            } else {
-              this.isa.varConfig.usaRecibos = false;
-            }
+            this.actualizarVarConfig(i);
           }
         }
       ]

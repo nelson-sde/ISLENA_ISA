@@ -15,7 +15,7 @@ export class Tab3DatosPage implements OnInit {
 
   version: string = '';
   ambiente: string = '';
-  actualizar: boolean = false;
+  actualizar: boolean = true;
   darkMode: boolean = true;
 
   constructor( private navController: NavController,
@@ -91,7 +91,8 @@ export class Tab3DatosPage implements OnInit {
         if ( this.getConsecutivo(this.isa.rutas[i].pedido) > this.getConsecutivo(this.isa.varConfig.consecutivoPedidos) ){
           this.isa.varConfig.consecutivoPedidos = this.isa.rutas[i].pedido;
         }
-        if ( this.getConsecutivo(this.isa.rutas[i].recibo) > this.getConsecutivo(this.isa.varConfig.consecutivoRecibos) ){
+        if ( this.getConsecutivo(this.isa.rutas[i].recibo) > this.getConsecutivo(this.isa.varConfig.consecutivoRecibos) ||
+             this.isa.varConfig.consecutivoRecibos[4] !== 'R' ){
           this.isa.varConfig.consecutivoRecibos = this.isa.rutas[i].recibo;
         }
         this.isa.varConfig.consecutivoDevoluciones = this.isa.rutas[i].devolucion;
@@ -99,13 +100,14 @@ export class Tab3DatosPage implements OnInit {
         this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
         this.isa.varConfig.emailSupervisor = this.isa.rutas[i].emaiL_SUPERVISOR;
         this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
-        if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
-          this.isa.varConfig.usaRecibos = true;
-        } else {
-          this.isa.varConfig.usaRecibos = false;
-        }
+        this.isa.varConfig.usaRecibos = this.isa.rutas[i].usA_RECIBOS === 'S' ? true : false;
+        this.isa.varConfig.usaDevoluciones = this.isa.rutas[i].usA_DEVOLUCIONES === 'S' ? true : false;
+        this.isa.varConfig.actualizado = this.isa.rutas[i].actualizado;
+        this.isa.varConfig.borrarBD = this.isa.rutas[i].borraR_BD === 'S' ? true : false;
         this.isa.guardarVarConfig();
-        this.actualizar = true;
+        if (this.isa.varConfig.actualizado === 'N'){
+          this.actualizar = false;                    // rutas.actualizado === 'N' significa que no puede sincronizar la ruta.
+        }
       } else {                                                      // Si ya había sincronizado no actualiza consecutivos
         this.isa.varConfig.nomVendedor = this.isa.rutas[i].agente;
         this.isa.varConfig.usuario = this.isa.rutas[i].ruta;
@@ -115,14 +117,17 @@ export class Tab3DatosPage implements OnInit {
         this.isa.varConfig.emailVendedor = this.isa.rutas[i].emaiL_VENDEDOR;
         this.isa.varConfig.emailSupervisor = this.isa.rutas[i].emaiL_SUPERVISOR;
         this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
-        if ( this.isa.rutas[i].usA_RECIBOS === 'S') {
-          this.isa.varConfig.usaRecibos = true;
-        } else {
-          this.isa.varConfig.usaRecibos = false;
-        }
+        this.isa.varConfig.usaRecibos = this.isa.rutas[i].usA_RECIBOS === 'S' ? true : false;
+        this.isa.varConfig.usaDevoluciones = this.isa.rutas[i].usA_DEVOLUCIONES === 'S' ? true : false;
+        this.isa.varConfig.actualizado = this.isa.rutas[i].actualizado;
+        this.isa.varConfig.borrarBD = this.isa.rutas[i].borraR_BD === 'S' ? true : false;
         this.isa.guardarVarConfig();
-        this.actualizar = true;
+        if (this.isa.varConfig.actualizado === 'N'){
+          this.actualizar = false;                    // rutas.actualizado === 'N' significa que no puede sincronizar la ruta.
+        }
       }
+    } else {
+      this.actualizar = false;
     }
   }
 

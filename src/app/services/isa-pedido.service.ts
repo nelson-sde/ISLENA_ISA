@@ -317,7 +317,7 @@ export class IsaPedidoService {
     return body.join('');
   }
 
-  private getFecha( fecha: Date, tipo?: string ){
+  getFecha( fecha: Date, tipo?: string ){
     let day = new Date(fecha).getDate();
     let month = new Date(fecha).getMonth() + 1;
     let year = new Date(fecha).getFullYear();

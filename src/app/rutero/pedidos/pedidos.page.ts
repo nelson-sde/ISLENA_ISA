@@ -62,9 +62,13 @@ export class PedidosPage implements OnInit {
   }
 
   ngOnInit(){
-    const fecha = new Date();
-    this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', null, false, null);
-    //this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
+    let fecha = new Date();
+    let fecha2 = new Date();
+    this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', null, false, null);
+    fecha2.setDate(fecha2.getDate() + 1);
+    this.pedido.fechaEntrega = fecha2;
+    const fec = this.isaPedido.getFecha(this.pedido.fechaEntrega);
+    this.pedido.observaciones = `Fecha Entrega: ${fec}`;
     this.isa.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isa.clienteAct.nombre}`);
     this.validaSiCardex();
     this.isa.transmitiendo = [];
@@ -433,8 +437,13 @@ export class PedidosPage implements OnInit {
     this.exonerado = 0;
     const fecha = new Date()
     this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, new Date(), 0, 0, 0, 0, 0, 0, '', fecha, false, null);
-    this.pedido.fechaEntrega.setDate( fecha.getDate() + 1);
-    //this.getGeo();
+
+    let fecha2 =new Date();
+    fecha2.setDate(fecha2.getDate() + 1);
+    this.pedido.fechaEntrega = fecha2;
+    const fec = this.isaPedido.getFecha(this.pedido.fechaEntrega);
+    this.pedido.observaciones = `Fecha Entrega: ${fec}`;
+
     this.numLineas = this.pedido.detalle.length;
     this.isa.transmitiendo = [];
   }
@@ -629,7 +638,8 @@ export class PedidosPage implements OnInit {
 
   async observaciones(){
     const maxchar = environment.maxchar;
-    let diaSemana: string = 'ND'; 
+    let diaSemana: string = 'ND';
+    let fecha2: Date;
 
     const alert = await this.alertController.create({
       cssClass: 'my-custom-class',
@@ -664,39 +674,12 @@ export class PedidosPage implements OnInit {
               console.log(arr);
             }
             if (data.entrega !== ""){ 
-              this.pedido.fechaEntrega = new Date(data.entrega);
-              this.pedido.fechaEntrega.setDate(this.pedido.fechaEntrega.getDate() + 1);
-              const mes = new Date(this.pedido.fechaEntrega).getMonth() + 1;
-              const dia = new Date(this.pedido.fechaEntrega).getDay();
-              switch (dia) {
-                case 0:
-                  diaSemana = 'Dom';
-                  break;
-                case 1:
-                  diaSemana = 'Lun';
-                    break;
-                case 2:
-                  diaSemana = 'Mar';
-                    break;
-                case 3:
-                  diaSemana = 'Mie';
-                    break;
-                case 4:
-                  diaSemana = 'Jue';
-                    break;
-                case 5:
-                  diaSemana = 'Vie';
-                    break;
-                case 6:
-                  diaSemana = 'Sab';
-                    break;
-                default:
-                  diaSemana = 'ND';
-                    break;
-              }
-              const fecha = `${new Date(this.pedido.fechaEntrega).getDate().toString()}/${mes.toString()}/${new Date(this.pedido.fechaEntrega).getFullYear().toString()}`;
-              this.pedido.observaciones = `${this.pedido.observaciones} ${diaSemana}: ${fecha}`;
-              console.log(fecha);
+              fecha2 = new Date(data.entrega);
+              this.pedido.fechaEntrega.setDate(fecha2.getDate() + 1);
+              const fec = this.isaPedido.getFecha(this.pedido.fechaEntrega);
+              
+              this.pedido.observaciones = `Fecha entrega: ${fec}`;
+              console.log(fec);
             }
           }
         }

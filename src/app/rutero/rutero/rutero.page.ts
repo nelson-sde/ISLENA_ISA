@@ -102,10 +102,14 @@ export class RuteroPage implements OnInit {
 
   abrirDev(){
     this.codigoCliente = this.isa.clienteAct.id;
-    if (this.codigoCliente !== '' && this.texto.length !== 0){
-      this.router.navigate(['/inventario-dev']);
+    if (this.isa.varConfig.usaDevoluciones){
+      if (this.codigoCliente !== '' && this.texto.length !== 0){
+        this.router.navigate(['/inventario-dev']);
+      } else {
+        this.presentAlert('Devoluciones', 'Debe seleccionar un cliente para realizar una Devolución...');
+      }
     } else {
-      this.presentAlert('Devoluciones', 'Debe seleccionar un cliente para realizar una Devolución...');
+      this.presentAlert('Devoluciones', 'No tiene habilitada la opción para hacer devoluciones...');
     }
   }
 
