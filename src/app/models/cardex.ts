@@ -68,4 +68,15 @@ export interface SugeridoBD {
     ruta:          string;
 }
 
+export interface StockOuts {
+  id: string;
+  ruta: string;
+  idCliente: string;
+  nombre_Cliente: string;
+  idProducto: string;
+  nombre: string;
+  justificacion: string;
+  fecha: Date;
+}
+
 

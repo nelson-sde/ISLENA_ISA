@@ -36,6 +36,7 @@ export const environment = {
   RecEncaURL:   'RecEnca/',
   RecDetaURL:   'RecDeta/',
   rutasURL:     'rutas/',
+  StockOutsURL: 'Stockouts/',
   SugeridoURL:  'Sugerido/',
   SyncInfoURL:  'SyncInfo/',
   tipoCambio:   620,

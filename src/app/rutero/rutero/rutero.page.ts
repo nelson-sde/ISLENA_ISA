@@ -13,6 +13,7 @@ import { NuevoPage } from 'src/app/configuracion/nuevo/nuevo.page';
 import { Email } from 'src/app/models/email';
 import { IsaCobrosService } from '../../services/isa-cobros.service';
 import { Pen_Cobro } from '../../models/cobro';
+import { StockOuts } from 'src/app/models/cardex';
 
 const { App } = Plugins;
 
@@ -203,6 +204,20 @@ export class RuteroPage implements OnInit {
     if (this.isa.existencias.length === 0){
       this.isa.cargarExistencias();
     }
+
+    let stockOuts: StockOuts[];
+    stockOuts = JSON.parse(localStorage.getItem('StockOuts')) || [];
+    if (stockOuts.length > 0){
+      const clienteSO = stockOuts.filter(x => x.idCliente === this.codigoCliente);
+      if (clienteSO.length > 0){
+        console.log('StockOuts: ', clienteSO);
+      } else {
+        console.log('Cliente sin StockOuts')
+      }
+    } else {
+      console.log('Ruta sin StockOuts')
+    }
+
     if ( this.isa.clienteAct.letraCambio ){
       const email = new Email( this.isa.varConfig.emailCxC, `Notificación: Letra de Cambio Cliente ${this.isa.clienteAct.id} - ${this.isa.varConfig.numRuta}`, 
         `Se reporta visita por parte del vendedor al cliente ${this.isa.clienteAct.id}, ${this.isa.clienteAct.nombre}, el cual tiene pendiente actualizar o firmar la letra de Cambio.`);

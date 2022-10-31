@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
 import { Bancos, BancosBD } from '../models/bancos';
-import { Cardex, CardexBD, SugeridoBD } from '../models/cardex';
+import { Cardex, CardexBD, SugeridoBD, StockOuts } from '../models/cardex';
 import { Categorias, Cliente, ClienteBD, ClientePut, ClienteRT } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
 import { Exoneraciones, Existencias, PedEnca, PedDeta } from '../models/pedido';
@@ -130,6 +130,11 @@ export class IsaService {
     return this.http.get<Ruta[]>( URL );
   }
 
+  private getStockouts( ruta: string, fecha: string ){
+    const URL = this.getURL( environment.StockOutsURL, `?fecha=${fecha}&ruta=${ruta}` );
+    return this.http.get<StockOuts[]>( URL );
+  }
+
   getPedido( numPedido: string ){
     const URL = this.getURL( environment.PedEncaURL, numPedido );
     return this.http.get<PedEnca[]>( URL );
@@ -198,6 +203,48 @@ export class IsaService {
   private getEjecutivas(){
     const URL = this.getURL( environment.Ejecutivas, '' );
     return this.http.get<Ejecutivas[]>( URL );
+  }
+
+  getFecha( fecha: Date, tipo?: string ){
+    let day = new Date(fecha).getDate();
+    let month = new Date(fecha).getMonth() + 1;
+    let year = new Date(fecha).getFullYear();
+    let dia: string = day.toString();
+    let mes: string = month.toString();
+
+    if ( month >= 0 && month <= 9 ) {
+      mes = `0${month}`;
+    }
+    if ( day >= 0 && day <= 9 ){
+      dia = `0${day}`;
+    }
+
+    if (tipo === 'JSON'){
+        return `${year}-${mes}-${dia}T12:00`;
+    } else if (tipo === 'SQL'){
+      return `${year}-${mes}-${dia}`;
+    } else {
+      return `${dia}-${mes}-${year}`;
+    }
+  }
+
+  syncStockouts(ruta: string){
+    let fecha = new Date();
+
+    if (environment.prdMode){ 
+      fecha.setDate(fecha.getDate() - 6);
+    } else {
+      fecha = new Date('2022-07-01')
+    }
+
+    this.getStockouts( ruta,  this.getFecha(fecha, 'SQL') ).subscribe(
+      resp => {
+        console.log(resp);
+        localStorage.setItem('StockOuts', JSON.stringify(resp));
+      }, error => {
+        console.log('Error sincronizando Stockouts...!!!');
+      }
+    )
   }
 
   syncExistencias(){

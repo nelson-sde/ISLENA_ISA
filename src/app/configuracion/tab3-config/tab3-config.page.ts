@@ -132,6 +132,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.syncCardex(this.isa.varConfig.numRuta);
       this.isa.syncCxC(this.isa.varConfig.numRuta);
       this.isa.syncCuota( this.isa.varConfig.numRuta );
+      this.isa.syncStockouts( this.isa.varConfig.numRuta );
       this.isa.syncBancos();
       this.isa.syncCategorias();
       this.isa.syncEjecutivas();
