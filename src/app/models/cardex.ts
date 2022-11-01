@@ -77,6 +77,8 @@ export interface StockOuts {
   nombre: string;
   justificacion: string;
   fecha: Date;
+  cant_Vencen: number;
+  vencimiento: Date;
 }
 
 

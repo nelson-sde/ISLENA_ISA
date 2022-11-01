@@ -11,7 +11,7 @@ import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
-import { Cuota, Ruta, RutaConfig, Rutero, UbicacionBD, VisitaBD, VisitaDiaria } from '../models/ruta';
+import { Cuota, Ruta, RutaConfig, RutasDist, Rutero, UbicacionBD, VisitaBD, VisitaDiaria } from '../models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 @Injectable({
@@ -180,6 +180,11 @@ export class IsaService {
     return this.http.get<BancosBD[]>( URL );
   }
 
+  private getRutasDist(){
+    const URL = this.getURL( environment.rutasDistURL, '' );
+    return this.http.get<RutasDist[]>( URL );
+  }
+
   private getCategorias(){
     const URL = this.getURL( environment.CategoriaClientesURL, '' );
     return this.http.get<Categorias[]>( URL );
@@ -245,6 +250,17 @@ export class IsaService {
         console.log('Error sincronizando Stockouts...!!!');
       }
     )
+  }
+
+  syncRutasDist(){
+    this.getRutasDist().subscribe(
+      resp => {
+        console.log('Rutas Dist', resp );
+        localStorage.setItem('RutasDist', JSON.stringify(resp));
+      }, error => {
+        console.log(error.message);
+      }
+    );
   }
 
   syncExistencias(){

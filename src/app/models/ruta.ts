@@ -202,5 +202,8 @@ export interface VisitaDiaria {
     longitud:       number
 }
 
-
+export interface RutasDist {
+  ruta: string;
+  descripcion: string;
+}
 

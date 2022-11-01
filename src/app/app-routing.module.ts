@@ -113,6 +113,10 @@ const routes: Routes = [
   {
     path: 'resumen-dev',
     loadChildren: () => import('./rutero/resumen-dev/resumen-dev.module').then( m => m.ResumenDevPageModule)
+  },
+  {
+    path: 'stockouts',
+    loadChildren: () => import('./rutero/stockouts/stockouts.module').then( m => m.StockoutsPageModule)
   }
 ];
 @NgModule({

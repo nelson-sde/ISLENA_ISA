@@ -14,6 +14,7 @@ import { Email } from 'src/app/models/email';
 import { IsaCobrosService } from '../../services/isa-cobros.service';
 import { Pen_Cobro } from '../../models/cobro';
 import { StockOuts } from 'src/app/models/cardex';
+import { StockoutsPage } from '../stockouts/stockouts.page';
 
 const { App } = Plugins;
 
@@ -205,18 +206,23 @@ export class RuteroPage implements OnInit {
       this.isa.cargarExistencias();
     }
 
+    // Revisión de Stock outs, para hacer al reporte al vendedor.
+
     let stockOuts: StockOuts[];
     stockOuts = JSON.parse(localStorage.getItem('StockOuts')) || [];
     if (stockOuts.length > 0){
-      const clienteSO = stockOuts.filter(x => x.idCliente === this.codigoCliente);
-      if (clienteSO.length > 0){
-        console.log('StockOuts: ', clienteSO);
+      const clientesSO = stockOuts.filter(x => x.idCliente === this.codigoCliente);
+      if (clientesSO.length > 0){
+        console.log('StockOuts: ', clientesSO);
+        this.reporteStockOuts(clientesSO);
       } else {
         console.log('Cliente sin StockOuts')
       }
     } else {
       console.log('Ruta sin StockOuts')
     }
+
+    // Revisión de la letra de cambio del cliente
 
     if ( this.isa.clienteAct.letraCambio ){
       const email = new Email( this.isa.varConfig.emailCxC, `Notificación: Letra de Cambio Cliente ${this.isa.clienteAct.id} - ${this.isa.varConfig.numRuta}`, 
@@ -225,6 +231,47 @@ export class RuteroPage implements OnInit {
       email.toEmail = this.isa.varConfig.emailSupervisor;
       this.isa.enviarEmail( email );
       this.isa.presentAlertW('Letra de Cambio', 'El Cliente tiene pendiente de firmar la letra de cambio.  Favor gestionar.');
+    }
+  }
+
+  async reporteStockOuts(stockOuts: StockOuts[]){
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      mode: 'ios',
+      header: 'Stock Outs',
+      message: 'El Cliente tiene reporte de faltantes por el Mercaderista.  Desea revisar la información?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Si',
+          handler: () => {
+            this.abrirStockOuts(stockOuts);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async abrirStockOuts(stockOuts: StockOuts[]){
+    const modal = await this.modalCtrl.create({
+      component: StockoutsPage,
+      componentProps: {
+        stockOuts
+      },
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+
+    const {data} = await modal.onDidDismiss();
+    if (data !== null){
+      
     }
   }
 

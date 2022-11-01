@@ -29,7 +29,7 @@ export class CardexPage {
                private navController: NavController,
                private isaCardex: IsaCardexService,
                private alertCtrl: AlertController) {
-    //debugger
+    
     this.codProducto = this.navParams.get('codProd');
     this.descuento = this.navParams.get('desc');
     this.nomProducto = this.navParams.get('nombre');
@@ -37,7 +37,7 @@ export class CardexPage {
     this.cardex = this.isaCardex.cargarCardexCliente( this.isa.clienteAct.id );
     console.log(this.codProducto);
     if (this.codProducto !== null){
-      const linea = new Cardex(this.isa.clienteAct.id, '', this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.traerSugerido(this.codProducto), 
+      const linea = new Cardex(this.isa.clienteAct.id, '', this.codProducto, this.nomProducto, 'Pedido', new Date(), null, this.isaCardex.traerSugerido(this.codProducto), 
                         this.descuento, 0, 0, 0, 0);
       linea.precio = this.consultarPrecio( linea.codProducto );
       this.agregaLineaCardex( linea );
@@ -51,22 +51,6 @@ export class CardexPage {
     } else {
       return 0;
     }
-  }
-
-  traerSugerido( codProducto: string ){
-    let sugerido: number = 0;
-    let sugeridos: SugeridoBD[] = [];
-
-    if (localStorage.getItem('sugeridos')){
-      sugeridos = JSON.parse( localStorage.getItem('sugeridos'));
-    }
-    if ( sugeridos.length > 0 ){
-      const i = sugeridos.findIndex( d => d.cliente === this.isa.clienteAct.id && d.articulo === codProducto );
-      if ( i >= 0 ){
-        sugerido = sugeridos[i].canT_SUGERIDA;
-      }
-    }
-    return sugerido; 
   }
 
   agregaLineaCardex( linea: Cardex ){
@@ -105,7 +89,7 @@ export class CardexPage {
     if (data.productos !== null){
       prodArray = data.productos.slice(0);
       prodArray.forEach( d => {
-        linea = new Cardex(this.isa.clienteAct.id, '', d.id, d.nombre, 'Pedido', new Date(), null, this.traerSugerido(d.id), 0, 0, 0, 0, 0);
+        linea = new Cardex(this.isa.clienteAct.id, '', d.id, d.nombre, 'Pedido', new Date(), null, this.isaCardex.traerSugerido(d.id), 0, 0, 0, 0, 0);
         linea.precio = this.consultarPrecio( linea.codProducto );
         this.agregaLineaCardex( linea );
       });

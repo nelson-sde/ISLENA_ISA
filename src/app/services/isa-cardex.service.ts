@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Cardex } from '../models/cardex';
+import { Cardex, SugeridoBD } from '../models/cardex';
 import { IsaLSService } from './isa-ls.service';
 import { IsaService } from './isa.service';
 
@@ -137,6 +137,31 @@ export class IsaCardexService {
       data = data.concat(this.cardex.slice(i+1, this.cardex.length));
     }
     this.cardex = data.slice(0);
+  }
+
+  traerSugerido( codProducto: string ){
+    let sugerido: number = 0;
+    let sugeridos: SugeridoBD[] = [];
+
+    if (localStorage.getItem('sugeridos')){
+      sugeridos = JSON.parse( localStorage.getItem('sugeridos'));
+    }
+    if ( sugeridos.length > 0 ){
+      const i = sugeridos.findIndex( d => d.cliente === this.isa.clienteAct.id && d.articulo === codProducto );
+      if ( i >= 0 ){
+        sugerido = sugeridos[i].canT_SUGERIDA;
+      }
+    }
+    return sugerido; 
+  }
+
+  consultarPrecio( id: string ){
+    const i = this.isa.productos.findIndex( d => d.id === id );
+    if ( i >= 0 ){
+      return this.isa.productos[i].precio;
+    } else {
+      return 0;
+    }
   }
 
 }

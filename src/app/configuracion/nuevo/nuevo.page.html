@@ -5,8 +5,8 @@
         <ion-icon name="chevron-back-outline"></ion-icon>
       </ion-button>
       <ion-title align-text-center>Cliente Nuevo Contado</ion-title>
-      <ion-button (click)="salvar()" fill="clear" slot="end" size="medium">
-        <ion-icon name="save-outline" size="large"></ion-icon>
+      <ion-button (click)="geoReference()" fill="clear" slot="end" size="medium">
+        <ion-icon name="location-outline" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -20,6 +20,22 @@
           <ion-item>
             <ion-label position="floating">Nombre Comercial</ion-label>
             <ion-input name="nombre" type="text" [(ngModel)]="clienteNuevo.nombre" required></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item>
+            <ion-label position="floating">Latitud</ion-label>
+            <ion-input name="Latitud" type="numeric" [(ngModel)]="clienteNuevo.Latitud" value="clienteNuevo.Latitud" required></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item>
+            <ion-label position="floating">Longitud</ion-label>
+            <ion-input name="Longitud" type="numeric" [(ngModel)]="clienteNuevo.Longitud" value="clienteNuevo.Longitud" required></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -76,6 +92,16 @@
       <ion-row>
         <ion-col size="12">
           <ion-item>
+            <ion-label>Ruta de Distribución</ion-label>
+            <ion-select name="rutaDist" [(ngModel)]="clienteNuevo.rutaDist">
+              <ion-select-option *ngFor="let item2 of rutasDist" [value]="descripcion">{{item2.descripcion}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item>
             <ion-label position="floating">Contacto</ion-label>
             <ion-input name="contacto" type="text" [(ngModel)]="clienteNuevo.contacto" required></ion-input>
           </ion-item>
@@ -93,7 +119,9 @@
         <ion-col size="12">
           <ion-item>
             <ion-label position="floating">Email Notificaciones</ion-label>
-            <ion-input name="emailContacto" type="email" [(ngModel)]="clienteNuevo.emailContacto" required></ion-input>
+            <ion-input name="emailContacto" type="email" placeholder="email@domain.com" [(ngModel)]="clienteNuevo.emailContacto" required></ion-input>
+            <ion-note slot="helper">Ingrese un email valido</ion-note>
+            <ion-note slot="error">Invalid email</ion-note>
           </ion-item>
         </ion-col>
       </ion-row>
