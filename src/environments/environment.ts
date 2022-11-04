@@ -8,6 +8,7 @@ export const environment = {
   TestURL:      '_test',
   postURL:      '.di-apps.co.cr/api/',
   actividadEco: '512211',
+  ClienteNuevoURL: 'AddCliente/',
   BancosURL:    'Bancos/',
   cantLineasMaxPedido: 35,
   CardexURL:    'ISA_Estad_Ventas/',

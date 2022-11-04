@@ -4,7 +4,7 @@ import { AlertController, LoadingController, ToastController } from '@ionic/angu
 import { environment } from 'src/environments/environment';
 import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD, StockOuts } from '../models/cardex';
-import { Categorias, Cliente, ClienteBD, ClientePut, ClienteRT } from '../models/cliente';
+import { Categorias, Cliente, ClienteBD, ClienteNuevo, ClientePut, ClienteRT } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
 import { Exoneraciones, Existencias, PedEnca, PedDeta } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
@@ -698,6 +698,30 @@ export class IsaService {
         this.presentaToast( 'Error actualizando GeoReferencia...' );
       }
     );
+  }
+
+  private postClienteNuevo( cliente: ClienteNuevo ){
+    const URL = this.getURL( environment.ClienteNuevoURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    console.log(JSON.stringify(cliente));
+    return this.http.post( URL, JSON.stringify(cliente), options );
+  }
+
+  transmitirClienteNuevo( cliente: ClienteNuevo ){
+    this.postClienteNuevo( cliente ).subscribe(
+      resp => {
+        console.log('Cliente nuevo insertado con exito.');
+        this.presentaToast('Cliente Nuevo Transmitido.');
+      }, error => {
+        console.log('No se pudo transmitir el cliente nuevo');
+        this.presentaToast('Error Transmitiendo Cliente Nuevo...');
+      }
+    )
   }
 
   private postSyncInfo( info: VisitaDiaria ){

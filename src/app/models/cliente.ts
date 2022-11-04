@@ -126,4 +126,30 @@ export interface Categorias {
     descripcion:       string;
 }
 
+export interface ClienteNuevo {
+    ID:         string;
+    Ruta:       string;
+    Fecha:      Date;
+    Nombre:     string;
+    Razon_Social: string;
+    Representante: string;
+    Categoria:  string;
+    Dia_Visita: string;
+    Dia_Entrega: string;
+    Hora_Entrega: string;
+    Contacto:   string;
+    Telefono:   string;
+    Email:      string;
+    Provincia:  string;
+    Canton:     string;
+    Distrito:   string;
+    Direccion:  string;
+    Latitud:    number;
+    Longitud:   number;
+    Estado:     string;
+    Ruta_Distribucion: string;
+}
+
+
+
 

@@ -17,35 +17,26 @@ export class ClienteInfoPage {
                private geolocation: Geolocation ) {}
 
   guardar(){
-
-    if ( this.isa.clienteAct.email.length > 0 ){
-      if ( !this.isa.validaEmail( this.isa.clienteAct.email )){
-        this.isa.presentAlertW( 'Email', 'El Email ingresado no es valido.');
-      } else {
-        this.popoverCtrl.dismiss({
-          modificado: true,
-          geoReferencia: this.geoReferencia,
-        });
-      }
-    } else {
-      this.popoverCtrl.dismiss({
-        modificado: true,
-        geoReferencia: this.geoReferencia,
-      });
-    }
+    this.popoverCtrl.dismiss({
+      modificado: true,
+      geoReferencia: this.geoReferencia,
+    });
   }
 
   getGeo(){
+    this.isa.presentaLoading('Espere por favor...');
     console.log('Cargando Geolocalización');
     this.geolocation.getCurrentPosition().then((resp) => {
       // resp.coords.latitude
       // resp.coords.longitude
       this.geoReferencia = true;
+      this.isa.loadingDissmiss();
       console.log(resp);
       this.isa.clienteAct.latitud = resp.coords.latitude;
       this.isa.clienteAct.longitud = resp.coords.longitude;
      }).catch((error) => {
        console.log('Error getting location', error);
+       this.isa.loadingDissmiss();
      });
   }
 
