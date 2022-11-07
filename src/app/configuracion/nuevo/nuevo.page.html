@@ -144,24 +144,30 @@
       <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label position="floating">Provincia</ion-label>
-            <ion-input name="provincia" type="text" [(ngModel)]="clienteNuevo.provincia" required></ion-input>
+            <ion-label>Provincia</ion-label>
+            <ion-select name="provincia" [(ngModel)]="clienteNuevo.provincia" (ionChange)="CambiaProvincia()">
+              <ion-select-option *ngFor="let item3 of provincias">{{item3.Provincia}}</ion-select-option>
+            </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label position="floating">Cantón</ion-label>
-            <ion-input name="canton" type="text" [(ngModel)]="clienteNuevo.canton" required></ion-input>
+            <ion-label>Cantón</ion-label>
+            <ion-select name="canton" [(ngModel)]="clienteNuevo.canton" (ionChange)="CambiaCanton()">
+              <ion-select-option *ngFor="let item4 of cantones">{{item4.Canton}}</ion-select-option>
+            </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label position="floating">Distrito</ion-label>
-            <ion-input name="distrito" type="text" [(ngModel)]="clienteNuevo.distrito" required></ion-input>
+            <ion-label>Distrito</ion-label>
+            <ion-select name="distrito" [(ngModel)]="clienteNuevo.distrito" (ionChange)="CambiaDistrito()">
+              <ion-select-option *ngFor="let item5 of distritos">{{item5.Distrito}}</ion-select-option>
+            </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>

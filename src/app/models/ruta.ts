@@ -207,3 +207,16 @@ export interface RutasDist {
   descripcion: string;
 }
 
+export interface Distritos {
+  Cod_Provincia: string;
+  Cod_Canton: string;
+  Cod_Distrito: string;
+  Distrito: string;
+}
+
+export interface Cantones {
+  Cod_Provincia: string;
+  Cod_Canton: string;
+  Canton: string;
+}
+

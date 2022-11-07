@@ -11,7 +11,7 @@ import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
-import { Cuota, Ruta, RutaConfig, RutasDist, Rutero, UbicacionBD, VisitaBD, VisitaDiaria } from '../models/ruta';
+import { Cantones, Cuota, Distritos, Ruta, RutaConfig, RutasDist, Rutero, UbicacionBD, VisitaBD, VisitaDiaria } from '../models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 @Injectable({
@@ -123,6 +123,26 @@ export class IsaService {
     const URL = environment.preURL + test + environment.postURL + api + id;
     console.log(URL);
     return URL;
+  }
+
+  private getIRPURL( api: string, id: string ){
+    let test: string = '';
+    //if ( !environment.prdMode ) {
+      //test = environment.TestURL;
+    //}
+    const URL = environment.preIRPURL + test + environment.postURL + api + id;
+    console.log(URL);
+    return URL;
+  }
+
+  private getCantones(){
+    const URL = this.getIRPURL( environment.CantonesURL, '' );
+    return this.http.get<Cantones[]>( URL );
+  }
+
+  private getDistritos(){
+    const URL = this.getIRPURL( environment.DistritosURL, '' );
+    return this.http.get<Distritos[]>( URL );
   }
 
   getRutas(){
@@ -257,6 +277,28 @@ export class IsaService {
       resp => {
         console.log('Rutas Dist', resp );
         localStorage.setItem('RutasDist', JSON.stringify(resp));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
+  syncCantones(){
+    this.getCantones().subscribe(
+      resp => {
+        console.log('Cantones', resp );
+        localStorage.setItem('Cantones', JSON.stringify(resp));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
+  syncDistritos(){
+    this.getDistritos().subscribe(
+      resp => {
+        console.log('Distritos', resp );
+        localStorage.setItem('Distritos', JSON.stringify(resp));
       }, error => {
         console.log(error.message);
       }

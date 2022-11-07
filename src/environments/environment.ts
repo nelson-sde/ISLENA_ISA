@@ -5,12 +5,14 @@
 export const environment = {
   production:    false,
   preURL:       'http://api_isa',
+  preIRPURL:    'http://api_irp',
   TestURL:      '_test',
   postURL:      '.di-apps.co.cr/api/',
   actividadEco: '512211',
-  ClienteNuevoURL: 'AddCliente/',
   BancosURL:    'Bancos/',
   cantLineasMaxPedido: 35,
+  CantonesURL:  'Cantones/',
+  ClienteNuevoURL: 'AddCliente/',
   CardexURL:    'ISA_Estad_Ventas/',
   CategoriaClientesURL: 'Categorias/',
   ChequeURL:    'Cheque/',
@@ -22,6 +24,7 @@ export const environment = {
   DescuentoMaxLinea: 99.99,
   DescuentoMaxGen: 30,
   DevURL:       'DevTemp',
+  DistritosURL: 'Distritos/',
   Ejecutivas:   'Ejecutivas/',
   EmailURL:     'Email/',
   Existencias:  'Existencias/',
@@ -48,7 +51,7 @@ export const environment = {
   adminClave: '@dmin2021*',
   version:    '1.6.0',
   aplicarNC:  false,
-  prdMode:    false,
+  prdMode:    true,
 };
 
 /*
