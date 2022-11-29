@@ -675,11 +675,13 @@ export class PedidosPage implements OnInit {
             }
             if (data.entrega !== ""){ 
               fecha2 = new Date(data.entrega);
-              this.pedido.fechaEntrega.setDate(fecha2.getDate() + 1);
+              this.pedido.fechaEntrega = fecha2;
+              console.log(fecha2);
+              this.pedido.fechaEntrega.setDate( fecha2.getDate() + 1);
               const fec = this.isaPedido.getFecha(this.pedido.fechaEntrega);
               
-              this.pedido.observaciones = `Fecha entrega: ${fec}`;
-              console.log(fec);
+              this.pedido.observaciones = `Fecha entrega: ${fec}` + this.pedido.observaciones.slice(25);
+              //console.log(fec);
             }
           }
         }
