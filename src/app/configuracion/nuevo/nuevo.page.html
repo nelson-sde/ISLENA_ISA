@@ -4,7 +4,7 @@
       <ion-button (click)="regresar()" fill="clear" slot="start">
         <ion-icon name="chevron-back-outline"></ion-icon>
       </ion-button>
-      <ion-title align-text-center>Cliente Nuevo Contado</ion-title>
+      <ion-title align-text-center>Cliente Nuevo</ion-title>
       <ion-button (click)="geoReference()" fill="clear" slot="end" size="medium">
         <ion-icon name="location-outline" size="large"></ion-icon>
       </ion-button>
@@ -76,24 +76,51 @@
       <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label position="floating">Día de Visita: L - K - M - J - V - S</ion-label>
-            <ion-input name="diaVisita" type="text" [(ngModel)]="clienteNuevo.diaVisita" required></ion-input>
+            <ion-label>Día de Visita</ion-label>
+            <ion-select name="diaVisita" 
+                        [(ngModel)]="clienteNuevo.diaVisita">
+              <ion-select-option value="L">Lunes</ion-select-option>
+              <ion-select-option value="K">Martes</ion-select-option>
+              <ion-select-option value="M">Miercoles</ion-select-option>
+              <ion-select-option value="J">Jueves</ion-select-option>
+              <ion-select-option value="V">Viernes</ion-select-option>
+              <ion-select-option value="S">Sabado</ion-select-option>
+            </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label position="floating">Día de Entrega: L - K - M - J - V - S</ion-label>
-            <ion-input name="diaVisita" type="text" [(ngModel)]="clienteNuevo.diaEntrega" required></ion-input>
+            <ion-label>Día de Entrega</ion-label>
+            <ion-select name="diaEntrega" 
+                        [(ngModel)]="clienteNuevo.diaEntrega">
+              <ion-select-option value="L">Lunes</ion-select-option>
+              <ion-select-option value="K">Martes</ion-select-option>
+              <ion-select-option value="M">Miercoles</ion-select-option>
+              <ion-select-option value="J">Jueves</ion-select-option>
+              <ion-select-option value="V">Viernes</ion-select-option>
+              <ion-select-option value="S">Sabado</ion-select-option>
+            </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label position="floating">Hora de Entrega (0000 - 2400)</ion-label>
-            <ion-input name="horaEntrega" type="numeric" [(ngModel)]="clienteNuevo.horaEntrega" required></ion-input>
+            <ion-label>Hora de Entrega</ion-label>
+            <ion-select name="horaEntrega" 
+                        [(ngModel)]="clienteNuevo.horaEntrega">
+              <ion-select-option value="800">8am</ion-select-option>
+              <ion-select-option value="900">9am</ion-select-option>
+              <ion-select-option value="1000">10am</ion-select-option>
+              <ion-select-option value="1100">11am</ion-select-option>
+              <ion-select-option value="1200">12m</ion-select-option>
+              <ion-select-option value="1300">1pm</ion-select-option>
+              <ion-select-option value="1400">2pm</ion-select-option>
+              <ion-select-option value="1500">3pm</ion-select-option>
+              <ion-select-option value="1600">4pm</ion-select-option>
+            </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>

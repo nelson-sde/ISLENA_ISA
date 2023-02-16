@@ -4,7 +4,7 @@ import { AlertController, LoadingController, ToastController } from '@ionic/angu
 import { environment } from 'src/environments/environment';
 import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD, StockOuts } from '../models/cardex';
-import { Categorias, Cliente, ClienteBD, ClienteNuevo, ClientePut, ClienteRT } from '../models/cliente';
+import { Categorias, Cliente, ClienteBD, ClienteNuevo, ClientePut, ClienteRT, RutasCanton } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
 import { Exoneraciones, Existencias, PedEnca, PedDeta } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
@@ -138,6 +138,11 @@ export class IsaService {
   private getCantones(){
     const URL = this.getIRPURL( environment.CantonesURL, '' );
     return this.http.get<Cantones[]>( URL );
+  }
+
+  private getRutasCantones(){
+    const URL = this.getIRPURL( environment.rutasCantonURL, '' );
+    return this.http.get<RutasCanton[]>( URL );
   }
 
   private getDistritos(){
@@ -288,6 +293,17 @@ export class IsaService {
       resp => {
         console.log('Cantones', resp );
         localStorage.setItem('Cantones', JSON.stringify(resp));
+      }, error => {
+        console.log(error.message);
+      }
+    );
+  }
+
+  syncRutasCanton(){
+    this.getRutasCantones().subscribe(
+      resp => {
+        console.log('Rutas Cantón', resp );
+        localStorage.setItem('RutasCanton', JSON.stringify(resp));
       }, error => {
         console.log(error.message);
       }

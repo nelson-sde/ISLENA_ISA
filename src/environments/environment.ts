@@ -5,7 +5,7 @@
 export const environment = {
   production:    false,
   preURL:       'http://api_isa',
-  preIRPURL:    'http://api_irp',
+  preIRPURL:    'http://apiirp',
   TestURL:      '_test',
   postURL:      '.di-apps.co.cr/api/',
   actividadEco: '512211',
@@ -41,6 +41,7 @@ export const environment = {
   RecDetaURL:   'RecDeta/',
   rutasURL:     'rutas/',
   rutasDistURL: 'RutasDist/',
+  rutasCantonURL: 'RutasCanton/',
   StockOutsURL: 'Stockouts/',
   SugeridoURL:  'Sugerido/',
   SyncInfoURL:  'SyncInfo/',
@@ -48,8 +49,8 @@ export const environment = {
   UbicacionURL: 'Ubicacion/',
   VisitaURL:    'Visita/',
   
-  adminClave: '@dmin2021*',
-  version:    '1.6.1',
+  adminClave: '15@Admin2*',
+  version:    '1.6.2',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
 };

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { ModalController } from '@ionic/angular';
 import { stringify } from 'querystring';
-import { Categorias, ClienteNuevo } from 'src/app/models/cliente';
+import { Categorias, ClienteNuevo, RutasCanton } from 'src/app/models/cliente';
 import { Email } from 'src/app/models/email';
 import { Cantones, Distritos, RutasDist } from 'src/app/models/ruta';
 import { IsaService } from 'src/app/services/isa.service';
@@ -42,7 +42,7 @@ export class NuevoPage implements OnInit {
     rutaDist: ''
   }
   categorias: Categorias[] = [];
-  rutasDist: RutasDist[] = [];
+  rutasCanton: RutasCanton[] = [];
   cantones:  Cantones[] = [];
   distritos: Distritos[] = [];
   provincias: Provincia[] = [];
@@ -58,7 +58,7 @@ export class NuevoPage implements OnInit {
     this.provincias = JSON.parse('[{"Cod_Provincia": "1","Provincia": "San José"},{"Cod_Provincia": "2","Provincia": "Alajuela"},{"Cod_Provincia": "3","Provincia": "Cartago"},{"Cod_Provincia": "4","Provincia": "Heredia"},{"Cod_Provincia": "5","Provincia": "Guanacaste"},{"Cod_Provincia": "6","Provincia": "Puntarenas"},{"Cod_Provincia": "7","Provincia": "Limón"}]');
     console.log(this.provincias);
     this.categorias = JSON.parse(localStorage.getItem('categorias')) || [];
-    this.rutasDist = JSON.parse(localStorage.getItem('RutasDist')) || [];
+    this.rutasCanton = JSON.parse(localStorage.getItem('RutasCanton')) || [];
     this.cantones = JSON.parse(localStorage.getItem('Cantones')) || [];
     this.distritos = JSON.parse(localStorage.getItem('Distritos')) || [];
   }
@@ -125,13 +125,16 @@ export class NuevoPage implements OnInit {
     if (i >= 0){
       this.clienteNuevo.categoria = this.categorias[i].categoriA_CLIENTE;
     }
-    const j = this.rutasDist.findIndex( x => x.descripcion === this.clienteNuevo.rutaDist );
-    if (i >= 0){
-      this.clienteNuevo.rutaDist = this.rutasDist[i].ruta;
+    const j = this.rutasCanton.findIndex( x => x.Provincia === this.codProvincia && x.Canton === this.codCanton );
+    if (j >= 0){
+      this.clienteNuevo.rutaDist = this.rutasCanton[j].Ruta;
+    } else {
+      this.clienteNuevo.rutaDist = 'ND'
     }
     this.clienteNuevo.provincia = this.codProvincia;
     this.clienteNuevo.canton = this.codCanton;
     this.clienteNuevo.distrito = this.codDistrito;
+    console.log(this.clienteNuevo);
   }
 
   transmitirCliente(){
@@ -196,8 +199,9 @@ export class NuevoPage implements OnInit {
     body.push('Distribuidora Isleña de Alimentos<br/>');
     cuerpo = body.join('');
     email = new Email( this.isa.varConfig.emailCxC, `Ruta: ${this.isa.varConfig.numRuta}. Solicitud Cliente Nuevo de Contado`, cuerpo );
-    this.isa.enviarEmail( email );
-    email.toEmail = this.isa.varConfig.emailVendedor;
+    //this.isa.enviarEmail( email );
+    //email.toEmail = this.isa.varConfig.emailVendedor;
+    email.toEmail = 'mauricio.herra@gmail.com';
     this.isa.enviarEmail( email );
 
     console.log('Formulario Enviado...');

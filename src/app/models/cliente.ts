@@ -150,6 +150,11 @@ export interface ClienteNuevo {
     Ruta_Distribucion: string;
 }
 
+export interface RutasCanton {
+    Ruta: string;
+    Provincia: string;
+    Canton: string;
+  }
 
 
 

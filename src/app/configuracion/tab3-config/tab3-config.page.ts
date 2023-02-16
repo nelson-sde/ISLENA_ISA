@@ -135,6 +135,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.syncStockouts( this.isa.varConfig.numRuta );
       this.isa.syncBancos();
       this.isa.syncCantones();
+      this.isa.syncRutasCanton();
       this.isa.syncDistritos();
       this.isa.syncRutasDist();
       this.isa.syncCategorias();
