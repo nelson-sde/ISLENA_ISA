@@ -50,7 +50,7 @@ export const environment = {
   VisitaURL:    'Visita/',
   
   adminClave: '15@Admin2*',
-  version:    '1.6.2',        // Versión Carpeta de Pruebas
+  version:    '1.6.3',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
 };

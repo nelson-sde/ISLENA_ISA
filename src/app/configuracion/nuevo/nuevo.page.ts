@@ -199,9 +199,9 @@ export class NuevoPage implements OnInit {
     body.push('Distribuidora Isleña de Alimentos<br/>');
     cuerpo = body.join('');
     email = new Email( this.isa.varConfig.emailCxC, `Ruta: ${this.isa.varConfig.numRuta}. Solicitud Cliente Nuevo de Contado`, cuerpo );
-    //this.isa.enviarEmail( email );
-    //email.toEmail = this.isa.varConfig.emailVendedor;
-    email.toEmail = 'mauricio.herra@gmail.com';
+    this.isa.enviarEmail( email );
+    email.toEmail = this.isa.varConfig.emailVendedor;
+    //email.toEmail = 'mauricio.herra@gmail.com';
     this.isa.enviarEmail( email );
 
     console.log('Formulario Enviado...');

@@ -127,16 +127,6 @@
       <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label>Ruta de Distribución</ion-label>
-            <ion-select name="rutaDist" [(ngModel)]="clienteNuevo.rutaDist">
-              <ion-select-option *ngFor="let item2 of rutasDist" [value]="descripcion">{{item2.descripcion}}</ion-select-option>
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="12">
-          <ion-item>
             <ion-label position="floating">Contacto</ion-label>
             <ion-input name="contacto" type="text" [(ngModel)]="clienteNuevo.contacto" required></ion-input>
           </ion-item>
