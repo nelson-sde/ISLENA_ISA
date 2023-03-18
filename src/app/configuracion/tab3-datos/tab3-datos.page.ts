@@ -72,7 +72,7 @@ export class Tab3DatosPage implements OnInit {
     this.isa.guardarVarConfig();
   }
 
-  actualizaVarconfig( ruta: string ){ debugger
+  actualizaVarconfig( ruta: string ){ //debugger
     const fecha = new Date();
     const day = new Date(fecha).getDate();
     const dayLiquid = new Date(this.isa.varConfig.ultimaLiquid).getDate();

@@ -6,6 +6,11 @@ import { Email } from '../models/email';
 import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
 import { IsaService } from './isa.service';
 import { Pen_Cobro } from '../models/cobro';
+import { PdfMakeWrapper, Table, Txt } from 'pdfmake-wrapper';
+import { Platform } from '@ionic/angular';
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { Filesystem, FilesystemDirectory } from '@capacitor/core';
+import { FileOpener } from '@ionic-native/file-opener/ngx';
 
 
 @Injectable({
@@ -15,7 +20,11 @@ export class IsaPedidoService {
 
 
   constructor( private isa: IsaService,
-               private http: HttpClient ) {}
+               private http: HttpClient,
+               private plt: Platform,
+               private fileOpener: FileOpener ) {
+    PdfMakeWrapper.setFonts(pdfFonts);
+  }
 
   private guardarPedido( pedido: Pedido ){
     let pedidosLS: Pedido[] = [];
@@ -279,10 +288,12 @@ export class IsaPedidoService {
     let email: Email;
 
     const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
-    email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
+    //email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
+    email = new Email( 'mauricio.herra@gmail.com', `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
     this.isa.enviarEmail( email );
     email.toEmail = this.isa.varConfig.emailVendedor;
-    this.isa.enviarEmail( email );
+    //this.isa.enviarEmail( email );
+    this.crearPDF(pedido, cliente.nombre);
   }
 
   getBody( pedido: Pedido, nombre: string ){     // nombre = nombre del cliente del pedido
@@ -315,6 +326,95 @@ export class IsaPedidoService {
     body.push('Distribuidora Isleña de Alimentos<br/>');
 
     return body.join('');
+  }
+
+  crearPDF( pedido: Pedido, nombre: string ){
+    const pdf = new PdfMakeWrapper();
+    const descuento = pedido.descuento + pedido.descGeneral;
+
+    pdf.info({
+      title: pedido.numPedido,
+      author: this.isa.varConfig.numRuta,
+      subject: 'PROFORMA',
+    });
+
+    pdf.add(new Txt(`P R O F O R M A`).fontSize(18).alignment('center').bold().end);
+    pdf.add(
+      pdf.ln(2)
+    );
+    pdf.add(new Txt(`Cliente: ${pedido.codCliente} - ${nombre}`).fontSize(16).alignment('left').bold().end);
+    pdf.add(
+      pdf.ln(2)
+    );
+    pdf.add(new Txt(`Fecha Pedido: ${this.getFecha(pedido.fecha)}`).alignment('left').bold().end);
+    pdf.add(
+      pdf.ln(2)
+    );
+
+    pdf.add(new Table([
+      [ new Txt('Can').alignment('center').bold().end,
+        new Txt('Código').alignment('center').bold().end,
+        new Txt('Descripción').alignment('center').bold().end,
+        new Txt('Precio').alignment('center').bold().end,
+        new Txt('IVA').alignment('center').bold().end,
+        new Txt('Desc').alignment('center').bold().end,
+        new Txt('Total').alignment('center').bold().end,
+      ]]).widths([ 25, 50, 120, 60, 40, 40, 80 ]).end);
+
+      pedido.detalle.forEach( d => {
+        pdf.add(new Table([
+          [ new Txt(`${d.cantidad}`).alignment('center').end,
+            new Txt(`${d.codProducto}`).alignment('center').end,
+            new Txt(`${d.descripcion}`).alignment('left').end,
+            new Txt(`${this.colones(d.precio)}`).alignment('right').end,
+            new Txt(`${d.porcenIVA}%`).alignment('center').end,
+            new Txt(`${d.porcenDescuento}%`).alignment('center').end,
+            new Txt(`${this.colones(d.total)}`).alignment('right').end,
+          ]]).widths([ 25, 50, 120, 60, 40, 40, 80 ]).end);
+      });
+
+      pdf.add(new Table([
+        [ new Txt('TOTALES').alignment('center').bold().end,
+          new Txt(`${this.colones(pedido.iva)}`).alignment('right').bold().end,
+          new Txt(`${this.colones(descuento)}`).alignment('right').bold().end,
+          new Txt(`${this.colones(pedido.total)}`).alignment('right').bold().end,
+        ]]).widths([ 219, 70, 70, 80 ]).end);
+
+      pdf.add(
+        pdf.ln(2)
+      );
+      pdf.add(new Txt(`Notas:`).alignment('left').bold().end);
+      pdf.add(new Txt(`${pedido.observaciones}`).alignment('left').bold().end);
+
+      pdf.add(
+        pdf.ln(2)
+      );
+      pdf.add(new Txt(`Este correo ha sido enviado de forma automática con carácter informativo por parte de su Agente de Ventas.`).alignment('left').bold().end);
+      pdf.add(new Txt(`Favor no responder o escribir a esta cuenta, cualquier consulta pueden dirigirse con Servicio al Cliente al 2293-0609 o servicioalcliente@di.cr`).alignment('left').bold().end);
+      pdf.add(
+        pdf.ln(2)
+      );
+      pdf.add(new Txt(`Distribuidora Isleña.`).alignment('left').bold().end);
+
+      if (this.plt.is('capacitor')){
+        pdf.create().getBase64( async (data) => {
+          try {
+            let path = `pdf/${pedido.numPedido}.pdf`;
+            const result = await Filesystem.writeFile({
+              path,
+              data,
+              directory: FilesystemDirectory.Documents,
+              recursive: true
+            });
+            this.fileOpener.open(`${result.uri}`, 'application/pdf');
+                
+          } catch (e) {
+            console.log('Error Creando el archivo', JSON.stringify(e));
+          }
+        });
+      } else {
+        pdf.create().download(pedido.numPedido);
+      }
   }
 
   getFecha( fecha: Date, tipo?: string ){
