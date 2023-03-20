@@ -288,11 +288,11 @@ export class IsaPedidoService {
     let email: Email;
 
     const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
-    //email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
-    email = new Email( 'mauricio.herra@gmail.com', `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
+    email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
+    //email = new Email( 'mauricio.herra@gmail.com', `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
     this.isa.enviarEmail( email );
     email.toEmail = this.isa.varConfig.emailVendedor;
-    //this.isa.enviarEmail( email );
+    this.isa.enviarEmail( email );
     this.crearPDF(pedido, cliente.nombre);
   }
 
