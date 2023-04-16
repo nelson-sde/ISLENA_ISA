@@ -202,6 +202,14 @@ export interface VisitaDiaria {
     longitud:       number
 }
 
+export interface VisitaDiariaNew {
+    ruta:           string,
+    horaSincroniza: Date,
+    latitud:        number,
+    longitud:       number,
+    Version:        string
+}
+
 export interface RutasDist {
   ruta: string;
   descripcion: string;

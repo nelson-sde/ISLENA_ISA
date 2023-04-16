@@ -201,9 +201,11 @@ export class RecibosPage {
               if ( this.dolares ){
                 this.recibo.montoTarjetaD = this.reciboTemp.tarjeta;
                 this.recibo.montoTarjetaL = this.reciboTemp.tarjeta * this.tipoCambio;
+                this.modificarDetalle( this.recibo.montoTarjetaL, this.recibo.montoTarjetaD );
               } else {
                 this.recibo.montoTarjetaL = this.reciboTemp.tarjeta;
                 this.recibo.montoTarjetaD = this.recibo.montoTarjetaL / this.tipoCambio;
+                this.modificarDetalle( this.recibo.montoTarjetaL, this.recibo.montoTarjetaD );
               }
               this.edicion = false;
             } else {

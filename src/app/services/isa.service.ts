@@ -11,7 +11,7 @@ import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
-import { Cantones, Cuota, Distritos, Ruta, RutaConfig, RutasDist, Rutero, UbicacionBD, VisitaBD, VisitaDiaria } from '../models/ruta';
+import { Cantones, Cuota, Distritos, Ruta, RutaConfig, RutasDist, Rutero, UbicacionBD, VisitaBD, VisitaDiaria, VisitaDiariaNew } from '../models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 @Injectable({
@@ -782,8 +782,8 @@ export class IsaService {
     )
   }
 
-  private postSyncInfo( info: VisitaDiaria ){
-    const URL = this.getURL( environment.SyncInfoURL, '' );
+  private postSyncInfoNew( info: VisitaDiariaNew ){
+    const URL = this.getURL( environment.SyncInfoNew, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',
@@ -793,8 +793,8 @@ export class IsaService {
     return this.http.post( URL, JSON.stringify(info), options );
   }
 
-  private transmitirInfo( info: VisitaDiaria ){
-    this.postSyncInfo( info ).subscribe(
+  private transmitirInfo( info: VisitaDiariaNew ){
+    this.postSyncInfoNew( info ).subscribe(
       resp => {
         console.log('Success SyncInfo...', resp);
       }, error => {
@@ -822,12 +822,12 @@ export class IsaService {
 
   syncInfo(){
     const fecha = new Date();
-    let info: VisitaDiaria = {
-      ID: this.getID(),
+    let info: VisitaDiariaNew = {
       ruta: this.varConfig.numRuta,
       horaSincroniza: new Date(fecha.getTime() - (fecha.getTimezoneOffset() * 60000)),
       latitud: null,
-      longitud: null
+      longitud: null,
+      Version: environment.version
     }
 
     this.geoLocation.getCurrentPosition().then((resp) => {
@@ -835,6 +835,9 @@ export class IsaService {
       info.longitud = resp.coords.longitude;
       this.transmitirInfo(info);
     }).catch((error) => {
+      info.latitud = 0;
+      info.longitud = 0;
+      this.transmitirInfo(info);
       console.log('Error getting location', error);
     });
   }

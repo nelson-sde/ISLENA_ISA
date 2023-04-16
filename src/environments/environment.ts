@@ -45,12 +45,13 @@ export const environment = {
   StockOutsURL: 'Stockouts/',
   SugeridoURL:  'Sugerido/',
   SyncInfoURL:  'SyncInfo/',
+  SyncInfoNew:  'SyncInfoNew/',
   tipoCambio:   620,
   UbicacionURL: 'Ubicacion/',
   VisitaURL:    'Visita/',
   
   adminClave: '15@Admin2*',
-  version:    '1.6.4',        // Versión Carpeta de Pruebas
+  version:    '1.6.5',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
 };
