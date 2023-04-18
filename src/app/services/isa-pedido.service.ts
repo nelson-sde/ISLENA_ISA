@@ -9,7 +9,8 @@ import { Pen_Cobro } from '../models/cobro';
 import { PdfMakeWrapper, Table, Txt } from 'pdfmake-wrapper';
 import { Platform } from '@ionic/angular';
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
-import { Filesystem, FilesystemDirectory } from '@capacitor/core';
+import { Plugins, FilesystemDirectory } from "@capacitor/core";
+const { Filesystem } = Plugins;
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 
 
@@ -396,10 +397,13 @@ export class IsaPedidoService {
       );
       pdf.add(new Txt(`Distribuidora Isleña.`).alignment('left').bold().end);
 
+      console.log('Capacitor: ', this.plt.is('capacitor'));
+      console.log('Directorio: ', FilesystemDirectory.Documents);
+
       if (this.plt.is('capacitor')){
         pdf.create().getBase64( async (data) => {
           try {
-            let path = `pdf/${pedido.numPedido}.pdf`;
+            let path = `${pedido.numPedido}.pdf`;
             const result = await Filesystem.writeFile({
               path,
               data,
@@ -410,6 +414,7 @@ export class IsaPedidoService {
                 
           } catch (e) {
             console.log('Error Creando el archivo', JSON.stringify(e));
+            this.isa.presentAlertW('PDF', 'Error Creando Archivo PDF');
           }
         });
       } else {
