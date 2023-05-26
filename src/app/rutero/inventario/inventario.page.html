@@ -15,7 +15,10 @@
       <h2>{{ isa.clienteAct.nombre }}</h2>
     </ion-text>
   </ion-item>
-  <ion-searchbar mode="ios" palceholder="Buscar item" inputmode="text" (ionChange)="onSearchChange($event)" debounce="250" ></ion-searchbar>
+  <ion-item lines="none">
+    <ion-searchbar mode="ios" palceholder="Buscar item" inputmode="text" (ionChange)="onSearchChange($event)" debounce="250" ></ion-searchbar>
+  </ion-item>
+  
   <ion-item>
     <ion-label>Ordena por: {{etiqueta}}</ion-label>
     <ion-toggle color="dark" (ionChange)="cambiaBusqueda()"></ion-toggle>
