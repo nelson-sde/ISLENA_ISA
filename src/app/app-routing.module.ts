@@ -117,6 +117,10 @@ const routes: Routes = [
   {
     path: 'stockouts',
     loadChildren: () => import('./rutero/stockouts/stockouts.module').then( m => m.StockoutsPageModule)
+  },
+  {
+    path: 'entregas',
+    loadChildren: () => import('./rutero/entregas/entregas.module').then( m => m.EntregasPageModule)
   }
 ];
 @NgModule({

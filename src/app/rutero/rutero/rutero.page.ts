@@ -131,6 +131,10 @@ export class RuteroPage implements OnInit {
     this.router.navigate(['/liquida']);
   }
 
+  abrirEntregas(){
+    this.router.navigate(['/entregas']);
+  }
+
   buscarCliente( ev: any ){
     if ( this.isa.userLogged || !environment.prdMode ){            // Valida si el vendedor hizo login
       if (this.texto.length == 0) {                               // Se busca en todos los cliente
@@ -459,5 +463,7 @@ export class RuteroPage implements OnInit {
        localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
      });
   }
+
+
 
 }

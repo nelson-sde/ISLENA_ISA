@@ -143,6 +143,7 @@ export class Tab3ConfigPage implements OnInit{
       this.isa.syncExoneraciones();
       this.isa.syncSugerido();
       this.isa.syncExistencias();
+      this.isa.syncEntregas( this.isa.varConfig.numRuta );
       this.isaPedidos.borrarPedidos( true );    // Se borra por completo la tabla pedidos
       this.isaCobros.borrarRecibos( true );
       this.isaCardex.borrarCardex();

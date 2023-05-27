@@ -6,7 +6,7 @@ import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD, StockOuts } from '../models/cardex';
 import { Categorias, Cliente, ClienteBD, ClienteNuevo, ClientePut, ClienteRT, RutasCanton } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
-import { Exoneraciones, Existencias, PedEnca, PedDeta } from '../models/pedido';
+import { Exoneraciones, Existencias, PedEnca, PedDeta, Entregas } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
@@ -235,6 +235,12 @@ export class IsaService {
     return this.http.get<Ejecutivas[]>( URL );
   }
 
+  getEntregas( ruta: string ){
+    const fecha = new Date;
+    const URL = this.getURL( environment.EntregasURL, `?id=${ruta}&fecha=${this.getFecha(fecha, 'SQL')}` );
+    return this.http.get<Entregas[]>( URL );
+  }
+
   getFecha( fecha: Date, tipo?: string ){
     let day = new Date(fecha).getDate();
     let month = new Date(fecha).getMonth() + 1;
@@ -269,10 +275,21 @@ export class IsaService {
 
     this.getStockouts( ruta,  this.getFecha(fecha, 'SQL') ).subscribe(
       resp => {
-        console.log(resp);
+        console.log('Stockouts', resp);
         localStorage.setItem('StockOuts', JSON.stringify(resp));
       }, error => {
-        console.log('Error sincronizando Stockouts...!!!');
+        console.log('Error sincronizando Stockouts...!!!', error.message);
+      }
+    )
+  }
+
+  syncEntregas( ruta: string ){
+    this.getEntregas( ruta ).subscribe(
+      resp => {
+        console.log('Entregas', resp);
+        localStorage.setItem('Entregas', JSON.stringify(resp));
+      }, error => {
+        console.log('Error sincronizando Stockouts...!!!', error.message);
       }
     )
   }

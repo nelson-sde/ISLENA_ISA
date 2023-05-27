@@ -27,6 +27,7 @@ export const environment = {
   DistritosURL: 'Distritos/',
   Ejecutivas:   'Ejecutivas/',
   EmailURL:     'Email/',
+  EntregasURL:  'Clientes_Guia/',
   Existencias:  'Existencias/',
   ExoneracionesURL: 'Exoneraciones/',
   ISA_Mov_DirURL:   'Mov_Dir/',
@@ -51,7 +52,7 @@ export const environment = {
   VisitaURL:    'Visita/',
   
   adminClave: '15@Admin2*',
-  version:    '1.6.6',        // Versión Carpeta de Pruebas
+  version:    '1.7.0',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
 };

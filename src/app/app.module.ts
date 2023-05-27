@@ -19,6 +19,7 @@ import { File } from '@ionic-native/file/ngx';
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 
 
+
 @NgModule({
   declarations: [AppComponent ],
   entryComponents: [],

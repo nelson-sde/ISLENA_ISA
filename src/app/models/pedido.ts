@@ -304,4 +304,23 @@ export class Exoneraciones {    // Listado con las Exoneraciones de impuestos
     }
 }
 
+export interface Entregas {
+  fecha: Date;
+  ruta: string;
+  idGuia: string;
+  idCamion: string;
+  chofer: string;
+  idCliente: string;
+  nombre: string;
+  direccion: string;
+  checkin: string;
+  observaciones: string;
+  estado: string;
+  bultos: number;
+  checkout: string;
+  orden_Visita: number;
+  duracion: number;
+  distancia: number;
+}
+
 
