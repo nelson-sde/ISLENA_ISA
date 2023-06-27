@@ -360,6 +360,7 @@ export class RuteroPage implements OnInit {
         if (this.isa.rutero[0].fin == null){
           this.isa.rutero[0].fin = new Date();
           if ( this.isa.rutero[0].razon === 'N' ){ 
+            this.isaCobro.insertRutero(this.isa.rutero[0]);
             this.cierraVisita(this.isa.rutero[0].cliente);
           }
         }
@@ -437,6 +438,7 @@ export class RuteroPage implements OnInit {
             if ( i >= 0 ){
               this.isa.rutero[i].notas = data;
               localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+
             }
           }
         }

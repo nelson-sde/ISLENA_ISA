@@ -228,3 +228,12 @@ export interface Cantones {
   Canton: string;
 }
 
+export interface RuteroBD {
+  ruta: string;
+  hora: Date;
+  cliente: string;
+  tipo: string;
+  latitud: number;
+  longitud: number;
+}
+

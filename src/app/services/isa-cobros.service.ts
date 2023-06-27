@@ -5,6 +5,7 @@ import { IsaService } from './isa.service';
 import { environment } from 'src/environments/environment';
 import { Cheque, ChequeBD } from '../models/cheques';
 import { Email } from '../models/email';
+import { Rutero, RuteroBD } from '../models/ruta';
 
 @Injectable({
   providedIn: 'root'
@@ -72,9 +73,45 @@ export class IsaCobrosService {
   private actualizaVisita( idCliente: string ){
     const existe = this.isa.rutero.findIndex( d => d.cliente === idCliente );
     if (existe >= 0){
-      this.isa.rutero[existe].razon = 'E';
-      localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+      if (this.isa.rutero[existe].razon == 'N'){
+        this.isa.rutero[existe].razon = 'E';
+        localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+        this.insertRutero(this.isa.rutero[existe]);
+      }
     }
+  }
+
+  insertRutero(visita: Rutero){
+    const item: RuteroBD = {
+      ruta: visita.ruta,
+      hora: new Date(),
+      cliente: visita.cliente,
+      tipo: visita.razon,
+      latitud: visita.latitud,
+      longitud: visita.longitud
+    }
+
+    const data: RuteroBD[] = [];
+    data.push(item);
+
+    this.postRutero(data).subscribe(
+      resp => {
+        console.log('Rutero insertado con Exito...');
+      }, error => {
+        console.log('ERROR insertando Rutero...!!!', error.message);
+      }
+    );
+  }
+
+  private postRutero(data: RuteroBD[]){
+    const URL = this.isa.getURL( environment.ruteroURL, '');
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(data), options );
   }
 
   transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){

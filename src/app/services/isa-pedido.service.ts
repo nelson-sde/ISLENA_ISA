@@ -12,6 +12,8 @@ import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { Plugins, FilesystemDirectory } from "@capacitor/core";
 const { Filesystem } = Plugins;
 import { FileOpener } from '@ionic-native/file-opener/ngx';
+import { Rutero, RuteroBD } from '../models/ruta';
+
 
 
 @Injectable({
@@ -80,9 +82,45 @@ export class IsaPedidoService {
   private actualizaVisita( idCliente: string ){
     const existe = this.isa.rutero.findIndex( d => d.cliente === idCliente );
     if (existe >= 0){
-      this.isa.rutero[existe].razon = 'E';
-      localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+      if (this.isa.rutero[existe].razon == 'N'){
+        this.isa.rutero[existe].razon = 'E';
+        this.insertRutero(this.isa.rutero[existe]);
+        localStorage.setItem('rutero', JSON.stringify(this.isa.rutero));
+      }
     }
+  }
+
+  private insertRutero(visita: Rutero){
+    const item: RuteroBD = {
+      ruta: visita.ruta,
+      hora: new Date(),
+      cliente: visita.cliente,
+      tipo: visita.razon,
+      latitud: visita.latitud,
+      longitud: visita.longitud
+    }
+
+    const data: RuteroBD[] = [];
+    data.push(item);
+
+    this.postRutero(data).subscribe(
+      resp => {
+        console.log('Rutero insertado con Exito...');
+      }, error => {
+        console.log('ERROR insertando Rutero...!!!', error.message);
+      }
+    );
+  }
+
+  private postRutero(data: RuteroBD[]){
+    const URL = this.isa.getURL( environment.ruteroURL, '');
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(data), options );
   }
 
   procesaPedido( pedido: Pedido, frio: boolean, seco: boolean ){
@@ -90,6 +128,8 @@ export class IsaPedidoService {
     let pedidoFrio: Pedido;
 
     this.actualizaVisita( pedido.codCliente );
+
+
     if ( frio && seco ){
       this.isa.addBitacora( true, 'INSERT', `Separa los pedidos de Frio y Seco.  Frio: ${pedido.numPedido}`);
       pedidoFrio = this.separaPedido ( pedido, true );

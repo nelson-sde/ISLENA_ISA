@@ -43,6 +43,7 @@ export const environment = {
   rutasURL:     'rutas/',
   rutasDistURL: 'RutasDist/',
   rutasCantonURL: 'RutasCanton/',
+  ruteroURL:    'ISA_Rutero/',
   StockOutsURL: 'Stockouts/',
   SugeridoURL:  'Sugerido/',
   SyncInfoURL:  'SyncInfo/',
@@ -52,7 +53,7 @@ export const environment = {
   VisitaURL:    'Visita/',
   
   adminClave: '15@Admin2*',
-  version:    '1.7.0',        // Versión Carpeta de Pruebas
+  version:    '1.7.1',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
 };
