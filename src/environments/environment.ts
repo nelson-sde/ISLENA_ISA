@@ -4,8 +4,9 @@
 
 export const environment = {
   production:    false,
+  companyCode:  '01',
   preURL:       'http://api_isa',
-  preIRPURL:    'http://apiirp',
+  preIRPURL:    'https://apiirp',
   TestURL:      '_test',
   postURL:      '.di-apps.co.cr/api/',
   actividadEco: '512211',

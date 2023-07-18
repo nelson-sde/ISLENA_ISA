@@ -15,6 +15,7 @@ import { IsaCobrosService } from '../../services/isa-cobros.service';
 import { Pen_Cobro } from '../../models/cobro';
 import { StockOuts } from 'src/app/models/cardex';
 import { StockoutsPage } from '../stockouts/stockouts.page';
+import { SetupService } from 'src/app/services/setup.service';
 
 const { App } = Plugins;
 
@@ -34,6 +35,7 @@ export class RuteroPage implements OnInit {
                private router: Router,
                private isa: IsaService,
                private isaCobro: IsaCobrosService,
+               private setup: SetupService,
                private popoverCtrl: PopoverController,
                private modalCtrl: ModalController,
                private platform: Platform,
@@ -43,6 +45,12 @@ export class RuteroPage implements OnInit {
       console.log('Handler was called!');
       this.presentAlertSalir();
     });
+  }
+
+  ionViewWillEnter(){
+    if (this.setup.cargarDatos()){
+      console.log('Compañía cargada con Éxito');
+    }
   }
 
   ngOnInit(){

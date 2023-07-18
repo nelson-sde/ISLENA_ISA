@@ -13,6 +13,7 @@ import { IsaLSService } from './isa-ls.service';
 import { Bitacora } from '../models/bitacora';
 import { Cantones, Cuota, Distritos, Ruta, RutaConfig, RutasDist, Rutero, UbicacionBD, VisitaBD, VisitaDiaria, VisitaDiariaNew } from '../models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { SetupService } from './setup.service';
 
 @Injectable({
   providedIn: 'root'
@@ -64,7 +65,8 @@ export class IsaService {
                private loadingCtrl: LoadingController,
                private toastCtrl: ToastController,
                private geoLocation: Geolocation,
-               private isaLS: IsaLSService ) {
+               private isaLS: IsaLSService,
+               private setup: SetupService ) {
 
     this.cargarVarConfig();
     this.cargarExistencias();
@@ -120,7 +122,7 @@ export class IsaService {
     if ( !environment.prdMode ) {
       test = environment.TestURL;
     }
-    const URL = environment.preURL + test + environment.postURL + api + id;
+    const URL = this.setup.company.preURL1 + test + this.setup.company.postURL1 + api + id;
     console.log(URL);
     return URL;
   }
@@ -130,7 +132,7 @@ export class IsaService {
     //if ( !environment.prdMode ) {
       //test = environment.TestURL;
     //}
-    const URL = environment.preIRPURL + test + environment.postURL + api + id;
+    const URL = this.setup.company.preURL2 + test + this.setup.company.postURL2 + api + id;
     console.log(URL);
     return URL;
   }

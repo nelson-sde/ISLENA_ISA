@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
@@ -23,6 +23,7 @@ import { FileOpener } from '@ionic-native/file-opener/ngx';
 @NgModule({
   declarations: [AppComponent ],
   entryComponents: [],
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, IonicStorageModule.forRoot()],
   providers: [
     StatusBar,

@@ -1,0 +1,59 @@
+[
+
+    {
+        "companyCode": "01",
+        "company": "Distribuidora ISLEÑA",
+        "website": "https://www.di.cr/",
+        "user":"",
+        "email":"soporte@di.cr",
+        "contact":"(506) 2293-0609",
+        "preURL1": "http://api_isa",
+        "postURL1": ".di-apps.co.cr/api/",
+        "preURL2": "https://apiirp",
+        "postURL2": ".di-apps.co.cr/api/",
+        "mapboxKey": "pk.eyJ1IjoibWhlcnJhIiwiYSI6ImNrcWxhdXk4eTByMDUyd28xNnZ2b2hoMjMifQ.IrIAxPGO4oFiRVR8U5sqkA",
+        "latitud":9.982628288210657,
+        "longitud":-84.14123589305028,
+        "description":"Distribuidora Isleña de Alimentos S.A",
+        "logo":"../assets/islena.png",
+        "taxId":"3-101-10918017",
+        "fax":"(506) 2293-0609",
+        "address":"Dirección:Barreal Heredia-Alajuela-Costa Rica",
+        "modules":[
+            { "id":"00","name":"Inicio","title": "Inicio","description":"", "image": "../assets/home/home.svg","url": "/inicio/detalle","included":true},
+            { "id":"01","name":"Gestión decamiones","title": "Gestión decamiones","description":"Permite gestionar los camiones en ruta", "image": "../assets/home/delivery.svg","url": "/inicio/gestion-camiones","included":true},
+            { "id":"02","name":"Planificación de Rutas","title": "Planificación de Rutas","description":"Permite definir la configuracion de Rutas - Clientes", "image": "../assets/home/route.png","url": "/planificacion-rutas","included":true},
+            { "id":"03","name":"Planificación de Entregas","title": "Planificación de Entregas","description":"Permite gestionar la factura por cliente de cada ruta", "image": "../assets/png/receipt.png","url": "/planificacion-entregas","included":true},
+            { "id":"04","name":"Atención al cliente","title": "Atención al cliente","description":"Permite gestionar las entregas en ruta", "image": "../assets/png/customer-service.svg","url": "/servicio-cliente","included":true},
+            { "id":"05","name":"Gestión Liquidaciones","title": "Gestión Liquidaciones","description":"Permite gestionar las liquidaciones de los camniones que han completado su ruta de entrega.", "image": "../assets/png/return.svg","url": "/inicio/gestion-liquidaciones","included":true}
+        ]
+    },
+    {
+        "companyCode": "02",
+        "company": "Coris",
+        "website": "www.coris.com",
+        "user":"",
+        "email":"coris@gmail.com",
+        "contact":"",
+        "preURL1": "https://sde1.sderp.site",
+        "postURL1": "/isa-coris/api/",
+        "preURL2": "https://sde1.sderp.site",
+        "postURL2": "/isa-coris/api/",
+        "mapboxKey": "pk.eyJ1IjoibWhlcnJhIiwiYSI6ImNrcWxhdXk4eTByMDUyd28xNnZ2b2hoMjMifQ.IrIAxPGO4oFiRVR8U5sqkA",
+        "latitud":9.979979,
+        "longitud":-84.140913,
+        "description":"",
+        "logo":"",
+        "taxId":"",
+        "fax":"",
+        "address":"",
+        "modules":[
+            { "id":"00","name":"Inicio","title": "Inicio","description":"", "image": "../assets/home/home.svg","url": "/inicio/detalle","included":true},
+            { "id":"01","name":"Gestión decamiones","title": "Gestión decamiones","description":"Permite gestionar los camiones en ruta", "image": "../assets/home/delivery.svg","url": "/inicio/gestion-camiones","included":true},
+            { "id":"02","name":"Planificación de Rutas","title": "Planificación de Rutas","description":"Permite definir la configuracion de Rutas - Clientes", "image": "../assets/home/route.png","url": "/planificacion-rutas","included":true},
+            { "id":"03","name":"Planificación de Entregas","title": "Planificación de Entregas","description":"Permite gestionar la factura por cliente de cada ruta", "image": "../assets/png/receipt.png","url": "/planificacion-entregas","included":true},
+            { "id":"04","name":"Atención al cliente","title": "Atención al cliente","description":"Permite gestionar las entregas en ruta", "image": "../assets/png/customer-service.svg","url": "/servicio-cliente","included":true},
+            { "id":"05","name":"Gestión Liquidaciones","title": "Gestión Liquidaciones","description":"Permite gestionar las liquidaciones de los camniones que han completado su ruta de entrega.", "image": "../assets/png/return.svg","url": "/inicio/gestion-liquidaciones","included":true}
+        ]
+    }
+]
