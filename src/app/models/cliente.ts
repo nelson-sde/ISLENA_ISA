@@ -24,10 +24,11 @@ export class Cliente {
     latitud: number;
     longitud: number;
     letraCambio: boolean;
+    compania: string;
 
     constructor(id: string, nombre: string, dir: string, tipoCont: string, contri: string, razonSocial: string, telContacto: string,
         nomContacto: string, credito: number, limCredito: number, diasCred: number, listaPrecio: number, descuento: number, tipoImp: number,
-        tarifa: number, porTarifa: number, divGeo1: string, divGeo2: string, moroso: string, email: string, lat: number, lon: number, letraCambio: string ){
+        tarifa: number, porTarifa: number, divGeo1: string, divGeo2: string, moroso: string, email: string, lat: number, lon: number, letraCambio: string, compania: string ){
         this.id = id;
         this.nombre = nombre;
         this.direccion = dir;
@@ -59,7 +60,9 @@ export class Cliente {
         } else {
             this.letraCambio = false;
         }
+        this.compania = compania;
         this.saldoCredito = 0;
+
     }
 }
 
@@ -73,6 +76,7 @@ export interface ClienteBD {
     tipo_Impuesto:  string,
     cod_Cnd:        string,
     cod_Pais:       string,
+    COD_CIA:        string,
     contribuyente:  string,
     descuento:      number,
     division_Geografica1: string,

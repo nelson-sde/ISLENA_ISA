@@ -71,7 +71,7 @@ export class IsaService {
     this.cargarVarConfig();
     this.cargarExistencias();
     this.cargarBitacora();
-    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null, 'N');
+    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null, 'N', null);
   }
 
   private cargarVarConfig(){
@@ -188,7 +188,7 @@ export class IsaService {
   }
 
   private getCardex( ruta: string ){
-    const URL = this.getURL( environment.CardexURL, ruta );
+    const URL = this.getURL( environment.CardexURL, `?id=${ruta}` );
     return this.http.get<CardexBD[]>( URL );
   }
 
@@ -416,7 +416,7 @@ export class IsaService {
         resp.forEach(e => {
           cliente = new Cliente(e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
             e.nom_Cto, 0, e.lim_Cre, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
-            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud, e.usa_Letra);
+            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud, e.usa_Letra, e.COD_CIA);
           this.clientes.push( cliente );
         });
         console.log( 'Arreglo', this.clientes );
