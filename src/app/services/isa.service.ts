@@ -6,7 +6,7 @@ import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD, StockOuts } from '../models/cardex';
 import { Categorias, Cliente, ClienteBD, ClienteNuevo, ClientePut, ClienteRT, RutasCanton } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
-import { Exoneraciones, Existencias, PedEnca, PedDeta, Entregas } from '../models/pedido';
+import { Exoneraciones, Existencias, PedEnca, PedDeta, Entregas, PedidoWhatsappGet, BackOrders, PedidoWhatsappPut } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
@@ -57,6 +57,7 @@ export class IsaService {
   userLogged: boolean = true;
   transmitiendo: string[] = [];
   rutero: Rutero[] = [];                // Arreglo con la lista de clientes visitados en el día
+  hayPedidosWhatsapp: boolean = false;
 
   loading: HTMLIonLoadingElement;
 
@@ -242,6 +243,55 @@ export class IsaService {
     const URL = this.getURL( environment.EntregasURL, `?id=${ruta}&fecha=${this.getFecha(fecha, 'SQL')}` );
     return this.http.get<Entregas[]>( URL );
   }
+
+  private getPedidosWhatsapp( ruta: string ){
+    const URL = this.getURL( environment.PedWhatsGet, `?ruta=${ruta}` );
+    return this.http.get<PedidoWhatsappGet[]>( URL );
+  }
+
+  private getBackOrders( ruta: string ){
+    const fecha = new Date;
+    const URL = this.getURL( environment.BackOrdersURL, `?id=${ruta}&fecha=${this.getFecha(fecha, 'SQL')}` );
+    return this.http.get<BackOrders[]>( URL );
+  }
+
+  putPedidosWhatsapp( pedido: PedidoWhatsappPut ){
+    const URL = this.getIRPURL( environment.PedWhatsAct, `?ID=${pedido.Pedido}&idCliente=${pedido.IdCliente}&linea=${pedido.linea}` );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+      }
+    };
+    console.log(JSON.stringify(pedido));
+    return this.http.put( URL, JSON.stringify(pedido), options );
+  }
+
+  syncBackOrders( ruta: string ){
+    this.getBackOrders( ruta ).subscribe(
+      resp => {
+        console.log('Back Orders', resp);
+        localStorage.setItem('BackOrders', JSON.stringify(resp));
+      }, error => {
+        console.log('Error sincronizando Back Orders...!!!', error.message);
+      }
+    )
+  }
+
+  syncPedidosWhatsapp( ruta: string ){
+    this.getPedidosWhatsapp( ruta ).subscribe(
+      resp => {
+        console.log('Pedidos Whatsapp', resp);
+        this.hayPedidosWhatsapp = true;
+        localStorage.setItem('PedWhatsapp', JSON.stringify(resp));
+      }, error => {
+        console.log('Error sincronizando Pedidos de Whatsapp...!!!', error.message);
+      }
+    )
+  }
+
+
 
   getFecha( fecha: Date, tipo?: string ){
     let day = new Date(fecha).getDate();

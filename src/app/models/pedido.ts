@@ -323,4 +323,67 @@ export interface Entregas {
   distancia: number;
 }
 
+export class PedidoWhatsappPut {
+    constructor(
+        public IdCliente: string,
+        public Pedido:    string,
+        public linea:     number,
+        public Fecha:     Date,
+        public CantidadLineas: number,
+        public articulo:  string,
+        public CantidadPedida: number,
+        public Precio:    number,
+        public PorcenDescuento: number,
+        public Sincronizado: string,
+        public Notificado: string,
+    ){}
+}
+
+export interface PedidoWhatsappGet {
+  idCliente:        string;
+  ruta:             string;
+  nom_Clt:          string;
+  pedido:           string;
+  fecha:            Date;
+  linea:            number;
+  cantidadLineas:   number;
+  articulo:         string;
+  cantidadPedida:   number;
+  precio:           number;
+  porcenDescuento:  number;
+}
+
+export class PedidoWhatsApp {
+    constructor(
+        public idCliente: string,
+        public nom_Clt:   string,
+        public pedido:    string,
+        public fecha:     Date,
+        public detalle:   PedWhatsAppDet[] = [],
+    ){}
+}
+
+export class PedWhatsAppDet {
+    constructor (
+        public articulo:        string,
+        public descripcion:     string,
+        public cantidadPedida:  number,
+        public precio:          number,
+        public porcenDescuento: number,
+    ){}
+}
+
+export interface BackOrders {
+  factura:          string;
+  clientE_ORIGEN:   string;
+  nom_Clt:          string;
+  ruta:             string;
+  u_GUIA_ENTREGA:   string;
+  fecha:            Date;
+  articulo:         string;
+  descripcion:      string;
+  cantidaD_PEDIDA:  number;
+  cantidaD_FACTURADA: number;
+}
+
 

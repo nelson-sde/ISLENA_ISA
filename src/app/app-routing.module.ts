@@ -121,6 +121,14 @@ const routes: Routes = [
   {
     path: 'entregas',
     loadChildren: () => import('./rutero/entregas/entregas.module').then( m => m.EntregasPageModule)
+  },
+  {
+    path: 'ped-whatsapp',
+    loadChildren: () => import('./rutero/ped-whatsapp/ped-whatsapp.module').then( m => m.PedWhatsappPageModule)
+  },
+  {
+    path: 'backorders',
+    loadChildren: () => import('./rutero/backorders/backorders.module').then( m => m.BackordersPageModule)
   }
 ];
 @NgModule({

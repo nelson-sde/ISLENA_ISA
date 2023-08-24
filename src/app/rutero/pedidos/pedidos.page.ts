@@ -518,27 +518,75 @@ export class PedidosPage implements OnInit {
 
   editarDetalle( i: number ){
     if ( !this.modificando ){      // Valida si se está editando una línea... en ese caso no se puede editar.
-      this.cantidad = this.pedido.detalle[i].cantidad;
-      this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
-      this.producto = this.isa.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
-      this.texto = this.producto.nombre;
-      this.cantBodega = this.cantidadBodega( this.producto.id );
-      this.impuesto = this.isa.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
-      this.mostrarListaProd = false;
-      this.mostrarProducto = true;
-      this.modificando = true;
-      this.j = i;
-      this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
-      this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
-      this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
-      this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
-      this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
+      this.reversarLinea(i);
       this.ionList.closeSlidingItems();
     } else {
       this.isa.presentAlertW( 'Edición', 'No se puede editar una línea si se estaba editando otra.');
       this.ionList.closeSlidingItems();
-    }
+    } 
+  }
+
+  reversarLinea(i: number){
+    this.cantidad = this.pedido.detalle[i].cantidad;
+    this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
+    this.producto = this.isa.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
+    this.texto = this.producto.nombre;
+    this.cantBodega = this.cantidadBodega( this.producto.id );
+    this.impuesto = this.isa.calculaImpuesto( this.producto.impuesto, this.pedido.detalle[i].codProducto );
+    this.mostrarListaProd = false;
+    this.mostrarProducto = true;
+    this.modificando = true;
+    this.j = i;
+    this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
+    this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;
+    this.pedido.descuento = this.pedido.descuento - this.pedido.detalle[i].descuento;
+    this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral;
+    this.pedido.total = this.pedido.total - this.pedido.detalle[i].total;
+  }
+
+  async editarInfo(i: number){
+    let descuento = 0;
+
+    if (!this.modificando){
+
+      // Primero se consulta el histórico de compras por item
+      const historico = await this.isaCardex.cargarCardex(`#${this.pedido.detalle[i].codProducto}`);
+      console.log(historico);
+
+      if (historico.length > 0){
+        descuento = historico[0].descuento;
+      }
+
+      const alert = await this.alertController.create({
+        header: 'Confirmación',
+        message: `El último descuento dado a este cliente es de: ${descuento}`,
+        buttons: [
+          {
+            text: 'Cancelar',
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: () => {
+              console.log('Acción de cancelar');
+            }
+          }, {
+            text: 'Aceptar',
+            handler: () => {
+              console.log('Acción de aceptar');
+              this.reversarLinea(i);
+              this.descuento = descuento;
+              this.calculaLineaPedido()
+              this.ionList.closeSlidingItems();
+            }
+          }
+        ]
+      });
     
+      await alert.present();
+      
+    } else {
+      this.isa.presentAlertW( 'Edición', 'No se puede editar una línea si se estaba editando otra.');
+      this.ionList.closeSlidingItems();
+    }
   }
 
   async presentAlertSalir() {

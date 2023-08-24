@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <ion-title align-text-center>Pedidos de Whatsapp</ion-title>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-list>
+
+    <ion-card *ngFor="let item of pedidos; let i=index" color="light">
+      <ion-card-content>
+        <ion-item color="light">
+          <ion-grid fixed>
+            <ion-row>
+              <ion-col size="4">Pedido</ion-col>
+              <ion-col size="3">Fecha</ion-col>
+              <ion-col size="5">Cliente</ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-item>
+        <ion-item>
+          <ion-grid fixed>
+            <ion-row class="grid-row">
+              <ion-col size="4">
+                <ion-text color="primary">
+                  {{item.pedido}}
+                </ion-text>
+              </ion-col>
+              <ion-col size="3">
+                <ion-text color="primary">
+                  {{item.fecha | date: shortDate}}
+                </ion-text>
+              </ion-col>
+              <ion-col size="5">
+                <ion-text color="primary">
+                  {{item.idCliente}} - {{item.nom_Clt}}
+                </ion-text>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="12">
+                <ion-list>
+                  <ion-item *ngFor="let item2 of item.detalle">
+                    <ion-grid fixed>
+                      <ion-row>
+                        <ion-col size="10">{{item2.articulo}} - {{item2.descripcion}}</ion-col>
+                        <ion-col size="2">{{item2.cantidadPedida}}</ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  </ion-item>
+                </ion-list>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-item>
+      </ion-card-content>
+      <ion-button color="danger">Eliminar</ion-button>
+      <ion-button color="success" (click)="aprobar(i)">Aprobar (Ok)</ion-button>
+    </ion-card>
+
+    
+  </ion-list>
+    
+    
+  
+</ion-content>

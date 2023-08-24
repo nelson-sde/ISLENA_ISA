@@ -99,6 +99,7 @@
     <ion-item-sliding *ngFor="let item of pedido.detalle; let i = index">
       <ion-item-options side="start">
         <ion-item-option color="warning" (click)="editarDetalle(i)">Editar</ion-item-option>
+        <ion-item-option color="success" (click)="editarInfo(i)">Info</ion-item-option>
       </ion-item-options>
       <ion-item>
         <ion-grid>

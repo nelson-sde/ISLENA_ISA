@@ -16,6 +16,7 @@ import { Pen_Cobro } from '../../models/cobro';
 import { StockOuts } from 'src/app/models/cardex';
 import { StockoutsPage } from '../stockouts/stockouts.page';
 import { SetupService } from 'src/app/services/setup.service';
+import { PedWhatsappPage } from '../ped-whatsapp/ped-whatsapp.page';
 
 const { App } = Plugins;
 
@@ -61,6 +62,14 @@ export class RuteroPage implements OnInit {
 
   checkDarkTheme(){
     document.body.classList.toggle('dark', this.isa.varConfig.darkMode);
+  }
+
+  async pedidosWhatsapp(){
+    const modal = await this.modalCtrl.create({
+      component: PedWhatsappPage,
+      cssClass: 'my-custom-class'
+    });
+    return await modal.present();
   }
 
   async clienteNuevo(){
@@ -209,6 +218,7 @@ export class RuteroPage implements OnInit {
     this.texto = this.isa.clienteAct.nombre;
     this.direccion = this.isa.clienteAct.direccion;
     this.dir = true;
+    this.isa.syncPedidosWhatsapp(this.isa.varConfig.numRuta);
     this.isa.cargaListaPrecios();
     this.isa.cargarExoneraciones();
     this.cargarSaldos( this.isa.clienteAct.id );

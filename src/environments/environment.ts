@@ -4,12 +4,13 @@
 
 export const environment = {
   production:    false,
-  companyCode:  '02',
+  companyCode:  '01',
   preURL:       'http://api_isa',
   preIRPURL:    'https://apiirp',
   TestURL:      '_test',
   postURL:      '.di-apps.co.cr/api/',
   actividadEco: '512211',
+  BackOrdersURL: 'BackOrders/',
   BancosURL:    'Bancos/',
   cantLineasMaxPedido: 35,
   CantonesURL:  'Cantones/',
@@ -38,6 +39,8 @@ export const environment = {
   maxCharCodigoProd: 6,
   PedEncaURL:   'FAC_enc_ped/',
   PedDetaURL:   'FAC_det_ped/',
+  PedWhatsGet:  'CRM_Pedidos/',
+  PedWhatsAct:  'CRM_Act_Pedido_Whatsapp/',
   productosURL: 'productos/',
   RecEncaURL:   'RecEnca/',
   RecDetaURL:   'RecDeta/',

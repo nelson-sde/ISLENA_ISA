@@ -14,9 +14,16 @@
 
 <ion-content class="ion-padding">
   <ion-list>
-    <ion-card [color]="item.estado === 'P' ? 'light' : 'success' " *ngFor="let item of entregas">
+    <ion-card [color]="item.estado === 'P' ? 'light' : 'success' " 
+              *ngFor="let item of entregas; let i = index"
+              (click)="backOrder(i)">
       <ion-card-header>
-        <ion-card-title>{{item.idCliente}} - {{item.nombre}}</ion-card-title>
+        <ion-card-title>
+          <ion-text [color]="item.observaciones == 'BO' ? 'danger' : 'dark'">
+            {{item.idCliente}} - {{item.nombre}}
+          </ion-text>
+          
+        </ion-card-title>
         <ion-card-subtitle>{{item.estado | estados}}</ion-card-subtitle>
       </ion-card-header>
     

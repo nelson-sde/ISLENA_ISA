@@ -2,6 +2,9 @@
   <ion-toolbar color="dark">
     <ion-buttons>
       <ion-title align-text-center>{{isa.varConfig.numRuta}}</ion-title>
+      <ion-button *ngIf="isa.hayPedidosWhatsapp" fill="clear" slot="end" size="medium" (click)="pedidosWhatsapp()">
+        <ion-icon name="logo-whatsapp" color="success" size="large"></ion-icon>
+      </ion-button>
       <ion-button fill="clear" slot="end" size="medium">
         <ion-icon name="wallet-outline" [color]="isa.clienteAct.moroso ? 'danger' : 'success'" size="large"></ion-icon>
       </ion-button>
