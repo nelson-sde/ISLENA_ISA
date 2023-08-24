@@ -283,15 +283,18 @@ export class IsaService {
     this.getPedidosWhatsapp( ruta ).subscribe(
       resp => {
         console.log('Pedidos Whatsapp', resp);
-        this.hayPedidosWhatsapp = true;
-        localStorage.setItem('PedWhatsapp', JSON.stringify(resp));
+        if (resp.length > 0){ 
+          this.hayPedidosWhatsapp = true;
+          localStorage.setItem('PedWhatsapp', JSON.stringify(resp));
+        } else {
+          this.hayPedidosWhatsapp = false;
+        }
       }, error => {
+        this.hayPedidosWhatsapp = false;
         console.log('Error sincronizando Pedidos de Whatsapp...!!!', error.message);
       }
     )
   }
-
-
 
   getFecha( fecha: Date, tipo?: string ){
     let day = new Date(fecha).getDate();

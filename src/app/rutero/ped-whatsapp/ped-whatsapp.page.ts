@@ -66,9 +66,13 @@ export class PedWhatsappPage implements OnInit {
     }
 
     this.pedidos[i].detalle.forEach( x=> {
-      const item = new Cardex(this.pedidos[i].idCliente, '', x.articulo, x.descripcion, 'Pedido', fecha, 0, x.cantidadPedida, x.porcenDescuento,
+
+      // Validamos si el artículo a incluir en CardexCliente no existe ya en el arreglo
+      if (pedidos.findIndex(y => y.codProducto == x.articulo) == -1){
+        const item = new Cardex(this.pedidos[i].idCliente, '', x.articulo, x.descripcion, 'Pedido', fecha, 0, x.cantidadPedida, x.porcenDescuento,
                             0, 0, 0, x.precio, 0, '', 0);
-      pedidos.push(item);
+        pedidos.push(item);
+      }
     });
 
     nuevoArreglo = pedidosSinCliente.concat(pedidos);
