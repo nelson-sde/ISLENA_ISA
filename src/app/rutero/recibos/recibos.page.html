@@ -29,32 +29,32 @@
     <ion-item color="light" *ngIf="!edicion">
       <ion-grid fixed>
         <ion-row>
-          <ion-col size="5">Abono:</ion-col>
-          <ion-col size="5">{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4">Abono:</ion-col>
+          <ion-col size="6">{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col size="5">Efectivo:</ion-col>
-          <ion-col size="5">{{ reciboTemp.efectivo | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4">Efectivo:</ion-col>
+          <ion-col size="6">{{ reciboTemp.efectivo | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col size="5">Tarjeta:</ion-col>
-          <ion-col size="5">{{ reciboTemp.tarjeta | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4">Tarjeta:</ion-col>
+          <ion-col size="6">{{ reciboTemp.tarjeta | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col size="5">Depósito:</ion-col>
-          <ion-col size="5">{{ reciboTemp.deposito | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4">Depósito:</ion-col>
+          <ion-col size="6">{{ reciboTemp.deposito | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col size="5">Cheque:</ion-col>
-          <ion-col size="5">{{ reciboTemp.cheque | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4">Cheque:</ion-col>
+          <ion-col size="6">{{ reciboTemp.cheque | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col size="5">NC:</ion-col>
-          <ion-col size="5">{{ reciboTemp.monto_NC | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4">NC:</ion-col>
+          <ion-col size="6">{{ reciboTemp.monto_NC | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col size="5">Otros Mov:</ion-col>
-          <ion-col size="5">{{ reciboTemp.otrosMov | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4">Otros:</ion-col>
+          <ion-col size="6">{{ reciboTemp.otrosMov | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
       </ion-grid>
       <ion-button slot="end" (click)="modificarRecibo()" expand="block" shape="round">

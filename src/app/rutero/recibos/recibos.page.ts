@@ -64,8 +64,8 @@ export class RecibosPage {
     let det: Det_Recibo;
     PdfMakeWrapper.setFonts(pdfFonts);
 
-    this.tipoCambio = environment.tipoCambio;
-    this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, new Date(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'L' );
+    this.tipoCambio = this.isa.varConfig.tipoCambio;
+    this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'L' );
     this.docsPagar = this.isaCobros.cxc.filter( d => d.pago );
     if ( this.docsPagar.length > 0 ){
       this.docsPagar.forEach( e => {
@@ -496,11 +496,12 @@ export class RecibosPage {
         cxc[j].saldoLocal = this.recibo.detalle[i].saldoLocal;
         cxc[j].saldoDolar = this.recibo.detalle[i].saldoDolar;
       }
-      localStorage.setItem('cxc', JSON.stringify(cxc));                                     // Actualiza CxC en el Local Storage
+      localStorage.setItem('cxc', JSON.stringify(cxc));     // Actualiza CxC en el Local Storage
+      this.recibo.horaFin = new Date();
+
       if (this.recibo.tipoDoc === 'R') {
-        this.isaCobros.transmitirRecibo( this.recibo, this.cheque, this.reciboCheque, true );
-        this.isa.varConfig.consecutivoRecibos = this.isa.nextRecibo(this.isa.varConfig.consecutivoRecibos);
-        this.isa.guardarVarConfig();
+        this.isaCobros.transmitirRecTemp( this.recibo, this.cheque, this.reciboCheque, true );
+        this.isa.incrementaConsec('R');
       } else {
         this.isaCobros.reciboSimple( this.recibo, true );
       }

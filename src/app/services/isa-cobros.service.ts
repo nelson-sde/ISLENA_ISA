@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Liquidaciones, Pen_Cobro, RecAnulado, RecDetaBD, RecEncaBD, Recibo } from '../models/cobro';
+import { Liquidaciones, Pen_Cobro, RecAnulado, RecDetaBD, RecEncaBD, Recibo, ReciboBD } from '../models/cobro';
 import { IsaService } from './isa.service';
 import { environment } from 'src/environments/environment';
-import { Cheque, ChequeBD } from '../models/cheques';
+import { Cheque, ChequeBD, ChequeBD2 } from '../models/cheques';
 import { Email } from '../models/email';
 import { Rutero, RuteroBD } from '../models/ruta';
 
@@ -13,6 +13,7 @@ import { Rutero, RuteroBD } from '../models/ruta';
 export class IsaCobrosService {
   
   cxc: Pen_Cobro[] = [];
+  tipoCambio = 550;
 
   constructor( private isa: IsaService,
                private http: HttpClient ) { }
@@ -249,6 +250,66 @@ export class IsaCobrosService {
     );
   }
 
+  transmitirRecTemp( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
+
+    const fechaRecibo = new Date(new Date(recibo.fecha).getTime() - (new Date(recibo.fecha).getTimezoneOffset() * 60000));
+    const fechaFin = new Date(new Date(recibo.horaFin).getTime() - (new Date(recibo.horaFin).getTimezoneOffset() * 60000));
+    let linea = 0;
+    let reciboBD: ReciboBD[] = []
+    
+    let email: Email;
+    const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
+
+    if ( cliente !== undefined && recibo.tipoDoc === 'R' ){
+
+      email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
+
+      this.actualizaVisita( recibo.codCliente );
+
+      if (nuevo) {
+        this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
+        if (hayCheque){
+          this.guardarCheque( cheque );
+        }
+      }
+
+      const item1 = new ReciboBD(cliente.compania, recibo.numeroRecibo, '5', 0, recibo.numeroRuta, recibo.codCliente, 
+                            recibo.numeroRecibo, null, fechaRecibo, fechaRecibo, 'A', recibo.moneda, this.tipoCambio,
+                            recibo.montoLocal, recibo.montoEfectivoL, recibo.montoChequeL, fechaRecibo, fechaFin, 
+                            recibo.montoTarjetaL, recibo.montoDepositoL, 0, 0, 0, null);
+
+      reciboBD.push(item1);
+
+      recibo.detalle.forEach( x => {
+        linea += 1;
+        const item2 = new ReciboBD( cliente.compania, recibo.numeroRecibo, '5', linea, recibo.numeroRuta, recibo.codCliente, 
+        x.numeroDocumen, x.numeroDocumenAf, x.fechaDocu, fechaRecibo, 'A', 'L', 645, x.abonoLocal, 0, 0, null, null, 0, 0, 0, 0, x.saldoLocal, null );
+        reciboBD.push( item2 );
+      })
+
+      // Transmite el encabezado del pedido al Api
+
+      this.postRecibosTemp( reciboBD ).subscribe(
+        resp => {
+          console.log('Success RecEnca...', resp);
+          this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
+          this.actualizaEstadoRecibo(recibo.numeroRecibo, true );
+          if ( hayCheque ){
+            this.transmitirChequeNew( cheque );
+          }
+          //this.transmitirISA_Liquid( recibo );       // inserta el recibo en ISA_Liquidaciones
+        }, error => {
+          console.log('Error RecEnca ', error);
+          this.isa.addBitacora( false, 'TR', `Recibo: ${recibo.numeroRecibo}, falla en Encabezado. ${error.message}`);
+          this.isa.presentaToast( 'Error de Envío...' );
+        }
+      );
+      
+    } else {
+      this.isa.presentAlertW( 'Transmitir Recibo', 'Imposible transmitir recibo. Datos del recibo inconsistentes...!!!');
+    }
+  }
+
   retransmitirRecibo( recibo: Recibo ){
     let hayCheque: boolean = false;
     let cheque: Cheque;
@@ -471,6 +532,30 @@ export class IsaCobrosService {
     );
   }
 
+  transmitirChequeNew( cheque: Cheque ){
+    let chequeBD: ChequeBD2 = {
+      COD_CIA: 'ISLENA',
+      COD_ZON: this.isa.varConfig.numRuta,
+      COD_BCO: cheque.codigoBanco,
+      COD_CLT: cheque.codCliente,
+      NUM_REC: cheque.numeroRecibo,
+      NUM_CHE: cheque.numeroCheque,
+      NUM_CTA: cheque.numeroCuenta,
+      MON_CHE: cheque.monto,
+      TIP_DOC: '5',
+      FEC_CHE: new Date(),
+    }
+    this.postChequeNew( chequeBD ).subscribe(
+      resp => {
+        console.log('Success Cheque...', resp);
+        this.isa.addBitacora( true, 'TR', `Transmite Cheque número: ${cheque.numeroCheque}`);
+      }, error => {
+        console.log('Error en Cheque', error);
+        this.isa.addBitacora( false, 'TR', `Error al transmitir Cheque número: ${cheque.numeroCheque}. ${error.message}`);
+      }
+    );
+  }
+
   private transmitirISA_Liquid( recibo: Recibo ){
     let liquid: Liquidaciones = {
       coD_CIA:       'ISLENA',
@@ -550,6 +635,19 @@ export class IsaCobrosService {
     return this.http.post( URL, JSON.stringify(detalle), options );
   }
 
+  private postRecibosTemp( recibos: ReciboBD[] ){
+    const URL = this.isa.getURL( environment.Rec_TempURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+      }
+    };
+    console.log(JSON.stringify(recibos));
+    return this.http.post( URL, JSON.stringify(recibos), options );
+  }
+
   private postTransfer( recibo: RecAnulado ){
     const URL = this.isa.getURL( environment.LiquidURL, '' );
     const options = {
@@ -574,6 +672,17 @@ export class IsaCobrosService {
   }
 
   private postCheque( cheque: ChequeBD ){
+    const URL = this.isa.getURL( environment.ChequeURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    return this.http.post( URL, JSON.stringify(cheque), options );
+  }
+
+  private postChequeNew( cheque: ChequeBD2 ){
     const URL = this.isa.getURL( environment.ChequeURL, '' );
     const options = {
       headers: {

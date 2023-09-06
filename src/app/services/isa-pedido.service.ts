@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Email } from '../models/email';
-import { Existencias, PedDeta, PedEnca, Pedido } from '../models/pedido';
+import { Existencias, PedDeta, PedEnca, Ped_Temp, Pedido } from '../models/pedido';
 import { IsaService } from './isa.service';
 import { Pen_Cobro } from '../models/cobro';
 import { PdfMakeWrapper, Table, Txt } from 'pdfmake-wrapper';
@@ -20,6 +20,8 @@ import { Rutero, RuteroBD } from '../models/ruta';
   providedIn: 'root'
 })
 export class IsaPedidoService {
+
+  actividadComercial = '512211'
 
 
   constructor( private isa: IsaService,
@@ -129,7 +131,6 @@ export class IsaPedidoService {
 
     this.actualizaVisita( pedido.codCliente );
 
-
     if ( frio && seco ){
       this.isa.addBitacora( true, 'INSERT', `Separa los pedidos de Frio y Seco.  Frio: ${pedido.numPedido}`);
       pedidoFrio = this.separaPedido ( pedido, true );
@@ -195,7 +196,11 @@ export class IsaPedidoService {
         this.isa.addBitacora( true, 'INSERT', `Inserta Pedido: ${pedidoOriginal.numPedido}.`);
         lineas = 0;
         console.log('Transmite: ',this.isa.transmitiendo);
-        this.transmitirPedido( pedidoOriginal, 'N');
+        if (environment.companyCode === '01'){
+          this.transmitirPedido( pedidoOriginal, 'N');
+        } else {
+          this.transmitirPedTemp(pedidoOriginal, 'N');
+        }
       }
     }
   }
@@ -221,6 +226,86 @@ export class IsaPedidoService {
     const detAux = pedido.detalle.slice(environment.cantLineasMaxPedido);
     pedido.detalle = detAux.slice(0);
     return pedidoNuevo;
+  }
+
+  transmitirPedTemp( pedido: Pedido, tipo: string ){
+
+    // Tipo = N pedido nuevo; R retransmitir
+
+    let arreglo: Ped_Temp[] = [];
+    let i = 1;
+    
+    let tax: number;
+    let email: Email;
+    let email2: Email;
+    const fechaPedido = new Date(new Date(pedido.fecha).getTime() - (new Date(pedido.fecha).getTimezoneOffset() * 60000));
+    const fechaEntrega = new Date(new Date(pedido.fechaEntrega).getTime() - (new Date(pedido.fechaEntrega).getTimezoneOffset() * 60000));
+    const fechaFin = new Date(new Date(pedido.horaFin).getTime() - (new Date(pedido.horaFin).getTimezoneOffset() * 60000));
+    const numPedido = pedido.numPedido;
+    const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
+
+    if ( cliente !== undefined ){ 
+
+      email = new Email( cliente.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
+
+      if ( tipo == 'N' ){
+        this.guardarPedido( pedido );      // Se guarda el pedido en el Local Stotage
+        this.guardarEnCxC( pedido );
+      }
+      
+      const linea0 = new Ped_Temp(cliente.compania, pedido.numPedido, 0, this.isa.varConfig.numRuta, pedido.codCliente, '1', fechaFin, fechaPedido, fechaEntrega,
+                      fechaPedido, pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, pedido.detalle.length, cliente.listaPrecios, pedido.observaciones, 
+                      'N', cliente.diasCredito.toString(), this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, this.isa.nivelPrecios,
+                      'L', cliente.divGeografica1, cliente.divGeografica2, this.actividadComercial, null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null);
+
+      arreglo.push(linea0);
+
+      pedido.detalle.forEach(x => {
+        tax = this.calculaImpuesto( x.impuesto ) * 100;
+        const linea = new Ped_Temp(cliente.compania, pedido.numPedido, i, this.isa.varConfig.numRuta, pedido.codCliente, '1', fechaFin, fechaPedido, fechaEntrega,
+                          fechaPedido, 0, 0, 0, 0, 0, pedido.detalle.length, cliente.listaPrecios, null, 'N', null, this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', 0, 0, 0, 0, this.isa.nivelPrecios,
+                          'L', null, null, null, x.codProducto, x.precio, x.descuento * 100 / x.subTotal, x.subTotal, x.descuento, x.precio, x.cantidad, x.impuesto.slice(0,2), x.impuesto.slice(2), x.porcenExonerado, 
+                          x.montoExonerado, tax, x.esCanastaBasica);
+        i += 1;
+        arreglo.push(linea);
+      });
+
+      this.postPedidosTemp( arreglo ).subscribe(                    
+        
+        // Transmite el encabezado del pedido al Api
+
+        resp => {
+
+          console.log('Success Encabezado...', resp);
+          this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
+          this.actualizaEstadoPedido( pedido.numPedido, true );
+          //email.toEmail = 'mauricio.herra@gmail.com';
+          //this.isa.enviarEmail( email );
+
+          if ( pedido.total + cliente.saldoCredito > cliente.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
+            const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;
+            email2 = new Email( this.isa.varConfig.emailCxC, `${this.isa.varConfig.numRuta}. Limite de Credito Excedido`, texto);
+            this.isa.enviarEmail( email2 );
+            email2.toEmail = this.isa.varConfig.emailSupervisor;
+            this.isa.enviarEmail( email2 );
+          }
+          if ( cliente.id === this.isa.clienteAct.id ){
+            this.isa.clienteAct.saldoCredito += pedido.total;
+          }
+
+        }, error => {
+
+          console.log('Error Encabezado ', error.message );
+          this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);
+          this.isa.transmitiendo.pop();
+          console.log('Transmitió: ', this.isa.transmitiendo);
+          this.isa.presentaToast( 'Error de Envío...' );
+        }
+      );
+      
+    } else {
+      this.isa.presentAlertW( 'Transmitir Pedido', 'Imposible transmitir pedido. Datos del cliente inconsistentes');
+    }
   }
 
   transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
@@ -485,6 +570,19 @@ export class IsaPedidoService {
 
   private postPedidos( pedido: PedEnca ){
     const URL = this.isa.getURL( environment.PedEncaURL, '' );
+    const options = {
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+      }
+    };
+    let texto = JSON.stringify(pedido);
+    console.log('JSON: ', texto);
+    return this.http.post( URL, JSON.stringify(pedido), options );
+  }
+
+  private postPedidosTemp( pedido: Ped_Temp[] ){
+    const URL = this.isa.getURL( environment.Ped_TempURL, '' );
     const options = {
       headers: {
           'Content-Type': 'application/json',

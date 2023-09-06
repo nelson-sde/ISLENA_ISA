@@ -442,6 +442,8 @@ export class IsaService {
     this.productos = productos.filter( p => p.listaPrecios == this.clienteAct.listaPrecios);
     if (this.productos.length !== 0){
       this.nivelPrecios = this.productos[0].nivelPrecio;
+      console.log('Nivel de Precios:', this.nivelPrecios);
+      console.log(this.productos);
     } else {
       this.presentAlertW( 'Productos', 'El cliente no tiene cargada la lista de precios...');
       this.nivelPrecios = '';
@@ -735,6 +737,50 @@ export class IsaService {
       array = array + '0';
     }
     return consecutivo.slice(0, 4) + array + consec.toString(); 
+  }
+
+  incrementaConsec(tipo: string){
+    // Tipo = 'R' (Recibo de Dinero)
+    // Tipo = 'P' (Pedido)
+    // Tipo = 'D' (Devolución)
+
+    let tamEnca = 0;
+    let tamConsec = 0;
+    let consecutivo = '';
+    let array = '';
+
+    if (tipo === 'R'){
+      tamEnca = this.setup.company.encaRecibos;
+      tamConsec = this.setup.company.RecConsec;
+      consecutivo = this.varConfig.consecutivoRecibos;
+    } else if (tipo === 'P'){
+      tamEnca = this.setup.company.encaPedidos;
+      tamConsec = this.setup.company.PedConsec;
+      consecutivo = this.varConfig.consecutivoPedidos;
+    } else {
+      tamEnca = this.setup.company.encaDev;
+      tamConsec = this.setup.company.DevConsec;
+      consecutivo = this.varConfig.consecutivoDevoluciones;
+    }
+
+    const nextConsec = +consecutivo.slice(tamEnca) + 1;
+    for (let i = 0; i < tamConsec - nextConsec.toString().length; i++) {
+      array = array + '0';
+    }
+
+    const nuevoConsec = consecutivo.slice(0, tamEnca) + array + nextConsec.toString(); 
+    console.log('Nuevo consecutivo: ', nuevoConsec);
+
+    if (tipo === 'R'){
+      this.varConfig.consecutivoRecibos = nuevoConsec;
+    } else if (tipo === 'P'){
+      this.varConfig.consecutivoPedidos = nuevoConsec;
+    } else {
+      this.varConfig.consecutivoDevoluciones = nuevoConsec;
+    }
+
+    this.guardarVarConfig();
+
   }
 
   nextPedido(){

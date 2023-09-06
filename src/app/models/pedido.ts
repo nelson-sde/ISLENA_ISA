@@ -386,4 +386,56 @@ export interface BackOrders {
   cantidaD_FACTURADA: number;
 }
 
+export class Ped_Temp {
+    constructor(
+        public COD_CIA: string,
+        public NUM_PED: string,
+        public NUM_LN: number,
+        public COD_ZON: string,
+        public COD_CLT: string,
+        public TIP_DOC: string,
+        public HOR_FIN: Date,
+        public FEC_PED: Date,
+        public FEC_DES: Date,
+        public HOR_INI: Date,
+        public MON_IMP_VT: number,
+        public MON_IMP_CS: number,
+        public MON_CIV: number,
+        public MON_SIV: number,
+        public MON_DSC: number,
+        public NUM_ITM: number,
+        public LST_PRE: number,
+        public OBS_PED: string,
+        public ESTADO: string,
+        public COD_CND: string,
+        public COD_BOD: string,
+        public COD_PAIS: string,
+        public CLASE: string,
+        public DIR_ENT: string,
+        public DESC1: number,
+        public DESC2: number,
+        public MONT_DESC1: number,
+        public MONT_DESC2: number,
+        public NIVEL_PRECIO: string,
+        public MONEDA: string,
+        public COD_GEO1: string,
+        public COD_GEO2: string,
+        public ACTIVIDAD_COMERCIAL: string,
+        public COD_ART: string,
+        public MON_PRC_MN: number,
+        public POR_DSC_AP: number,
+        public MON_TOT: number,
+        public MON_DSC_LIN: number,
+        public MON_PRC_MX: number,
+        public CNT_MAX: number,
+        public TIPO_IMPUESTO1: string,
+        public TIPO_TARIFA1: string,
+        public PORC_EXONERACION: number,
+        public MONTO_EXONERACION: number,
+        public PORC_IMPUESTO1: number,
+        public ES_CANASTA_BASICA: string,
+    ){}
+  
+}
+
 

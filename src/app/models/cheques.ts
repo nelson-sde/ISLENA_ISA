@@ -38,3 +38,16 @@ export interface ChequeBD {
     createDate:     Date;
 }
 
+export interface ChequeBD2 {
+    COD_CIA:        string;
+    COD_ZON:        string;
+    COD_BCO:        string;
+    COD_CLT:        string;
+    NUM_REC:        string;
+    NUM_CHE:        string;
+    NUM_CTA:        string;
+    MON_CHE:        number;
+    TIP_DOC:        string;
+    FEC_CHE:        Date;
+}
+

@@ -31,6 +31,13 @@ interface company {
   taxId: string,
   fax: string,
   address: string,
+  pedWhatsapp: string,
+  encaPedidos: number,
+  PedConsec: number,
+  encaRecibos: number,
+  RecConsec: number,
+  encaDev: number,
+  DevConsec: number,
   modules:modulos[]
 }
 
@@ -69,6 +76,13 @@ export class SetupService {
         taxId: null,
         fax: null,
         address: null,
+        pedWhatsapp: null,
+        encaPedidos: 0,
+        PedConsec: 0,
+        encaRecibos: 0,
+        RecConsec: 0,
+        encaDev: 0,
+        DevConsec: 0,
         modules:null
       }
     
@@ -89,6 +103,13 @@ export class SetupService {
       this.company.taxId = this.companies[i].taxId;
       this.company.fax = this.companies[i].fax;
       this.company.address = this.companies[i].address
+      this.company.pedWhatsapp = this.companies[i].pedWhatsapp;
+      this.company.encaPedidos = this.companies[i].encaPedidos;
+      this.company.PedConsec = this.companies[i].PedConsec;
+      this.company.encaRecibos = this.companies[i].encaRecibos;
+      this.company.RecConsec = this.companies[i].RecConsec;
+      this.company.encaDev = this.companies[i].encaDev;
+      this.company.DevConsec = this.companies[i].DevConsec;
       this.company.modules = this.companies[i].modules
       console.log('informacion compañia', this.company);
           

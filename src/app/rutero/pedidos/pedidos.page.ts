@@ -152,28 +152,54 @@ export class PedidosPage implements OnInit {
   }
 
   busqueda(){
-    if (isNaN(+this.texto)) {            // Se buscará por código de producto
-      // Se recorre el arreglo para buscar coincidencias
-      this.mostrarProducto = false;
-      for (let i = 0; i < this.isa.productos.length; i++) {
-        if (this.isa.productos[i].nombre.toLowerCase().indexOf( this.texto.toLowerCase(), 0 ) >= 0) {
-            this.busquedaProd.push(this.isa.productos[i]);
+    if (environment.companyCode === '01'){
+
+      // Consideraciones en Isleña
+
+      if (isNaN(+this.texto)) {            // Se buscará por descripción del artículo
+        
+        this.mostrarProducto = false;
+
+        this.busquedaProd = this.isa.productos.filter( x => x.nombre.toLowerCase().includes(this.texto.toLocaleLowerCase()));
+
+      } else {                      // la busqueda es por codigo de producto
+        const codigo = this.texto.toString();
+        if ( codigo.length <= environment.maxCharCodigoProd ){    // Busca por código de Producto Isleña
+          const product = this.isa.productos.find( e => e.id == this.texto );
+          if ( product !== undefined ){
+            this.busquedaProd.push(product);
+          }
+        } else {     // busca por código de barras
+          const product = this.isa.productos.find( e => e.codigoBarras == this.texto );
+          if ( product !== undefined ){
+            this.busquedaProd.push(product);
+          }
         }
       }
-    } else {                      // la busqueda es por codigo de producto
-      const codigo = this.texto.toString();
-      if ( codigo.length <= environment.maxCharCodigoProd ){    // Busca por código de Producto Isleña
-        const product = this.isa.productos.find( e => e.id == this.texto );
-        if ( product !== undefined ){
-          this.busquedaProd.push(product);
-        }
-      } else {     // busca por código de barras
-        const product = this.isa.productos.find( e => e.codigoBarras == this.texto );
-        if ( product !== undefined ){
-          this.busquedaProd.push(product);
+    } else {
+      if (this.texto[0] !== '#') {            // Se buscará por DESCRIPCIÓN de producto
+
+        // Se recorre el arreglo para buscar coincidencias
+
+        this.mostrarProducto = false;
+        this.busquedaProd = this.isa.productos.filter( x => x.nombre.toLowerCase().includes(this.texto.toLocaleLowerCase()));
+
+      } else {                      // la busqueda es por codigo de producto
+        const codigo = this.texto.slice(1);
+        if ( codigo.length <= environment.maxCharCodigoProd ){    // Busca por código de Producto Isleña
+          const product = this.isa.productos.find( e => e.id == this.texto );
+          if ( product !== undefined ){
+            this.busquedaProd.push(product);
+          }
+        } else {     // busca por código de barras
+          const product = this.isa.productos.find( e => e.codigoBarras == this.texto );
+          if ( product !== undefined ){
+            this.busquedaProd.push(product);
+          }
         }
       }
     }
+    
     if (this.busquedaProd.length == 0){                    // no hay coincidencias
       this.isa.presentAlertW( this.texto, 'No hay coincidencias' );
       this.texto = '';
@@ -419,7 +445,7 @@ export class PedidosPage implements OnInit {
     this.pedido.horaFin = new Date();
     this.isaPedido.procesaPedido( this.pedido, this.frio, this.seco );     // Transmite mediante el API el pedido a Isleña; N = nuevo pedido
     this.isaCardex.actualizaAplicado(this.pedido.codCliente);
-    this.isa.nextPedido();    // Incrementa el consecutivo de los pedidos
+    this.isa.incrementaConsec('P');    // Incrementa el consecutivo de los pedidos
     this.pedidoSinSalvar = false;
     this.texto = '';
     this.mostrarListaProd = false;

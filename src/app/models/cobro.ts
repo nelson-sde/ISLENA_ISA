@@ -113,14 +113,15 @@ export class Recibo {
     numTR: string;           // Número de la transferencia
     otrosMov: number;
     monto_NC: number;
+    horaFin: Date;
     detalle: Det_Recibo[];
 
-    constructor ( ruta: string, cliente: string, recibo: string, fecha: Date, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
+    constructor ( ruta: string, cliente: string, recibo: string, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
                   depositoL: number, depositoD: number, tarjetaL: number, tarjetaD: number, observaciones: string, moneda: string ){
         this.numeroRuta = ruta;
         this.codCliente = cliente;
         this.numeroRecibo = recibo;
-        this.fecha = new Date(fecha);
+        this.fecha = new Date();
         this.montoDolar = montoD;
         this.montoLocal = montoL;
         this.montoEfectivoL = efectivoL;
@@ -140,6 +141,7 @@ export class Recibo {
         this.numTR = null;
         this.otrosMov = 0;
         this.monto_NC = 0;
+        this.horaFin = new Date();
         this.detalle = [];
     }
 }
@@ -316,5 +318,32 @@ export interface Liquidaciones {
     montO_NC:      number;
 }
 
-
+export class ReciboBD {
+    constructor(
+        public COD_CIA:         string,
+        public NUM_REC:         string,
+        public COD_TIP_DC:      string,
+        public LINEA:           number,
+        public COD_ZON:         string,
+        public COD_CLT:         string,
+        public NUM_DOC:         string,
+        public NUM_DOC_AF:      string,
+        public FEC_DOC:         Date,
+        public FEC_PRO:         Date,
+        public IND_ANL:         string,
+        public IND_MON:         string,
+        public TIPO_CAMBIO:     number,
+        public MON_DOC_LOC:     number,
+        public MON_EFE_LOCAL:   number,
+        public MON_CHE_LOCAL:   number,
+        public HOR_INI:         Date,
+        public HOR_FIN:         Date,
+        public MON_TAR_LOCAL:   number,
+        public MON_TRANS_LOCAL: number,
+        public MON_DEP_LOCAL:   number,
+        public MON_BONCER_LOCAL: number,
+        public MON_SAL_LOC:     number,
+        public RUTA:            string,
+    ){}
+}
 

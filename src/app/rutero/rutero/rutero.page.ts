@@ -218,7 +218,9 @@ export class RuteroPage implements OnInit {
     this.texto = this.isa.clienteAct.nombre;
     this.direccion = this.isa.clienteAct.direccion;
     this.dir = true;
-    this.isa.syncPedidosWhatsapp(this.isa.varConfig.numRuta);
+    if (this.setup.company.pedWhatsapp === 'S'){
+      this.isa.syncPedidosWhatsapp(this.isa.varConfig.numRuta);
+    }
     this.isa.cargaListaPrecios();
     this.isa.cargarExoneraciones();
     this.cargarSaldos( this.isa.clienteAct.id );

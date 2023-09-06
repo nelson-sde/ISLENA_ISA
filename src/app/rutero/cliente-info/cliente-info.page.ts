@@ -11,10 +11,15 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
 export class ClienteInfoPage {
 
   geoReferencia: boolean = false;
+  lista = '';
 
   constructor( private isa: IsaService,
                private popoverCtrl: PopoverController,
-               private geolocation: Geolocation ) {}
+               private geolocation: Geolocation ) {
+    const producto = this.isa.productos.find( x => x.listaPrecios == this.isa.clienteAct.listaPrecios);
+    this.lista = producto.nivelPrecio;
+  }
+
 
   guardar(){
     this.popoverCtrl.dismiss({
@@ -24,6 +29,7 @@ export class ClienteInfoPage {
   }
 
   getGeo(){
+    
     this.isa.presentaLoading('Espere por favor...');
     console.log('Cargando Geolocalización');
     this.geolocation.getCurrentPosition().then((resp) => {
