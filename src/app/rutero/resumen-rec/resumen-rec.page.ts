@@ -74,7 +74,7 @@ export class ResumenRecPage {
           text: 'Si',
           handler: () => {
             const idRecibo = this.recibo.numeroRecibo.slice( 0, 4 ) + 'A' + this.recibo.numeroRecibo.slice(5);
-            this.reciboAnulado = new Recibo( this.isa.varConfig.numRuta, this.recibo.codCliente, idRecibo, this.recibo.fecha, -1 * this.recibo.montoDolar, 
+            this.reciboAnulado = new Recibo( this.isa.varConfig.numRuta, this.recibo.codCliente, idRecibo, -1 * this.recibo.montoDolar, 
                                             -1 * this.recibo.montoLocal, -1 * this.recibo.montoEfectivoL, -1 * this.recibo.montoEfectivoD,
                                             -1 * this.recibo.montoChequeL, -1 * this.recibo.montoChequeD, 0, 0, 0, 0, this.recibo.observaciones, this.recibo.moneda );
             this.reciboAnulado.tipoDoc = 'A';   // Crea el recibo que anula en reciboAnulado

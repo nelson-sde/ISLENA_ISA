@@ -6,7 +6,7 @@ import { Bancos, BancosBD } from '../models/bancos';
 import { Cardex, CardexBD, SugeridoBD, StockOuts } from '../models/cardex';
 import { Categorias, Cliente, ClienteBD, ClienteNuevo, ClientePut, ClienteRT, RutasCanton } from '../models/cliente';
 import { CxCBD, Ejecutivas, Pen_Cobro, RecEncaBD } from '../models/cobro';
-import { Exoneraciones, Existencias, PedEnca, PedDeta, Entregas, PedidoWhatsappGet, BackOrders, PedidoWhatsappPut } from '../models/pedido';
+import { Exoneraciones, Existencias, PedEnca, PedDeta, Entregas, PedidoWhatsappGet, BackOrders, PedidoWhatsappPut, Bonificaciones } from '../models/pedido';
 import { Productos, ProductosBD } from '../models/productos';
 import { Email } from '../models/email';
 import { IsaLSService } from './isa-ls.service';
@@ -255,6 +255,11 @@ export class IsaService {
     return this.http.get<BackOrders[]>( URL );
   }
 
+  private getBonificaciones(ruta: string, fecha: string){
+    const URL = this.getURL( environment.BoniURL, `?id=${ruta}&&fecha=${fecha}` );
+    return this.http.get<Bonificaciones[]>( URL );
+  }
+
   putPedidosWhatsapp( pedido: PedidoWhatsappPut ){
     const URL = this.getIRPURL( environment.PedWhatsAct, `?ID=${pedido.Pedido}&idCliente=${pedido.IdCliente}&linea=${pedido.linea}` );
     const options = {
@@ -275,6 +280,19 @@ export class IsaService {
         localStorage.setItem('BackOrders', JSON.stringify(resp));
       }, error => {
         console.log('Error sincronizando Back Orders...!!!', error.message);
+      }
+    )
+  }
+
+  syncBonificaciones( ruta: string ){
+    const fecha = this.getFecha(new Date(), 'SQL');
+
+    this.getBonificaciones( ruta, fecha ).subscribe(
+      resp => {
+        console.log('Bonificaciones: ', resp);
+        localStorage.setItem('Bonificaciones', JSON.stringify(resp));
+      }, error => {
+        console.log('Error sincronizando Bonificaciones...!!!', error.message);
       }
     )
   }

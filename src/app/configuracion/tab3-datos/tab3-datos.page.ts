@@ -196,6 +196,7 @@ export class Tab3DatosPage implements OnInit {
     this.isa.syncExistencias();
     this.isa.syncEntregas( this.isa.varConfig.numRuta );
     this.isa.syncBackOrders(this.isa.varConfig.numRuta);
+    this.isa.syncBonificaciones( this.isa.varConfig.numRuta );
     this.isaPedidos.borrarPedidos( false );   // False = Si hay pedidos sin transmitir no son borrados.
     // this.isaCobros.borrarRecibos( false );
     this.isaCardex.borrarCardex();

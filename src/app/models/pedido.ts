@@ -17,6 +17,8 @@ export class DetallePedido {
     montoExonerado: number;
     porcenExonerado: number;
     frio: boolean;
+    esBoni: boolean;
+    tipoBoni: string;
 
     constructor( id: string, des: string, precio: number, cantidad: number, sub: number, iva: number, desc: number, descGen: number, total: number, impuesto: string, 
                  esCanBa: string, pDescuento: number, pIVA: number, montoExo: number, pExo: number, frio: boolean ){
@@ -36,6 +38,8 @@ export class DetallePedido {
         this.montoExonerado = montoExo;
         this.porcenExonerado = pExo;
         this.frio = frio;
+        this.esBoni = false;
+        this.tipoBoni = ''
     }
 }
 
@@ -436,6 +440,21 @@ export class Ped_Temp {
         public ES_CANASTA_BASICA: string,
     ){}
   
+}
+
+ export interface Bonificaciones {
+    Ruta:         string;
+    Cliente:      string;
+    Articulo:     string;
+    Inicio:       Date;
+    Fin:          Date;
+    Tipo:         string;       //  DESC: Descuento
+                                //  ESCA: DEscuento escalonado
+                                //  BONI: Bonificación
+    Cantidad:     number;
+    Bonificacion: number;
+    Articulo_Boni: string;
+    Fijo:         string;      // S / N: S = aplica automático; N = a criterio del vendedor
 }
 
 

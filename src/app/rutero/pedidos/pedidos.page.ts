@@ -1,7 +1,7 @@
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Productos } from 'src/app/models/productos';
-import { DetallePedido, Pedido } from 'src/app/models/pedido';
+import { Bonificaciones, DetallePedido, Pedido } from 'src/app/models/pedido';
 import { IsaService } from 'src/app/services/isa.service';
 import { AlertController, IonList, NavController, PopoverController} from '@ionic/angular';
 import { IsaPedidoService } from 'src/app/services/isa-pedido.service';
@@ -22,6 +22,8 @@ import { Email } from '../../models/email';
 export class PedidosPage implements OnInit {
 
   busquedaProd: Productos[] = [];           // Arreglo que contiene la sublista de productos seleccionados
+  bonificaciones: Bonificaciones[] = [];   // Arreglo con las bonificaciones de producto
+  bonificacion:   Bonificaciones;         // Contiene el objeto de la bonificación si la línea lo posee
   producto: Productos;                     // Producto seleccionado de la busqueda     
   texto: string = '';                             // campo de busqueda de productos
   cantidad: number = 6;                        // variable temporal con la cantidad de Items a agregar en el pedido
@@ -47,6 +49,7 @@ export class PedidosPage implements OnInit {
   frio: boolean = false;              // True = Pedido tiene líneas con productos categoría de Frio
   seco: boolean = false;             // True = pedido tiene líneas de producto categoria seco.
                                     // Si ambas variables son TRUE, el pedido debe partirse en dos por cada tipo de categoría
+  hayBoni = false;                 // True = El artículo tiene bonificación
   numLineas: number = 0;
 
 
@@ -72,6 +75,11 @@ export class PedidosPage implements OnInit {
     this.isa.addBitacora( true, 'START', `Inicia Pedido: ${this.pedido.numPedido}, del Cliente: ${this.pedido.codCliente} - ${this.isa.clienteAct.nombre}`);
     this.validaSiCardex();
     this.isa.transmitiendo = [];
+    this.cargarBonificaciones();
+  }
+
+  cargarBonificaciones(){
+    this.bonificaciones = JSON.parse(localStorage.getItem('Bonificaciones')) || [];
   }
 
   validaSiCardex(){
@@ -177,6 +185,7 @@ export class PedidosPage implements OnInit {
         }
       }
     } else {
+
       if (this.texto[0] !== '#') {            // Se buscará por DESCRIPCIÓN de producto
 
         // Se recorre el arreglo para buscar coincidencias
@@ -184,19 +193,21 @@ export class PedidosPage implements OnInit {
         this.mostrarProducto = false;
         this.busquedaProd = this.isa.productos.filter( x => x.nombre.toLowerCase().includes(this.texto.toLocaleLowerCase()));
 
-      } else {                      // la busqueda es por codigo de producto
+      } else {     // la busqueda es por codigo de producto
+
         const codigo = this.texto.slice(1);
-        if ( codigo.length <= environment.maxCharCodigoProd ){    // Busca por código de Producto Isleña
-          const product = this.isa.productos.find( e => e.id == this.texto );
-          if ( product !== undefined ){
-            this.busquedaProd.push(product);
-          }
-        } else {     // busca por código de barras
-          const product = this.isa.productos.find( e => e.codigoBarras == this.texto );
-          if ( product !== undefined ){
-            this.busquedaProd.push(product);
-          }
+        const product = this.isa.productos.find( e => e.id == codigo );
+        if ( product ){
+          this.busquedaProd.push(product);
         }
+      
+        /*
+        const product = this.isa.productos.find( e => e.codigoBarras == codigo );
+        if ( product !== undefined ){
+          this.busquedaProd.push(product);
+        }
+        */
+        
       }
     }
     
@@ -220,6 +231,20 @@ export class PedidosPage implements OnInit {
       this.texto = this.busquedaProd[i].nombre;
       this.cantBodega = this.cantidadBodega( this.producto.id );
       this.impuesto = this.isa.calculaImpuesto( this.busquedaProd[i].impuesto, this.busquedaProd[i].id );
+
+      this.bonificacion = this.bonificaciones.find( x => x.Articulo == this.producto.id && x.Cliente == this.isa.clienteAct.id );
+      console.log('Bonificación: ', this.bonificacion);
+      if (this.bonificacion){
+        this.hayBoni = true;
+        if (this.bonificacion.Tipo == 'DESC'){
+          this.descuento = this.bonificacion.Bonificacion;
+        } else if (this.bonificacion.Tipo == 'ESCA'){
+          this.cantidad = this.bonificacion.Cantidad;
+          this.descuento = this.bonificacion.Bonificacion;
+        } else if (this.bonificacion.Tipo == 'BONI'){
+          this.cantidad = this.bonificacion.Cantidad;
+        }
+      }
       const j = this.existeEnDetalle(this.busquedaProd[i].id);
       if (j >= 0){          // Ya el Item había sido seleccionado anteriormente.
         this.cantidad = this.pedido.detalle[j].cantidad;
@@ -303,10 +328,27 @@ export class PedidosPage implements OnInit {
   }
 
   calculaLineaPedido(){           // Boton de aceptar la linea de pedido
-    if ( this.descuento > environment.DescuentoMaxLinea ){
-      this.isa.presentAlertW('Descuento', 'El descuento es superior al límite permitido');
-      return;
+    let hayBoni = false;
+    let mod = 0;           // Utilizado para determinar el residuo en la cantidad de una bonificación escalonada
+
+    if (this.bonificacion){
+      if ( this.descuento > this.bonificacion.Bonificacion && (this.bonificacion.Tipo == 'ESCA' || this.bonificacion.Tipo == 'DESC' )){
+        this.isa.presentAlertW('Descuento', 'El descuento es superior al límite permitido');
+        return;
+      }
+      hayBoni = true;         // hayBoni indica que debe crearse una línea por una bonificación
+
+      if (this.bonificacion.Tipo == 'ESCA'){
+        const div = Math.floor(this.cantidad / this.bonificacion.Cantidad);
+        mod = this.cantidad % this.bonificacion.Cantidad;
+        this.cantidad = div * this.bonificacion.Cantidad;
+      }
+      
+    } else if (this.descuento > 0){
+      this.isa.presentAlertW('Descuento', 'El artículo no tiene descuento permitido.');
+        return;
     }
+    
     if ( this.cantidad > 0 ){ 
       this.montoSub = this.cantidad * this.producto.precio;
       this.montoDescLinea = this.montoSub * this.descuento / 100;
@@ -326,11 +368,17 @@ export class PedidosPage implements OnInit {
         this.pedido.detalle[this.j].total = this.montoTotal;
         this.modificando = false;
         this.j = -1;
+
       } else {                        // SINO se esta creando una nueva linea de detalle
+        
         this.esFrio( this.producto.frio );
         this.nuevoDetalle = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, this.cantidad, this.montoSub, this.montoIVA, 
                                     this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, this.descuento, this.impuesto*100,
                                     this.montoExonerado, this.exonerado, this.producto.frio );
+        if (hayBoni){
+          this.nuevoDetalle.esBoni = true;
+          this.nuevoDetalle.tipoBoni = this.bonificacion.Tipo;
+        }
         this.pedido.detalle.unshift( this.nuevoDetalle );
         this.numLineas = this.pedido.detalle.length;
       }
@@ -339,7 +387,13 @@ export class PedidosPage implements OnInit {
       this.pedido.descuento = this.pedido.descuento + this.montoDescLinea;
       this.pedido.descGeneral = this.pedido.descGeneral + this.montoDescGen;
       this.pedido.total = this.pedido.total + this.montoTotal;
+
+      if (hayBoni){
+        this.crearDetalleBonificacion(mod);
+      }
       
+      this.bonificacion = undefined;
+      this.hayBoni = false;
       this.pedidoSinSalvar = true;
       this.texto = '';
       this.mostrarListaProd = false;
@@ -358,6 +412,88 @@ export class PedidosPage implements OnInit {
     } else {
       this.isa.presentAlertW( 'Cantidad', 'La cantidad no puede ser 0');
     }
+  }
+
+  crearDetalleBonificacion(mod: number){
+    if (this.bonificacion.Tipo == 'BONI'){
+      const producto = this.isa.productos.filter( x => x.id == this.bonificacion.Articulo_Boni);
+      const impuesto = this.isa.calculaImpuesto( producto[0].impuesto, producto[0].id );
+
+      if (producto){
+        this.montoSub = this.bonificacion.Bonificacion * producto[0].precio;
+        this.montoDescLinea = this.montoSub * 99.99 / 100;
+        this.montoDescGen = 0;
+        this.montoIVA = (this.montoSub - this.montoDescLinea - this.montoDescGen) * impuesto;
+        this.montoExonerado = 0;
+        this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea - this.montoDescGen;
+
+        const item = new DetallePedido(producto[0].id, producto[0].nombre, producto[0].precio, this.bonificacion.Bonificacion, 
+                              this.montoSub, this.montoIVA, this.montoDescLinea, this.montoDescGen,this.montoTotal, producto[0].impuesto, 
+                              producto[0].canastaBasica, 99.99, impuesto*100, this.montoExonerado, this.exonerado, producto[0].frio );
+        item.esBoni = true;
+        item.tipoBoni = 'BONI';
+        this.pedido.detalle.unshift( item );
+        this.numLineas = this.pedido.detalle.length;
+
+        this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
+        this.pedido.iva = this.pedido.iva + this.montoIVA;
+        this.pedido.descuento = this.pedido.descuento + this.montoDescLinea;
+        this.pedido.descGeneral = this.pedido.descGeneral + this.montoDescGen;
+        this.pedido.total = this.pedido.total + this.montoTotal;
+      }
+    } else if (this.bonificacion.Tipo == 'ESCA' && mod > 0){   // La cantidad del pedido de Esca no es divisible
+                                                              // entre la cantidad de la bonificación.  Eso implica que hay
+                                                             // un residuo
+      
+      this.montoSub = mod * this.producto.precio;
+      this.montoDescLinea = 0;
+      this.montoDescGen = 0;
+      this.montoIVA = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.impuesto;
+      this.montoExonerado = (this.montoSub - this.montoDescLinea - this.montoDescGen) * this.exonerado;
+      this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea - this.montoDescGen;
+
+      this.esFrio( this.producto.frio );
+      const item  = new DetallePedido(this.producto.id, this.producto.nombre, this.producto.precio, mod, this.montoSub, this.montoIVA, 
+                                    this.montoDescLinea, this.montoDescGen,this.montoTotal, this.producto.impuesto, this.producto.canastaBasica, 0, this.impuesto*100,
+                                    this.montoExonerado, this.exonerado, this.producto.frio );
+      item.esBoni = true;
+      item.tipoBoni = 'BONI';
+      this.pedido.detalle.unshift( item );
+      this.numLineas = this.pedido.detalle.length;
+
+      this.pedido.subTotal = this.pedido.subTotal + this.montoSub;
+      this.pedido.iva = this.pedido.iva + this.montoIVA;
+      this.pedido.descuento = this.pedido.descuento + this.montoDescLinea;
+      this.pedido.descGeneral = this.pedido.descGeneral + this.montoDescGen;
+      this.pedido.total = this.pedido.total + this.montoTotal;
+    }
+  }
+
+  async mostrarBoni(){
+    let etiqueta = '';
+
+    if (this.bonificacion){
+      if (this.bonificacion.Tipo == 'DESC'){
+        etiqueta = `Artículo con descuento máximo de: ${this.bonificacion.Bonificacion}%`
+      } else if (this.bonificacion.Tipo == 'ESCA'){
+        etiqueta = `Por la compra de ${this.bonificacion.Cantidad} unidades de este artículo.  Recibes un descuento de ${this.bonificacion.Bonificacion}%`;
+      } else {
+        const articulo = this.isa.productos.find( x => x.id == this.bonificacion.Articulo_Boni);
+        if (articulo){
+          etiqueta = `Por la compra de ${this.bonificacion.Cantidad} unidades de este artículo.  Recibes una unidad del artículo ${this.bonificacion.Articulo_Boni} ${articulo.nombre}`;  
+        } else {
+          etiqueta = `Por la compra de ${this.bonificacion.Cantidad} unidades de este artículo.  Recibes una unidad del artículo ${this.bonificacion.Articulo_Boni}`;
+        }
+      }
+    }
+    const alert = await this.alertController.create({
+      header: 'Bonificación',
+      subHeader: this.bonificacion.Tipo,
+      message: etiqueta,
+      buttons: ['OK'],
+    });
+
+    await alert.present();
   }
 
   masFunction(){
@@ -544,8 +680,13 @@ export class PedidosPage implements OnInit {
 
   editarDetalle( i: number ){
     if ( !this.modificando ){      // Valida si se está editando una línea... en ese caso no se puede editar.
-      this.reversarLinea(i);
-      this.ionList.closeSlidingItems();
+      if (this.pedido.detalle[i].tipoBoni !== 'BONI'){
+        this.reversarLinea(i);
+        this.ionList.closeSlidingItems();
+      } else {
+        this.isa.presentAlertW( 'Edición', 'No se puede editar la línea porque es una Bonificación.  Puedes borrarla en su lugar.!!!');
+        this.ionList.closeSlidingItems();
+      }
     } else {
       this.isa.presentAlertW( 'Edición', 'No se puede editar una línea si se estaba editando otra.');
       this.ionList.closeSlidingItems();
@@ -553,6 +694,7 @@ export class PedidosPage implements OnInit {
   }
 
   reversarLinea(i: number){
+    
     this.cantidad = this.pedido.detalle[i].cantidad;
     this.descuento = this.pedido.detalle[i].descuento * 100 / this.pedido.detalle[i].subTotal;  // % descuento linea
     this.producto = this.isa.productos.find(data => data.id == this.pedido.detalle[i].codProducto);  // Funcion que retorna el producto a editar
@@ -562,6 +704,11 @@ export class PedidosPage implements OnInit {
     this.mostrarListaProd = false;
     this.mostrarProducto = true;
     this.modificando = true;
+    this.bonificacion = this.bonificaciones.find( x => x.Articulo == this.producto.id && x.Cliente == this.isa.clienteAct.id );
+    console.log('Bonificación: ', this.bonificacion);
+    if (this.bonificacion){
+      this.hayBoni = true;
+    }
     this.j = i;
     this.pedido.subTotal = this.pedido.subTotal - this.pedido.detalle[i].subTotal;
     this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva;

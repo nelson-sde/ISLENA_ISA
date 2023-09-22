@@ -31,8 +31,18 @@
 
   <ion-list *ngIf="mostrarListaProd">
     <ion-item *ngFor="let item of busquedaProd; let i = index">
-      <ion-label>{{item.id}}-{{item.nombre}}</ion-label>
-      <ion-checkbox [(ngModel)]="item.seleccionado"></ion-checkbox>
+      <ion-grid fixed>
+        <ion-row>
+          <ion-col size="11">
+            <ion-text>
+              {{item.id}}-{{item.nombre}}
+            </ion-text>
+          </ion-col>
+          <ion-col size="1">
+            <ion-checkbox [(ngModel)]="item.seleccionado"></ion-checkbox>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-item>
   </ion-list>
 
@@ -45,7 +55,8 @@
         <ion-card >
           <ion-img [src]="producto.imagen | noimage"></ion-img>
           <ion-card-content text-center (click)="ingresaCantidad()">
-            <h2>Q: <strong>{{cantidad}}</strong>  Des: <strong>{{descuento}}%</strong></h2>
+            <h2>Q: <strong>{{cantidad}}</strong></h2>
+            <h2>Des: <strong>{{descuento}}%</strong></h2>
             <div>Precio: {{producto.precio | colones}}</div>
             <div>Bodega: {{ cantBodega }}</div>
           </ion-card-content>
@@ -55,6 +66,15 @@
         <ion-img src="../../assets/img/mas.png" (click)="masFunction()"></ion-img>
       </ion-col>
     </ion-row>
+
+    <ion-row *ngIf="hayBoni">
+      <ion-col size="12">
+        <ion-button color="dark" expand="block" (click)="mostrarBoni()" shape="round">
+          Bonificación
+        </ion-button>
+      </ion-col>
+    </ion-row>
+
     <ion-row>
       <ion-col size="9">
         <ion-segment (ionChange)="accionPedido($event)" value="cant" color="dark">
@@ -67,7 +87,7 @@
         </ion-segment>
       </ion-col>
       <ion-col size="3" class="ion-align-self-center">
-        <ion-button color="light" (click)="calculaLineaPedido()">
+        <ion-button color="dark" (click)="calculaLineaPedido()">
           <ion-icon slot="icon-only" name="download-outline"></ion-icon>
         </ion-button>
       </ion-col>
@@ -109,7 +129,7 @@
             </ion-col>
             <ion-col size="2">
               <div>
-                <ion-text color="success">{{ item.codProducto }}</ion-text>
+                <ion-text [color]="item.esBoni ? 'danger' : 'success'">{{ item.codProducto }}</ion-text>
               </div>
             </ion-col>
             <ion-col size="2">

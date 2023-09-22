@@ -12,6 +12,7 @@ export const environment = {
   actividadEco: '512211',
   BackOrdersURL: 'BackOrders/',
   BancosURL:    'Bancos/',
+  BoniURL:      'Bonificaciones/',
   cantLineasMaxPedido: 300,
   CantonesURL:  'Cantones/',
   ClienteNuevoURL: 'AddCliente/',
