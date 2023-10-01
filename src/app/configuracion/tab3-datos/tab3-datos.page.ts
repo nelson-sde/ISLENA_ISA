@@ -171,6 +171,7 @@ export class Tab3DatosPage implements OnInit {
   }
 
   realizarSinc(){
+    this.isa.enSincronizar = true;                  // Se va a sincronizar el teléfono
     this.isa.varConfig.ultimaLiquid = new Date();
     this.isa.guardarVarConfig();
     this.isa.borrarBitacora();                                   // Se borra la bitácora de primero para que los movimientos generados en la Sync queden registrados.

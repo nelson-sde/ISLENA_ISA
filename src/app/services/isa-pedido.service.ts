@@ -197,7 +197,7 @@ export class IsaPedidoService {
         lineas = 0;
         console.log('Transmite: ',this.isa.transmitiendo);
         if (environment.companyCode === '01'){
-          this.transmitirPedido( pedidoOriginal, 'N');
+          this.transmitirPedTemp( pedidoOriginal, 'N');
         } else {
           this.transmitirPedTemp(pedidoOriginal, 'N');
         }
@@ -244,6 +244,10 @@ export class IsaPedidoService {
     const numPedido = pedido.numPedido;
     const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
 
+    if (environment.companyCode == '01'){
+      cliente.compania = 'ISLENA';
+    }
+
     if ( cliente !== undefined ){ 
 
       email = new Email( cliente.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
@@ -279,8 +283,8 @@ export class IsaPedidoService {
           console.log('Success Encabezado...', resp);
           this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
           this.actualizaEstadoPedido( pedido.numPedido, true );
-          //email.toEmail = 'mauricio.herra@gmail.com';
-          //this.isa.enviarEmail( email );
+          email.toEmail = 'mauricio.herra@gmail.com';
+          this.isa.enviarEmail( email );
 
           if ( pedido.total + cliente.saldoCredito > cliente.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
             const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;

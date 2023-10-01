@@ -52,6 +52,12 @@ export class RuteroPage implements OnInit {
     if (this.setup.cargarDatos()){
       console.log('Compañía cargada con Éxito');
     }
+    if (this.isa.enSincronizar){
+      this.codigoCliente = '';
+      this.texto = '';
+      this.dir = false;
+      this.direccion = '';
+    }
   }
 
   ngOnInit(){

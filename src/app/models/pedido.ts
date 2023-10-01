@@ -19,6 +19,7 @@ export class DetallePedido {
     frio: boolean;
     esBoni: boolean;
     tipoBoni: string;
+    articuloBoni: string;
 
     constructor( id: string, des: string, precio: number, cantidad: number, sub: number, iva: number, desc: number, descGen: number, total: number, impuesto: string, 
                  esCanBa: string, pDescuento: number, pIVA: number, montoExo: number, pExo: number, frio: boolean ){
@@ -39,7 +40,8 @@ export class DetallePedido {
         this.porcenExonerado = pExo;
         this.frio = frio;
         this.esBoni = false;
-        this.tipoBoni = ''
+        this.tipoBoni = '';
+        this.articuloBoni = '';
     }
 }
 
@@ -392,69 +394,69 @@ export interface BackOrders {
 
 export class Ped_Temp {
     constructor(
-        public COD_CIA: string,
-        public NUM_PED: string,
-        public NUM_LN: number,
-        public COD_ZON: string,
-        public COD_CLT: string,
-        public TIP_DOC: string,
-        public HOR_FIN: Date,
-        public FEC_PED: Date,
-        public FEC_DES: Date,
-        public HOR_INI: Date,
-        public MON_IMP_VT: number,
-        public MON_IMP_CS: number,
-        public MON_CIV: number,
-        public MON_SIV: number,
-        public MON_DSC: number,
-        public NUM_ITM: number,
-        public LST_PRE: number,
-        public OBS_PED: string,
-        public ESTADO: string,
-        public COD_CND: string,
-        public COD_BOD: string,
-        public COD_PAIS: string,
-        public CLASE: string,
-        public DIR_ENT: string,
-        public DESC1: number,
-        public DESC2: number,
-        public MONT_DESC1: number,
-        public MONT_DESC2: number,
-        public NIVEL_PRECIO: string,
-        public MONEDA: string,
-        public COD_GEO1: string,
-        public COD_GEO2: string,
-        public ACTIVIDAD_COMERCIAL: string,
-        public COD_ART: string,
-        public MON_PRC_MN: number,
-        public POR_DSC_AP: number,
-        public MON_TOT: number,
-        public MON_DSC_LIN: number,
-        public MON_PRC_MX: number,
-        public CNT_MAX: number,
-        public TIPO_IMPUESTO1: string,
-        public TIPO_TARIFA1: string,
-        public PORC_EXONERACION: number,
-        public MONTO_EXONERACION: number,
-        public PORC_IMPUESTO1: number,
-        public ES_CANASTA_BASICA: string,
+        public coD_CIA: string,
+        public nuM_PED: string,
+        public nuM_LN: number,
+        public coD_ZON: string,
+        public coD_CLT: string,
+        public tiP_DOC: string,
+        public hoR_FIN: Date,
+        public feC_PED: Date,
+        public feC_DES: Date,
+        public hoR_INI: Date,
+        public moN_IMP_VT: number,
+        public moN_IMP_CS: number,
+        public moN_CIV: number,
+        public moN_SIV: number,
+        public moN_DSC: number,
+        public nuM_ITM: number,
+        public lsT_PRE: number,
+        public obS_PED: string,
+        public estado: string,
+        public coD_CND: string,
+        public coD_BOD: string,
+        public coD_PAIS: string,
+        public clase: string,
+        public diR_ENT: string,
+        public desC1: number,
+        public desC2: number,
+        public monT_DESC1: number,
+        public monT_DESC2: number,
+        public niveL_PRECIO: string,
+        public moneda: string,
+        public coD_GEO1: string,
+        public coD_GEO2: string,
+        public actividaD_COMERCIAL: string,
+        public coD_ART: string,
+        public moN_PRC_MN: number,
+        public poR_DSC_AP: number,
+        public moN_TOT: number,
+        public moN_DSC_LIN: number,
+        public moN_PRC_MX: number,
+        public cnT_MAX: number,
+        public tipO_IMPUESTO1: string,
+        public tipO_TARIFA1: string,
+        public porC_EXONERACION: number,
+        public montO_EXONERACION: number,
+        public porC_IMPUESTO1: number,
+        public eS_CANASTA_BASICA: string,
     ){}
   
 }
 
  export interface Bonificaciones {
-    Ruta:         string;
-    Cliente:      string;
-    Articulo:     string;
-    Inicio:       Date;
-    Fin:          Date;
-    Tipo:         string;       //  DESC: Descuento
+    ruta:         string;
+    cliente:      string;
+    articulo:     string;
+    inicio:       Date;
+    fin:          Date;
+    tipo:         string;       //  DESC: Descuento
                                 //  ESCA: DEscuento escalonado
                                 //  BONI: Bonificación
-    Cantidad:     number;
-    Bonificacion: number;
-    Articulo_Boni: string;
-    Fijo:         string;      // S / N: S = aplica automático; N = a criterio del vendedor
+    cantidad:     number;
+    bonificacion: number;
+    articulo_Boni: string;
+    fijo:         string;      // S / N: S = aplica automático; N = a criterio del vendedor
 }
 
 

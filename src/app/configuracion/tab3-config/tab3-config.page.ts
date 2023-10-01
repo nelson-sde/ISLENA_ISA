@@ -123,6 +123,7 @@ export class Tab3ConfigPage implements OnInit{
     if ( this.isa.varConfig.numRuta.length > 0 &&
          this.isa.varConfig.usuario.length > 0 &&
          this.actualizado ) {
+      this.isa.enSincronizar = true;                  // Se va a sincronizar el teléfono
       this.isa.varConfig.ultimaLiquid = new Date();
       this.isa.guardarVarConfig();                              // Actualiza la informacion de entorno
       this.isa.syncInfo();

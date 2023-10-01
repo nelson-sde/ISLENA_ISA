@@ -58,6 +58,7 @@ export class IsaService {
   transmitiendo: string[] = [];
   rutero: Rutero[] = [];                // Arreglo con la lista de clientes visitados en el día
   hayPedidosWhatsapp: boolean = false;
+  enSincronizar = false;               // Bandera que indica que se entró en el menú de sincronización
 
   loading: HTMLIonLoadingElement;
 
