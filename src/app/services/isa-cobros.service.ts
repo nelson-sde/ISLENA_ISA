@@ -13,10 +13,12 @@ import { Rutero, RuteroBD } from '../models/ruta';
 export class IsaCobrosService {
   
   cxc: Pen_Cobro[] = [];
-  tipoCambio = 550;
+  tipoCambio = 0;
 
   constructor( private isa: IsaService,
-               private http: HttpClient ) { }
+               private http: HttpClient ) {
+    this.tipoCambio = this.isa.varConfig.tipoCambio;
+  }
 
   cargarCxC( codCliente: string ){
     let c: Pen_Cobro[] = [];
@@ -115,6 +117,7 @@ export class IsaCobrosService {
     return this.http.post( URL, JSON.stringify(data), options );
   }
 
+  /*
   transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
     let reciboBD: RecEncaBD = {
       coD_CIA : 'ISLENA',
@@ -186,7 +189,7 @@ export class IsaCobrosService {
     } else {
       this.isa.presentAlertW( 'Transmitir Recibo', 'Imposible transmitir recibo. Datos del recibo inconsistentes...!!!');
     }
-  }
+  }*/
 
   agregarDetalle( recibo: Recibo, cheque: Cheque, hayCheque: boolean, email: Email ) {
     let detalleRec: RecDetaBD;
@@ -260,9 +263,13 @@ export class IsaCobrosService {
     let email: Email;
     const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
 
-    if ( cliente !== undefined && recibo.tipoDoc === 'R' ){
+    if ( cliente !== undefined ){
 
-      email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
+      if (recibo.tipoDoc == 'R'){
+        email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
+      } else {
+        email = new Email( cliente.email, `NOTIFICACION POR COBRO DE DINERO RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque, cliente.nombre, false) );
+      }
 
       this.actualizaVisita( recibo.codCliente );
 
@@ -273,17 +280,17 @@ export class IsaCobrosService {
         }
       }
 
-      const item1 = new ReciboBD(cliente.compania, recibo.numeroRecibo, '5', 0, recibo.numeroRuta, recibo.codCliente, 
+      const item1 = new ReciboBD(cliente.compania, recibo.numeroRecibo, recibo.tipoDoc, 0, recibo.numeroRuta, recibo.codCliente, 
                             recibo.numeroRecibo, null, fechaRecibo, fechaRecibo, 'A', recibo.moneda, this.tipoCambio,
                             recibo.montoLocal, recibo.montoEfectivoL, recibo.montoChequeL, fechaRecibo, fechaFin, 
-                            recibo.montoTarjetaL, recibo.montoDepositoL, 0, 0, 0, null);
+                            recibo.montoTarjetaL, recibo.montoDepositoL, 0, 0, 0, this.isa.varConfig.numRuta, recibo.bancoDep);
 
       reciboBD.push(item1);
 
       recibo.detalle.forEach( x => {
         linea += 1;
-        const item2 = new ReciboBD( cliente.compania, recibo.numeroRecibo, '5', linea, recibo.numeroRuta, recibo.codCliente, 
-        x.numeroDocumen, x.numeroDocumenAf, x.fechaDocu, fechaRecibo, 'A', 'L', 645, x.abonoLocal, 0, 0, null, null, 0, 0, 0, 0, x.saldoLocal, null );
+        const item2 = new ReciboBD( cliente.compania, recibo.numeroRecibo, recibo.tipoDoc, linea, recibo.numeroRuta, recibo.codCliente, 
+        x.numeroDocumen, x.numeroDocumenAf, x.fechaDocu, fechaRecibo, 'A', 'L', 645, x.abonoLocal, 0, 0, null, null, 0, 0, 0, 0, x.saldoLocal, null, null );
         reciboBD.push( item2 );
       })
 
@@ -297,6 +304,19 @@ export class IsaCobrosService {
           if ( hayCheque ){
             this.transmitirChequeNew( cheque );
           }
+
+          if (email.toEmail !== undefined && email.toEmail !== null && email.toEmail !== '') {
+            if (email.toEmail.length > 0){
+              email.toEmail = 'mauricio.herra@gmail.com'
+              this.isa.enviarEmail( email );
+            }
+          }
+          email.toEmail = this.isa.varConfig.emailVendedor;
+          //this.isa.enviarEmail( email );
+          email.toEmail = this.isa.varConfig.emailCxC;
+          //this.isa.enviarEmail( email );
+          this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
+
           //this.transmitirISA_Liquid( recibo );       // inserta el recibo en ISA_Liquidaciones
         }, error => {
           console.log('Error RecEnca ', error);
@@ -321,7 +341,7 @@ export class IsaCobrosService {
     } else {
       cheque = new Cheque('', '', '', '', '', 0);
     }
-    this.transmitirRecibo( recibo, cheque, hayCheque, false);
+    this.transmitirRecTemp( recibo, cheque, hayCheque, false);
   }
 
   retransRecibosPen(){
@@ -336,13 +356,14 @@ export class IsaCobrosService {
           if ( d.tipoDoc === 'R' ){ 
             this.retransmitirRecibo( d );
           } else {
-            this.reciboSimple( d, false );
+            this.retransmitirRecibo( d );
           }
         });
       }
     }
   }
 
+  /*
   reciboSimple( recibo: Recibo, nuevo: boolean ){     // nuevo = true: se inserta el recibo en el Local Storage
     let email: Email;
     let cheque: Cheque = new Cheque('','','','','',0);
@@ -391,6 +412,7 @@ export class IsaCobrosService {
       }
     );
   }
+  */
 
   private actualizaEstadoRecibo( numRecibo: string, estado: boolean ){
     let recibosLS: Recibo[] = [];

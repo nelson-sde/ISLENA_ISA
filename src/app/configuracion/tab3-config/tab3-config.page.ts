@@ -109,6 +109,7 @@ export class Tab3ConfigPage implements OnInit{
     this.isa.varConfig.borrarBD = this.isa.rutas[i].borraR_BD === 'S' ? true : false;
     this.isa.varConfig.usaRecibos = this.isa.rutas[i].usA_RECIBOS === 'S' ? true : false;
     this.isa.varConfig.usaDevoluciones = this.isa.rutas[i].usA_DEVOLUCIONES === 'S' ? true : false;
+    this.isa.varConfig.usaBonis = this.isa.rutas[i].usA_BONIS === 'S' ? true : false;
     if (this.isa.varConfig.actualizado === 'N'){
       this.actualizado = false;
     }

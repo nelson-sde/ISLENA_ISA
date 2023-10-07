@@ -21,30 +21,34 @@
     </ion-item>
     <p></p>
 
-    <ion-item *ngIf="!edicion">
-      <ion-label>{{etiquetaMoneda}}</ion-label>
-      <ion-toggle [(ngModel)]="dolares" (ionChange)="cambiarMoneda()"></ion-toggle>
+    <ion-item *ngIf="edicion">
+      <ion-label>{{etiquetaTipo}}</ion-label>
+      <ion-toggle [(ngModel)]="esRecibo" (ionChange)="cambiarTipo()"></ion-toggle>
     </ion-item>
 
     <ion-item color="light" *ngIf="!edicion">
       <ion-grid fixed>
         <ion-row>
-          <ion-col size="4">Abono:</ion-col>
-          <ion-col size="6">{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4"><strong>Abono:</strong></ion-col>
+          <ion-col size="6"><strong>{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }}</strong></ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="esRecibo">
           <ion-col size="4">Efectivo:</ion-col>
           <ion-col size="6">{{ reciboTemp.efectivo | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="!esRecibo">
+          <ion-col size="4">Depósito</ion-col>
+          <ion-col size="6">{{ reciboTemp.deposito | colones : 2 : "." : "," : moneda }}</ion-col>
+        </ion-row>
+        <ion-row *ngIf="!esRecibo">
+          <ion-col size="4">Número:</ion-col>
+          <ion-col size="6">{{ recibo.numTR }}</ion-col>
+        </ion-row>
+        <ion-row *ngIf="!esRecibo">
           <ion-col size="4">Tarjeta:</ion-col>
           <ion-col size="6">{{ reciboTemp.tarjeta | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
-        <ion-row>
-          <ion-col size="4">Depósito:</ion-col>
-          <ion-col size="6">{{ reciboTemp.deposito | colones : 2 : "." : "," : moneda }}</ion-col>
-        </ion-row>
-        <ion-row>
+        <ion-row *ngIf="esRecibo">
           <ion-col size="4">Cheque:</ion-col>
           <ion-col size="6">{{ reciboTemp.cheque | colones : 2 : "." : "," : moneda }}</ion-col>
         </ion-row>
@@ -70,30 +74,36 @@
     <ion-item color="light" *ngIf="edicion">
       <ion-grid fixed>
         <ion-row>
-          <ion-col size="4">Abono:</ion-col>
-          <ion-col size="6" class="ion-text-end">{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }}</ion-col>
+          <ion-col size="4"><strong>Abono:</strong></ion-col>
+          <ion-col size="6" class="ion-text-end"><strong>{{ reciboTemp.monto | colones : 2 : "." : "," : moneda }} </strong></ion-col>
         </ion-row>
       </ion-grid>
     </ion-item>
-    <ion-item color="light" *ngIf="edicion">
+    <ion-item color="light" *ngIf="edicion && esRecibo">
       <ion-label>
         <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.efectivo">Efectivo:</ion-input>
       </ion-label>
     </ion-item>
-    <ion-item color="light" *ngIf="edicion">
+    <ion-item color="light" *ngIf="edicion && !esRecibo">
       <ion-label>
         <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.tarjeta">Tarjeta   :</ion-input>
       </ion-label>
     </ion-item>
-    <ion-item color="light" *ngIf="edicion">
+    <ion-item color="light" *ngIf="edicion && !esRecibo">
       <ion-label>
         <ion-input inputmode="numeric" type="number" [(ngModel)]="reciboTemp.deposito">Transferencia:</ion-input>
       </ion-label>
     </ion-item>
-    <ion-item color="light" *ngIf="edicion">
+    <ion-item color="light" *ngIf="edicion && !esRecibo">
       <ion-label>
         <ion-input inputmode="numeric" type="number" [(ngModel)]="recibo.numTR">Tranferencia#:</ion-input>
       </ion-label>
+    </ion-item>
+    <ion-item color="light" *ngIf="edicion && !esRecibo">
+      <ion-label>Banco</ion-label>
+      <ion-select [(ngModel)]="bancoDep">
+        <ion-select-option *ngFor="let banco of bancosDep" [value]="banco">{{banco.nombre}}</ion-select-option>
+      </ion-select>
     </ion-item>
     <ion-item color="light" *ngIf="edicion">
       <ion-label>
@@ -109,7 +119,7 @@
       <ion-label>Concepto: </ion-label>
       <ion-textarea inputmode="text" type="text" maxlength = 249 rows = 3 [(ngModel)]="recibo.observaciones"></ion-textarea>
     </ion-item>
-    <ion-item color="light" *ngIf="edicion">
+    <ion-item color="light" *ngIf="edicion && esRecibo">
       <ion-label>Cheque</ion-label>
       <ion-checkbox slot="start" [(ngModel)]="hayCheque"></ion-checkbox>
     </ion-item>
@@ -200,6 +210,20 @@
 
 <ion-footer>
   <ion-toolbar color="dark">
-    <ion-title>Monto {{ monto | colones }}</ion-title>
+    <ion-grid fixed>
+      <ion-row>
+        <ion-col size="8">
+          <ion-item color="dark">
+            <ion-title>Monto {{ monto | colones }}</ion-title>
+          </ion-item>
+        </ion-col>
+        <ion-col size="4">
+          <ion-item>
+            <ion-label>{{etiquetaMoneda}}</ion-label>
+            <ion-toggle [(ngModel)]="dolares" (ionChange)="cambiarMoneda()"></ion-toggle>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-footer>

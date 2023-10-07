@@ -25,7 +25,10 @@ export class RecibosPage {
   tipoCambio: number = 1;               // Tipo de cambio al que se registró la factura
   dolares: boolean = false;            // True = recibo en dólares, caso contrario colones
   moneda: string = '¢';
-  etiquetaMoneda: string = 'Colones';
+  etiquetaMoneda: string = '¢';
+  etiquetaTipo = 'RECIBO';
+  cambiaTipo = false;
+  esRecibo = true;
   reciboSinSalvar: boolean = false;
   hayFactura: boolean = false;              // Indicador utilizado para saber que se aplicará el recibo a una factura
   hayNC: boolean = false;                  // Nos indica si hay una nota de credito en los documentos a aplicar
@@ -41,7 +44,9 @@ export class RecibosPage {
   saldo: number = 0;
   cheque: Cheque;
   bancos: Bancos[] = [];
+  bancosDep: Bancos [] = [];
   banco: Bancos;
+  bancoDep: Bancos;
   reciboTemp = {                   // Estructura que visualmente en el HTML contiene los valores del recibo según la moneda en la variable dolares
     monto : 0,
     abono: 0,
@@ -63,6 +68,7 @@ export class RecibosPage {
     
     let det: Det_Recibo;
     PdfMakeWrapper.setFonts(pdfFonts);
+    console.log('Inicia recibo...');
 
     this.tipoCambio = this.isa.varConfig.tipoCambio;
     this.recibo = new Recibo( isa.varConfig.numRuta, this.isa.clienteAct.id, this.isa.varConfig.consecutivoRecibos, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'L' );
@@ -95,13 +101,14 @@ export class RecibosPage {
     }
     this.cheque = new Cheque('', this.isa.clienteAct.id.toString(), this.isa.varConfig.consecutivoRecibos, '', '', 0 );
     this.bancos = this.isa.cargarBancos();
-    this.banco = new Bancos('','');
+    this.bancosDep = this.isa.cargarBancos(true);  // Se cargan aquellos bancos de uso propio para depositos
+    this.banco = new Bancos('','', '');
   }
 
   cambiarMoneda(){
     console.log(this.dolares);
     if ( this.dolares ){
-      this.etiquetaMoneda = 'Dólares:';
+      this.etiquetaMoneda = '$';
       this.moneda = "$";
       this.reciboTemp.monto = this.recibo.montoDolar;
       this.reciboTemp.abono = this.recibo.montoDolar;
@@ -109,7 +116,7 @@ export class RecibosPage {
       this.recibo.moneda = 'D';
       //this.saldoFactura = this.recibo.detalle[0].abonoDolar;
     } else {
-      this.etiquetaMoneda = 'Colones';
+      this.etiquetaMoneda = '¢';
       this.moneda = "¢";
       this.reciboTemp.monto = this.recibo.montoLocal;
       this.reciboTemp.abono = this.recibo.montoLocal;
@@ -117,6 +124,36 @@ export class RecibosPage {
       this.recibo.moneda = 'L';
       //this.saldoFactura = this.recibo.detalle[0].abonoDolar;
     }
+  }
+
+  cambiarTipo(){
+    if (this.cambiaTipo){
+      this.cambiaTipo = false;
+      if ((this.esRecibo && this.etiquetaTipo == 'TRANSFERENCIA') || (!this.esRecibo && this.etiquetaTipo == 'RECIBO')){
+        this.cambiarTipo();
+      }
+    } else {
+      console.log('Iniciando Cambio de Tipo ', this.recibo.tipoDoc, this.esRecibo);
+      if (this.recibo.tipoDoc == 'R'){
+        this.recibo.tipoDoc = 'T';
+        this.etiquetaTipo = 'TRANSFERENCIA';
+        this.reciboTemp.deposito = this.reciboTemp.monto;
+        this.reciboTemp.efectivo = 0;
+        this.reciboTemp.cheque = 0;
+      } else {
+        this.recibo.tipoDoc = 'R';
+        this.etiquetaTipo = 'RECIBO';
+        this.reciboTemp.efectivo = this.reciboTemp.monto;
+        this.reciboTemp.deposito = 0;
+        this.reciboTemp.tarjeta = 0;
+        this.recibo.bancoDep = null;
+        this.recibo.bancoDep = null;
+        this.bancoDep = undefined;
+        this.recibo.numTR = '';
+      }
+    }
+    
+    console.log('Tipo Recibo: ', this.recibo.tipoDoc);
   }
 
   modificarRecibo(){ //debugger
@@ -141,18 +178,15 @@ export class RecibosPage {
               this.modificarDetalle( this.recibo.montoEfectivoL, this.recibo.montoEfectivoD );
             }
             this.edicion = false;
-            this.recibo.tipoDoc = 'R';
           } else {
             this.isa.presentAlertW('Efectivo', 'El monto del Efectivo no puede ser mayor al monto del Recibo');
           }
         } else {
           this.recibo.montoEfectivoL = 0;
           this.recibo.montoEfectivoD = 0;
-          this.recibo.tipoDoc = null;
         }
         if ( this.hayCheque ){
           if ( this.cheque.monto > 0 && this.cheque.numeroCheque !== null  && this.cheque.numeroCuenta !== null && this.banco.banco !== ''){                                 // Valida la información del Cheque
-            this.recibo.tipoDoc = 'R';
             if ( (this.cheque.monto + this.reciboTemp.efectivo) <= this.saldoFactura ){
               this.cheque.codCliente = this.recibo.codCliente.toString();
               this.cheque.codigoBanco = this.banco.banco;
@@ -184,9 +218,6 @@ export class RecibosPage {
             //this.hayCheque = false;
             this.recibo.montoChequeD = 0;
             this.recibo.montoChequeL = 0;
-            //this.reciboTemp.cheque = 0;
-            this.recibo.tipoDoc = null;
-            //this.edicion = false;
           }
         } else {
           this.recibo.montoChequeD = 0;
@@ -194,10 +225,10 @@ export class RecibosPage {
           this.reciboTemp.cheque = 0;
           this.hayCheque = false;
         }
+
         if ( this.reciboTemp.tarjeta > 0 ) {    // Valida los montos de las tarjetas
-          if ( this.recibo.tipoDoc === null ){
+          if ( this.recibo.tipoDoc === 'T' ){
             if ( this.reciboTemp.tarjeta <= this.saldoFactura ){
-              this.recibo.tipoDoc = 'T';
               if ( this.dolares ){
                 this.recibo.montoTarjetaD = this.reciboTemp.tarjeta;
                 this.recibo.montoTarjetaL = this.reciboTemp.tarjeta * this.tipoCambio;
@@ -223,11 +254,12 @@ export class RecibosPage {
           this.recibo.montoTarjetaL = 0;
         }
         if ( this.reciboTemp.deposito > 0 ) {          // Valida si el pago es con un deposito bancario
-          if ( this.recibo.tipoDoc === null ){
+          if ( this.recibo.tipoDoc === 'T' ){
             if ( this.reciboTemp.deposito <= this.saldoFactura ){
-              this.recibo.tipoDoc = 'T';
-              if ( this.recibo.numTR !== null ) {
+              
+              if ( this.recibo.numTR !== null && this.bancoDep !== undefined) {
                 this.recibo.numeroRecibo =  `${this.recibo.numeroRuta}T${this.recibo.numTR}`;
+                this.recibo.bancoDep = this.bancoDep.banco;
                 if ( this.dolares ){
                   this.recibo.montoDepositoD = this.reciboTemp.deposito;
                   this.recibo.montoDepositoL = this.reciboTemp.deposito * this.tipoCambio;
@@ -239,7 +271,7 @@ export class RecibosPage {
                 }
                 this.edicion = false;
               } else {
-                this.isa.presentAlertW('Depósito', 'El número de la Transferencia no puede ser nulo...!!!');
+                this.isa.presentAlertW('Depósito', 'El número de la Transferencia o el banco deben ser ingresados para una transferencia..!!!');
                 return;
               }
             } else {
@@ -251,12 +283,14 @@ export class RecibosPage {
             this.recibo.montoDepositoD = 0;
             this.recibo.montoDepositoL = 0;
             this.recibo.numTR = null;
+            this.recibo.bancoDep = null;
             this.reciboTemp.deposito = 0;
           }
         } else {
           this.recibo.montoDepositoD = 0;
           this.recibo.montoDepositoL = 0;
           this.recibo.numTR = null;
+          this.recibo.bancoDep = null;
         }
         if (this.reciboTemp.otrosMov > 0){     // Se registraron otros movimientos que restan el saldo
           this.recibo.otrosMov = this.reciboTemp.otrosMov;
@@ -283,6 +317,7 @@ export class RecibosPage {
         console.log(this.recibo);            // Valida la información del efectivo
       } else {
         this.edicion = true;
+        this.cambiaTipo = true;
       }
     } else {
       this.isa.presentAlertW('Notas de Credito', 'Debe asignar las NC a una factura antes de editar el recibo');
@@ -503,7 +538,7 @@ export class RecibosPage {
         this.isaCobros.transmitirRecTemp( this.recibo, this.cheque, this.reciboCheque, true );
         this.isa.incrementaConsec('R');
       } else {
-        this.isaCobros.reciboSimple( this.recibo, true );
+        this.isaCobros.transmitirRecTemp( this.recibo, this.cheque, this.reciboCheque, true );
       }
       this.cargarSaldos( this.isa.clienteAct.id );
       this.navController.back();

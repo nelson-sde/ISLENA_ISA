@@ -42,7 +42,8 @@ export class IsaService {
     darkMode: null,
     actualizado: 'S',
     borrarBD: false,
-    usaDevoluciones: false
+    usaDevoluciones: false,
+    usaBonis: false,
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero
@@ -490,7 +491,7 @@ export class IsaService {
         resp.forEach(e => {
           cliente = new Cliente(e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
             e.nom_Cto, 0, e.lim_Cre, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
-            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud, e.usa_Letra, e.COD_CIA);
+            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud, e.usa_Letra, e.coD_CIA);
           this.clientes.push( cliente );
         });
         console.log( 'Arreglo', this.clientes );
@@ -597,7 +598,7 @@ export class IsaService {
       resp => {
         console.log('Bancos', resp );
         resp.forEach(e => {
-          banco = new Bancos(e.entidaD_FINANCIERA, e.descripcion);
+          banco = new Bancos(e.entidaD_FINANCIERA, e.descripcion, e.usA_TEF);
           bancos.push( banco );
         });
         console.log( 'Arreglo', bancos );
@@ -625,11 +626,16 @@ export class IsaService {
     );
   }
 
-  cargarBancos(){
-    if (localStorage.getItem('bancos')){
-      const bancos = JSON.parse( localStorage.getItem('bancos'));
-      return bancos;
-    }
+  cargarBancos( dep = false ){
+    let bancos: Bancos[] = [];
+
+    bancos = JSON.parse( localStorage.getItem('bancos')) ||  [];
+
+    if (dep){
+      return bancos.filter( x => x.usaTR == 'S' );
+    } 
+    
+    return bancos;
   }
 
   syncEjecutivas(){

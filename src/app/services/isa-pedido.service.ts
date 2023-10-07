@@ -190,7 +190,7 @@ export class IsaPedidoService {
         pedidoOriginal.numPedido = this.isa.varConfig.consecutivoPedidos;
         this.isa.transmitiendo.push(pedidoOriginal.numPedido);
         console.log('Transmite: ',this.isa.transmitiendo);
-        this.transmitirPedido( pedidoAux, 'N');
+        this.transmitirPedTemp( pedidoAux, 'N');
       } else {
         console.log('Pedido final', pedidoOriginal);
         this.isa.addBitacora( true, 'INSERT', `Inserta Pedido: ${pedidoOriginal.numPedido}.`);
@@ -312,6 +312,7 @@ export class IsaPedidoService {
     }
   }
 
+  /*
   transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
     let detalleBD: PedDeta;
     let arrDetBD: PedDeta[] = [];
@@ -385,6 +386,7 @@ export class IsaPedidoService {
       this.isa.presentAlertW( 'Transmitir Pedido', 'Imposible transmitir pedido. Datos del cliente inconsistentes');
     }
   }
+  */
 
   private agregarDetalle( numPedido: string, detalle: PedDeta[], email: Email ) {
 

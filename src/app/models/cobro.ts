@@ -114,6 +114,7 @@ export class Recibo {
     otrosMov: number;
     monto_NC: number;
     horaFin: Date;
+    bancoDep: string;
     detalle: Det_Recibo[];
 
     constructor ( ruta: string, cliente: string, recibo: string, montoD: number, montoL: number, efectivoL: number, efectivoD: number, chequeL: number, chequeD: number,
@@ -137,11 +138,12 @@ export class Recibo {
         this.envioExitoso = false;
         this.liquidado = false;
         this.anulado = false;
-        this.tipoDoc = null;
+        this.tipoDoc = 'R';
         this.numTR = null;
         this.otrosMov = 0;
         this.monto_NC = 0;
         this.horaFin = new Date();
+        this.bancoDep = null;
         this.detalle = [];
     }
 }
@@ -320,30 +322,31 @@ export interface Liquidaciones {
 
 export class ReciboBD {
     constructor(
-        public COD_CIA:         string,
-        public NUM_REC:         string,
-        public COD_TIP_DC:      string,
-        public LINEA:           number,
-        public COD_ZON:         string,
-        public COD_CLT:         string,
-        public NUM_DOC:         string,
-        public NUM_DOC_AF:      string,
-        public FEC_DOC:         Date,
-        public FEC_PRO:         Date,
-        public IND_ANL:         string,
-        public IND_MON:         string,
-        public TIPO_CAMBIO:     number,
-        public MON_DOC_LOC:     number,
-        public MON_EFE_LOCAL:   number,
-        public MON_CHE_LOCAL:   number,
-        public HOR_INI:         Date,
-        public HOR_FIN:         Date,
-        public MON_TAR_LOCAL:   number,
-        public MON_TRANS_LOCAL: number,
-        public MON_DEP_LOCAL:   number,
-        public MON_BONCER_LOCAL: number,
-        public MON_SAL_LOC:     number,
-        public RUTA:            string,
+        public coD_CIA:         string,
+        public nuM_REC:         string,
+        public coD_TIP_DC:      string,
+        public linea:           number,
+        public coD_ZON:         string,
+        public coD_CLT:         string,
+        public nuM_DOC:         string,
+        public nuM_DOC_AF:      string,
+        public feC_DOC:         Date,
+        public feC_PRO:         Date,
+        public inD_ANL:         string,
+        public inD_MON:         string,
+        public tipO_CAMBIO:     number,
+        public moN_DOC_LOC:     number,
+        public moN_EFE_LOCAL:   number,
+        public moN_CHE_LOCAL:   number,
+        public hoR_INI:         Date,
+        public hoR_FIN:         Date,
+        public moN_TAR_LOCAL:   number,
+        public moN_TRANS_LOCAL: number,
+        public moN_DEP_LOCAL:   number,
+        public moN_BONCER_LOCAL: number,
+        public moN_SAL_LOC:     number,
+        public ruta:            string,
+        public bancO_DEP:       string,
     ){}
 }
 

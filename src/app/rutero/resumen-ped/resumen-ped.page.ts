@@ -24,7 +24,7 @@ export class ResumenPedPage {
       this.isa.transmitiendo.push(this.pedido.numPedido);
       console.log('Retransmitiendo pedido');
       this.isa.addBitacora( true, 'START', `Retransmite Pedido: ${this.pedido.numPedido}`);
-      this.isaPedidos.transmitirPedido( this.pedido, 'R' );
+      this.isaPedidos.transmitirPedTemp( this.pedido, 'R' );
       this.regresar();
     } else {
       if ( this.isa.transmitiendo ){

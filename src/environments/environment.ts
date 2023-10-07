@@ -46,7 +46,7 @@ export const environment = {
   productosURL: 'productos/',
   RecEncaURL:   'RecEnca/',
   RecDetaURL:   'RecDeta/',
-  Rec_TempURL:  'Rec_Temp/',
+  Rec_TempURL:  'RecibosTemp/',
   rutasURL:     'rutas/',
   rutasDistURL: 'RutasDist/',
   rutasCantonURL: 'RutasCanton/',

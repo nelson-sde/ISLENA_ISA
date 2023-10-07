@@ -332,7 +332,10 @@ export class PedidosPage implements OnInit {
     let mod = 0;           // Utilizado para determinar el residuo en la cantidad de una bonificación escalonada
     let div = 0;          // Cantidad de Packs que lleva el cliente
 
-    if (this.bonificacion){
+    if (this.bonificacion && this.isa.varConfig.usaBonis){
+
+      // Valida que las bonificaciones se estén usando de manera correcta
+
       if ( this.descuento > this.bonificacion.bonificacion && (this.bonificacion.tipo == 'ESCA' || this.bonificacion.tipo == 'DESC' )){
         this.isa.presentAlertW('Descuento', 'El descuento es superior al límite permitido');
         return;
@@ -340,16 +343,26 @@ export class PedidosPage implements OnInit {
       hayBoni = true;         // hayBoni indica que debe crearse una línea por una bonificación
 
       if (this.bonificacion.tipo == 'ESCA'){
+        if (this.descuento > this.bonificacion.bonificacion){
+          this.isa.presentAlertW('Descuento', 'El artículo tiene un descuento mayor al permitido.');
+          return;
+        }
         div = Math.floor(this.cantidad / this.bonificacion.cantidad);
         mod = this.cantidad % this.bonificacion.cantidad;
         this.cantidad = div * this.bonificacion.cantidad;
       } else if (this.bonificacion.tipo == 'BONI'){
+        if (this.descuento > 0){
+          this.isa.presentAlertW('Descuento', 'El artículo no tiene descuento permitido.');
+          return;
+        }
         div = Math.floor(this.cantidad / this.bonificacion.cantidad);
-      }
-      
-    } else if (this.descuento > 0){
-      this.isa.presentAlertW('Descuento', 'El artículo no tiene descuento permitido.');
+      } else if (this.descuento > this.bonificacion.bonificacion){
+        this.isa.presentAlertW('Descuento', 'El artículo tiene un descuento mayor al permitido.');
         return;
+      }
+    } else if (this.isa.varConfig.usaBonis && this.descuento > 0){
+      this.isa.presentAlertW('Descuento', 'El artículo no tiene descuento permitido.');
+      return;
     }
     
     if ( this.cantidad > 0 ){ 
@@ -413,7 +426,23 @@ export class PedidosPage implements OnInit {
       this.montoExonerado = 0;
       this.defaultCant = true;
     } else {
-      this.isa.presentAlertW( 'Cantidad', 'La cantidad no puede ser 0');
+      this.bonificacion = undefined;
+      this.hayBoni = false;
+      this.pedidoSinSalvar = true;
+      this.texto = '';
+      this.mostrarListaProd = false;
+      this.mostrarProducto = false;
+      this.cantidad = 6;
+      this.descuento = 0;
+      this.montoIVA = 0;
+      this.montoDescLinea = 0;
+      this.montoDescGen = 0;
+      this.montoSub = 0;
+      this.montoTotal = 0;
+      this.impuesto = 0;
+      this.exonerado = 0;
+      this.montoExonerado = 0;
+      this.defaultCant = true;
     }
   }
 

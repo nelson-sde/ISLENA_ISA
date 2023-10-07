@@ -102,6 +102,7 @@ export class Tab3DatosPage implements OnInit {
         this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
         this.isa.varConfig.usaRecibos = this.isa.rutas[i].usA_RECIBOS === 'S' ? true : false;
         this.isa.varConfig.usaDevoluciones = this.isa.rutas[i].usA_DEVOLUCIONES === 'S' ? true : false;
+        this.isa.varConfig.usaBonis = this.isa.rutas[i].usA_BONIS === 'S' ? true : false;
         this.isa.varConfig.actualizado = this.isa.rutas[i].actualizado;
         this.isa.varConfig.borrarBD = this.isa.rutas[i].borraR_BD === 'S' ? true : false;
         this.isa.guardarVarConfig();
@@ -129,6 +130,7 @@ export class Tab3DatosPage implements OnInit {
         this.isa.varConfig.tipoCambio = this.isa.rutas[i].tcom;
         this.isa.varConfig.usaRecibos = this.isa.rutas[i].usA_RECIBOS === 'S' ? true : false;
         this.isa.varConfig.usaDevoluciones = this.isa.rutas[i].usA_DEVOLUCIONES === 'S' ? true : false;
+        this.isa.varConfig.usaBonis = this.isa.rutas[i].usA_BONIS === 'S' ? true : false;
         this.isa.varConfig.actualizado = this.isa.rutas[i].actualizado;
         this.isa.varConfig.borrarBD = this.isa.rutas[i].borraR_BD === 'S' ? true : false;
         this.isa.guardarVarConfig();

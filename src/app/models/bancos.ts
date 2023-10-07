@@ -4,14 +4,17 @@
 export interface BancosBD {
     entidaD_FINANCIERA: string;
     descripcion:        string;
+    usA_TEF:            string;
 }
 
 export class Bancos {
     banco: string;
     nombre: string;
+    usaTR: string;
 
-    constructor (banco: string, nombre: string ){
+    constructor (banco: string, nombre: string, usa: string ){
         this.banco = banco;
         this.nombre = nombre;
+        this.usaTR = usa;
     }
 }
