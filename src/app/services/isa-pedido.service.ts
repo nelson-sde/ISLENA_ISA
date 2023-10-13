@@ -285,6 +285,8 @@ export class IsaPedidoService {
           this.actualizaEstadoPedido( pedido.numPedido, true );
           email.toEmail = 'mauricio.herra@gmail.com';
           this.isa.enviarEmail( email );
+          email.toEmail = this.isa.varConfig.emailVendedor;
+          this.isa.enviarEmail( email );
 
           if ( pedido.total + cliente.saldoCredito > cliente.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
             const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;

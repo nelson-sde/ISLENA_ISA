@@ -4,7 +4,7 @@
 
 export const environment = {
   production:    false,
-  companyCode:  '01',
+  companyCode:  '02',
   preURL:       'http://api_isa',
   preIRPURL:    'https://apiirp',
   TestURL:      '_test',
@@ -60,7 +60,7 @@ export const environment = {
   VisitaURL:    'Visita/',
   
   adminClave: '15@Admin2*',
-  version:    '1.8.0',        // Versión Carpeta de Pruebas
+  version:    '2.0.0',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
 };

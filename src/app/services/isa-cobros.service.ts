@@ -265,6 +265,8 @@ export class IsaCobrosService {
 
     if ( cliente !== undefined ){
 
+      console.log('Recibo tipo: ', recibo.tipoDoc);
+
       if (recibo.tipoDoc == 'R'){
         email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
       } else {
@@ -283,14 +285,16 @@ export class IsaCobrosService {
       const item1 = new ReciboBD(cliente.compania, recibo.numeroRecibo, recibo.tipoDoc, 0, recibo.numeroRuta, recibo.codCliente, 
                             recibo.numeroRecibo, null, fechaRecibo, fechaRecibo, 'A', recibo.moneda, this.tipoCambio,
                             recibo.montoLocal, recibo.montoEfectivoL, recibo.montoChequeL, fechaRecibo, fechaFin, 
-                            recibo.montoTarjetaL, recibo.montoDepositoL, 0, 0, 0, this.isa.varConfig.numRuta, recibo.bancoDep);
+                            recibo.montoTarjetaL, recibo.montoDepositoL, 0, 0, 0, this.isa.varConfig.numRuta, recibo.bancoDep,
+                            recibo.monto_NC, recibo.otrosMov, recibo.observaciones);
 
       reciboBD.push(item1);
 
       recibo.detalle.forEach( x => {
         linea += 1;
         const item2 = new ReciboBD( cliente.compania, recibo.numeroRecibo, recibo.tipoDoc, linea, recibo.numeroRuta, recibo.codCliente, 
-        x.numeroDocumen, x.numeroDocumenAf, x.fechaDocu, fechaRecibo, 'A', 'L', 645, x.abonoLocal, 0, 0, null, null, 0, 0, 0, 0, x.saldoLocal, null, null );
+                            x.numeroDocumen, x.numeroDocumenAf, x.fechaDocu, fechaRecibo, 'A', 'L', 645, x.abonoLocal, 0, 0, null, null, 
+                            0, 0, 0, 0, x.saldoLocal, null, null, 0, 0, null );
         reciboBD.push( item2 );
       })
 
@@ -312,9 +316,9 @@ export class IsaCobrosService {
             }
           }
           email.toEmail = this.isa.varConfig.emailVendedor;
-          //this.isa.enviarEmail( email );
+          this.isa.enviarEmail( email );
           email.toEmail = this.isa.varConfig.emailCxC;
-          //this.isa.enviarEmail( email );
+          this.isa.enviarEmail( email );
           this.isa.presentaToast( 'Recibo Transmitido con Exito...' );
 
           //this.transmitirISA_Liquid( recibo );       // inserta el recibo en ISA_Liquidaciones

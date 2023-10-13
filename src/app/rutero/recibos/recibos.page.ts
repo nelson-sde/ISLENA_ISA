@@ -5,7 +5,6 @@ import { Cheque } from 'src/app/models/cheques';
 import { Det_Recibo, Pen_Cobro, Recibo } from 'src/app/models/cobro';
 import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 import { IsaService } from 'src/app/services/isa.service';
-import { environment } from 'src/environments/environment';
 import { FacturasPage } from '../facturas/facturas.page';
 import { Plugins, FilesystemDirectory } from "@capacitor/core";
 const { Filesystem } = Plugins;

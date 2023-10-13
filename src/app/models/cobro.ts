@@ -347,6 +347,9 @@ export class ReciboBD {
         public moN_SAL_LOC:     number,
         public ruta:            string,
         public bancO_DEP:       string,
+        public montO_NC:        number,
+        public montO_OTROS:     number,
+        public aplicacion:      string
     ){}
 }
 
