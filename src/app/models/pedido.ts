@@ -445,18 +445,18 @@ export class Ped_Temp {
 }
 
  export interface Bonificaciones {
-    ruta:         string;
-    cliente:      string;
-    articulo:     string;
-    inicio:       Date;
-    fin:          Date;
-    tipo:         string;       //  DESC: Descuento
+    Ruta:         string;
+    Cliente:      string;
+    Articulo:     string;
+    Inicio:       Date;
+    Fin:          Date;
+    Tipo:         string;       //  DESC: Descuento
                                 //  ESCA: DEscuento escalonado
                                 //  BONI: Bonificación
-    cantidad:     number;
-    bonificacion: number;
-    articulo_Boni: string;
-    fijo:         string;      // S / N: S = aplica automático; N = a criterio del vendedor
+    Cantidad:     number;
+    Bonificacion: number;
+    Articulo_Boni: string;
+    Fijo:         string;      // S / N: S = aplica automático; N = a criterio del vendedor
 }
 
 

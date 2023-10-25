@@ -4,7 +4,7 @@
 
 export const environment = {
   production:    false,
-  companyCode:  '02',
+  companyCode:  '01',
   preURL:       'http://api_isa',
   preIRPURL:    'https://apiirp',
   TestURL:      '_test',

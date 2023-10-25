@@ -43,7 +43,7 @@ export class IsaService {
     actualizado: 'S',
     borrarBD: false,
     usaDevoluciones: false,
-    usaBonis: false,
+    usaBonis: true,
   };
 
   clienteAct: Cliente;                          // Cliente Actual en el rutero
@@ -1173,10 +1173,18 @@ export class IsaService {
         impuesto = 0;
         break;
     }
-    console.log('impuesto', impuesto);
+    console.log('Impuesto Producto:', impuesto);
+    console.log('Impuesto Cliente: ', this.clienteAct.porcentajeTarifa);
     console.log('exonerado', this.consultarExoneracion( this.clienteAct.id, codProducto ));
+
+    const porcClienteTarifa = this.clienteAct.porcentajeTarifa / 100;
+    if (impuesto > porcClienteTarifa){
+      impuesto = porcClienteTarifa;
+    }
+
     exonerado = this.consultarExoneracion( this.clienteAct.id, codProducto )/100;
     impuesto -= exonerado;
+    
     return impuesto < 0 ? 0 : impuesto;
   }
   

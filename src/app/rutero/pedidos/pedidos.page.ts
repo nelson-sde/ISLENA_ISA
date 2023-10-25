@@ -232,17 +232,17 @@ export class PedidosPage implements OnInit {
       this.cantBodega = this.cantidadBodega( this.producto.id );
       this.impuesto = this.isa.calculaImpuesto( this.busquedaProd[i].impuesto, this.busquedaProd[i].id );
 
-      this.bonificacion = this.bonificaciones.find( x => x.articulo == this.producto.id && x.cliente == this.isa.clienteAct.id );
+      this.bonificacion = this.bonificaciones.find( x => x.Articulo == this.producto.id && x.Cliente == this.isa.clienteAct.id );
       console.log('Bonificación: ', this.bonificacion);
       if (this.bonificacion){
         this.hayBoni = true;
-        if (this.bonificacion.tipo == 'DESC'){
-          this.descuento = this.bonificacion.bonificacion;
-        } else if (this.bonificacion.tipo == 'ESCA'){
-          this.cantidad = this.bonificacion.cantidad;
-          this.descuento = this.bonificacion.bonificacion;
-        } else if (this.bonificacion.tipo == 'BONI'){
-          this.cantidad = this.bonificacion.cantidad;
+        if (this.bonificacion.Tipo == 'DESC'){
+          this.descuento = this.bonificacion.Bonificacion;
+        } else if (this.bonificacion.Tipo == 'ESCA'){
+          this.cantidad = this.bonificacion.Cantidad;
+          this.descuento = this.bonificacion.Bonificacion;
+        } else if (this.bonificacion.Tipo == 'BONI'){
+          this.cantidad = this.bonificacion.Cantidad;
         }
       }
       const j = this.existeEnDetalle(this.busquedaProd[i].id);
@@ -336,27 +336,27 @@ export class PedidosPage implements OnInit {
 
       // Valida que las bonificaciones se estén usando de manera correcta
 
-      if ( this.descuento > this.bonificacion.bonificacion && (this.bonificacion.tipo == 'ESCA' || this.bonificacion.tipo == 'DESC' )){
+      if ( this.descuento > this.bonificacion.Bonificacion && (this.bonificacion.Tipo == 'ESCA' || this.bonificacion.Tipo == 'DESC' )){
         this.isa.presentAlertW('Descuento', 'El descuento es superior al límite permitido');
         return;
       }
       hayBoni = true;         // hayBoni indica que debe crearse una línea por una bonificación
 
-      if (this.bonificacion.tipo == 'ESCA'){
-        if (this.descuento > this.bonificacion.bonificacion){
+      if (this.bonificacion.Tipo == 'ESCA'){
+        if (this.descuento > this.bonificacion.Bonificacion){
           this.isa.presentAlertW('Descuento', 'El artículo tiene un descuento mayor al permitido.');
           return;
         }
-        div = Math.floor(this.cantidad / this.bonificacion.cantidad);
-        mod = this.cantidad % this.bonificacion.cantidad;
-        this.cantidad = div * this.bonificacion.cantidad;
-      } else if (this.bonificacion.tipo == 'BONI'){
+        div = Math.floor(this.cantidad / this.bonificacion.Cantidad);
+        mod = this.cantidad % this.bonificacion.Cantidad;
+        this.cantidad = div * this.bonificacion.Cantidad;
+      } else if (this.bonificacion.Tipo == 'BONI'){
         if (this.descuento > 0){
           this.isa.presentAlertW('Descuento', 'El artículo no tiene descuento permitido.');
           return;
         }
-        div = Math.floor(this.cantidad / this.bonificacion.cantidad);
-      } else if (this.descuento > this.bonificacion.bonificacion){
+        div = Math.floor(this.cantidad / this.bonificacion.Cantidad);
+      } else if (this.descuento > this.bonificacion.Bonificacion){
         this.isa.presentAlertW('Descuento', 'El artículo tiene un descuento mayor al permitido.');
         return;
       }
@@ -393,7 +393,7 @@ export class PedidosPage implements OnInit {
                                     this.montoExonerado, this.exonerado, this.producto.frio );
         if (hayBoni){
           this.nuevoDetalle.esBoni = true;
-          this.nuevoDetalle.tipoBoni = this.bonificacion.tipo;
+          this.nuevoDetalle.tipoBoni = this.bonificacion.Tipo;
         }
         this.pedido.detalle.unshift( this.nuevoDetalle );
         this.numLineas = this.pedido.detalle.length;
@@ -447,19 +447,19 @@ export class PedidosPage implements OnInit {
   }
 
   crearDetalleBonificacion(mod: number, div: number, idProduc: string){
-    if (this.bonificacion.tipo == 'BONI'){
-      const producto = this.isa.productos.filter( x => x.id == this.bonificacion.articulo_Boni);
+    if (this.bonificacion.Tipo == 'BONI'){
+      const producto = this.isa.productos.filter( x => x.id == this.bonificacion.Articulo_Boni);
       const impuesto = this.isa.calculaImpuesto( producto[0].impuesto, producto[0].id );
 
       if (producto){
-        this.montoSub = this.bonificacion.bonificacion * div * producto[0].precio;
+        this.montoSub = this.bonificacion.Bonificacion * div * producto[0].precio;
         this.montoDescLinea = this.montoSub * 99.9 / 100;
         this.montoDescGen = 0;
         this.montoIVA = (this.montoSub - this.montoDescLinea - this.montoDescGen) * impuesto;
         this.montoExonerado = 0;
         this.montoTotal = this.montoSub + this.montoIVA - this.montoDescLinea - this.montoDescGen;
 
-        const item = new DetallePedido(producto[0].id, producto[0].nombre, producto[0].precio, this.bonificacion.bonificacion * div, 
+        const item = new DetallePedido(producto[0].id, producto[0].nombre, producto[0].precio, this.bonificacion.Bonificacion * div, 
                               this.montoSub, this.montoIVA, this.montoDescLinea, this.montoDescGen,this.montoTotal, producto[0].impuesto, 
                               producto[0].canastaBasica, 99.9, impuesto*100, this.montoExonerado, this.exonerado, producto[0].frio );
         item.esBoni = true;
@@ -475,7 +475,7 @@ export class PedidosPage implements OnInit {
         this.pedido.total = this.pedido.total + this.montoTotal;
       }
 
-    } else if (this.bonificacion.tipo == 'ESCA' && mod > 0){   // La cantidad del pedido de Esca no es divisible
+    } else if (this.bonificacion.Tipo == 'ESCA' && mod > 0){   // La cantidad del pedido de Esca no es divisible
                                                               // entre la cantidad de la bonificación.  Eso implica que hay
                                                              // un residuo
       
@@ -577,22 +577,22 @@ export class PedidosPage implements OnInit {
     let etiqueta = '';
 
     if (this.bonificacion){
-      if (this.bonificacion.tipo == 'DESC'){
-        etiqueta = `Artículo con descuento máximo de: ${this.bonificacion.bonificacion}%`
-      } else if (this.bonificacion.tipo == 'ESCA'){
-        etiqueta = `Por la compra de ${this.bonificacion.cantidad} unidades de este artículo.  Recibes un descuento de ${this.bonificacion.bonificacion}%`;
+      if (this.bonificacion.Tipo == 'DESC'){
+        etiqueta = `Artículo con descuento máximo de: ${this.bonificacion.Bonificacion}%`
+      } else if (this.bonificacion.Tipo == 'ESCA'){
+        etiqueta = `Por la compra de ${this.bonificacion.Cantidad} unidades de este artículo.  Recibes un descuento de ${this.bonificacion.Bonificacion}%`;
       } else {
-        const articulo = this.isa.productos.find( x => x.id == this.bonificacion.articulo_Boni);
+        const articulo = this.isa.productos.find( x => x.id == this.bonificacion.Articulo_Boni);
         if (articulo){
-          etiqueta = `Por la compra de ${this.bonificacion.cantidad} unidades de este artículo.  Recibes una unidad del artículo ${this.bonificacion.articulo_Boni} ${articulo.nombre}`;  
+          etiqueta = `Por la compra de ${this.bonificacion.Cantidad} unidades de este artículo.  Recibes una unidad del artículo ${this.bonificacion.Articulo_Boni} ${articulo.nombre}`;  
         } else {
-          etiqueta = `Por la compra de ${this.bonificacion.cantidad} unidades de este artículo.  Recibes una unidad del artículo ${this.bonificacion.articulo_Boni}`;
+          etiqueta = `Por la compra de ${this.bonificacion.Cantidad} unidades de este artículo.  Recibes una unidad del artículo ${this.bonificacion.Articulo_Boni}`;
         }
       }
     }
     const alert = await this.alertController.create({
       header: 'Bonificación',
-      subHeader: this.bonificacion.tipo,
+      subHeader: this.bonificacion.Tipo,
       message: etiqueta,
       buttons: ['OK'],
     });
@@ -762,7 +762,7 @@ export class PedidosPage implements OnInit {
     this.mostrarListaProd = false;
     this.mostrarProducto = true;
     this.modificando = true;
-    this.bonificacion = this.bonificaciones.find( x => x.articulo == this.producto.id && x.cliente == this.isa.clienteAct.id );
+    this.bonificacion = this.bonificaciones.find( x => x.Articulo == this.producto.id && x.Cliente == this.isa.clienteAct.id );
     console.log('Bonificación: ', this.bonificacion);
     if (this.bonificacion){
       this.hayBoni = true;
