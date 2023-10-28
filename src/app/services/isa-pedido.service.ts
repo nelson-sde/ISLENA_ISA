@@ -283,17 +283,17 @@ export class IsaPedidoService {
           console.log('Success Encabezado...', resp);
           this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
           this.actualizaEstadoPedido( pedido.numPedido, true );
-          email.toEmail = 'mauricio.herra@gmail.com';
+          email.toEmail = 'nelson@sde.cr';
           this.isa.enviarEmail( email );
-          email.toEmail = this.isa.varConfig.emailVendedor;
-          this.isa.enviarEmail( email );
+          //email.toEmail = this.isa.varConfig.emailVendedor;
+         // this.isa.enviarEmail( email );
 
           if ( pedido.total + cliente.saldoCredito > cliente.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
             const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;
             email2 = new Email( this.isa.varConfig.emailCxC, `${this.isa.varConfig.numRuta}. Limite de Credito Excedido`, texto);
-            this.isa.enviarEmail( email2 );
-            email2.toEmail = this.isa.varConfig.emailSupervisor;
-            this.isa.enviarEmail( email2 );
+          //  this.isa.enviarEmail( email2 );
+           // email2.toEmail = this.isa.varConfig.emailSupervisor;
+           // this.isa.enviarEmail( email2 );
           }
           if ( cliente.id === this.isa.clienteAct.id ){
             this.isa.clienteAct.saldoCredito += pedido.total;

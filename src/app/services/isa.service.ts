@@ -14,7 +14,13 @@ import { Bitacora } from '../models/bitacora';
 import { Cantones, Cuota, Distritos, Ruta, RutaConfig, RutasDist, Rutero, UbicacionBD, VisitaBD, VisitaDiaria, VisitaDiariaNew } from '../models/ruta';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { SetupService } from './setup.service';
-
+export interface Barrios  {
+  Cod_Provincia: string,
+  Cod_Canton: string,
+  Cod_Distrito: string,
+  Cod_Barrio: string,
+  Barrio: string
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -140,8 +146,8 @@ export class IsaService {
     return URL;
   }
 
-  private getCantones(){
-    const URL = this.getIRPURL( environment.CantonesURL, '' );
+  private getCantones(id:string){
+    let URL = this.getIRPURL( environment.CantonesURL, id );
     return this.http.get<Cantones[]>( URL );
   }
 
@@ -150,11 +156,17 @@ export class IsaService {
     return this.http.get<RutasCanton[]>( URL );
   }
 
-  private getDistritos(){
-    const URL = this.getIRPURL( environment.DistritosURL, '' );
+  private getDistritos(IdP:string,IdC:string){
+    let URL = this.getIRPURL( environment.DistritosURL, IdP );
+        URL = URL+"&IdC="+IdC;
     return this.http.get<Distritos[]>( URL );
   }
-
+  private getBarrios(IdP:string,IdC:string,IdD:string){
+    let URL = this.getIRPURL( environment.BarriosURL, IdP );
+        URL = URL+"&IdC="+IdC+"&IdD="+IdD;
+        console.log(URL)
+    return this.http.get<Barrios[]>( URL );
+  }
   getRutas(){
     const URL = this.getURL( environment.rutasURL, '' );
     return this.http.get<Ruta[]>( URL );
@@ -380,15 +392,20 @@ export class IsaService {
     );
   }
 
-  syncCantones(){
-    this.getCantones().subscribe(
-      resp => {
-        console.log('Cantones', resp );
-        localStorage.setItem('Cantones', JSON.stringify(resp));
-      }, error => {
-        console.log(error.message);
-      }
-    );
+
+
+ 
+
+  syncCantonesToPromise(id:string){
+    return this.getCantones(id).toPromise();
+  }
+
+  syncDistritosToPromise(IdP:string,IdC:string){
+    return this.getDistritos(IdP,IdC).toPromise();
+  }
+
+  syncGetBarriosToPromise(IdP:string,IdC:string,IdD:string){
+    return this.getBarrios(IdP,IdC,IdD).toPromise();
   }
 
   syncRutasCanton(){
@@ -402,16 +419,6 @@ export class IsaService {
     );
   }
 
-  syncDistritos(){
-    this.getDistritos().subscribe(
-      resp => {
-        console.log('Distritos', resp );
-        localStorage.setItem('Distritos', JSON.stringify(resp));
-      }, error => {
-        console.log(error.message);
-      }
-    );
-  }
 
   syncExistencias(){
     let arr: Existencias[] = [];
@@ -737,7 +744,7 @@ export class IsaService {
   }
 
   loadingDissmiss(){
-    this.loading.dismiss();
+    return this.loading.dismiss();
   }
 
   nextConsecutivo( consecutivo: string ){

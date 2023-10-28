@@ -187,9 +187,9 @@ export class Tab3DatosPage implements OnInit {
     this.isa.syncCxC(this.isa.varConfig.numRuta);
     this.isa.syncCuota( this.isa.varConfig.numRuta );
     this.isa.syncBancos();
-    this.isa.syncCantones();
+   // this.isa.syncCantones();
     this.isa.syncRutasCanton();
-    this.isa.syncDistritos();
+   // this.isa.syncDistritos();
     this.isa.syncRutasDist();
     this.isa.syncStockouts( this.isa.varConfig.numRuta );
     this.isa.syncCategorias();

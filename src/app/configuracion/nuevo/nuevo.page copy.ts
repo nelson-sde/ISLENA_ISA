@@ -11,13 +11,7 @@ export interface Provincia  {
   Cod_Provincia: string,
   Provincia: string
 }
-export interface Barrios  {
-  Cod_Provincia: string,
-  Cod_Canton: string,
-  Cod_Distrito: string,
-  Cod_Barrio: string,
-  Barrio: string
-}
+
 @Component({
   selector: 'app-nuevo',
   templateUrl: './nuevo.page.html',
@@ -52,11 +46,9 @@ export class NuevoPage implements OnInit {
   cantones:  Cantones[] = [];
   distritos: Distritos[] = [];
   provincias: Provincia[] = [];
-  barrios:Barrios[] = [];
   codProvincia: string = '';
   codCanton: string = '';
   codDistrito: string = '';
-  codBarrio:string  = '';
 
   constructor( private modalCtrl: ModalController,
                private isa: IsaService,
@@ -67,61 +59,61 @@ export class NuevoPage implements OnInit {
     console.log(this.provincias);
     this.categorias = JSON.parse(localStorage.getItem('categorias')) || [];
     this.rutasCanton = JSON.parse(localStorage.getItem('RutasCanton')) || [];
+    this.cantones = JSON.parse(localStorage.getItem('Cantones')) || [];
+    this.distritos = JSON.parse(localStorage.getItem('Distritos')) || [];
   }
 
- async  CambiaProvincia(){
-    this.distritos = [];
-    this.barrios  = [];
-    this.codCanton = null;
-    this.codDistrito = null;
-    this.clienteNuevo.canton = null;
-    this.clienteNuevo.distrito = null;
-    this.clienteNuevo.barrio = null;
+  CambiaProvincia(){
+    let cantones: Cantones[] = [];
+    // this.cantones = JSON.parse(localStorage.getItem('Cantones')) || [];
+    //this.distritos = JSON.parse(localStorage.getItem('Distritos')) || [];
 
-    
     const i = this.provincias.findIndex( x => x.Provincia === this.clienteNuevo.provincia);
     if (i >= 0){
       this.codProvincia = this.provincias[i].Cod_Provincia;
-      this.cantones =  await this.isa.syncCantonesToPromise(this.codProvincia);
+      cantones = this.cantones.filter( x => x.Cod_Provincia === this.codProvincia );
+      console.log('Cantones: ', cantones);
+      this.cantones = cantones.slice(0);
+      
     }
    
   }
 
- async CambiaCanton(){
-  this.codDistrito = null;
-  this.clienteNuevo.distrito = null;
-  this.clienteNuevo.barrio = null;
-  this.barrios  = [];
+  CambiaCanton(){
+    let distritos: Distritos[] = [];
+    // this.distritos = JSON.parse(localStorage.getItem('Distritos')) || [];
 
     const i = this.cantones.findIndex( x => x.Cod_Provincia === this.codProvincia && x.Canton === this.clienteNuevo.canton);
       if (i >= 0){
       this.codCanton = this.cantones[i].Cod_Canton;
-      this.distritos = await this.isa.syncDistritosToPromise(this.codProvincia, this.codCanton);
+      distritos = this.distritos.filter( x => x.Cod_Provincia === this.codProvincia && x.Cod_Canton === this.codCanton);
+      console.log('Distritos: ', distritos);
+      this.distritos = distritos.slice(0);
       
     }
   }
 
- async  CambiaDistrito(){
+  CambiaDistrito(){
     const i = this.distritos.findIndex( x => x.Cod_Provincia === this.codProvincia && x.Cod_Canton === this.codCanton && x.Distrito === this.clienteNuevo.distrito);
     if (i >= 0){
       this.codDistrito = this.distritos[i].Cod_Distrito;
     }
-  this.barrios = await this.isa.syncGetBarriosToPromise(this.codProvincia,this.codCanton,this.codDistrito);
+  
   }
 
-  async geoReference(){
-   await this.isa.presentaLoading('Espere por favor...');
-    this.geolocation.getCurrentPosition().then(async (resp) => {
+  geoReference(){
+    this.isa.presentaLoading('Espere por favor...');
+    this.geolocation.getCurrentPosition().then((resp) => {
       // resp.coords.latitude
       // resp.coords.longitude
       console.log(resp);
-      await this.isa.loadingDissmiss();
+      this.isa.loadingDissmiss();
       this.clienteNuevo.Latitud = resp.coords.latitude;
       this.clienteNuevo.Longitud = resp.coords.longitude;
 
-    }).catch(async (error) => {
+    }).catch((error) => {
        console.log('Error getting location', error);
-       await this.isa.loadingDissmiss();
+       this.isa.loadingDissmiss();
     });
   }
 
@@ -211,10 +203,9 @@ export class NuevoPage implements OnInit {
     body.push('Distribuidora Isleña de Alimentos<br/>');
     cuerpo = body.join('');
     email = new Email( this.isa.varConfig.emailCxC, `Ruta: ${this.isa.varConfig.numRuta}. Solicitud Cliente Nuevo de Contado`, cuerpo );
-    //this.isa.enviarEmail( email );
-     //email.toEmail = this.isa.varConfig.emailVendedor;
-    email.toEmail = 'nelson@sde.cr';
-
+    this.isa.enviarEmail( email );
+    email.toEmail = this.isa.varConfig.emailVendedor;
+    //email.toEmail = 'mauricio.herra@gmail.com';
     this.isa.enviarEmail( email );
 
     console.log('Formulario Enviado...');

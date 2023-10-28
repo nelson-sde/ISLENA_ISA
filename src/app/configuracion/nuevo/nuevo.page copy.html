@@ -188,17 +188,14 @@
           </ion-item>
         </ion-col>
       </ion-row>
-      <ion-row *ngIf="barrios.length > 0 ">
+      <ion-row>
         <ion-col size="12">
           <ion-item>
-            <ion-label>Barrios</ion-label>
-            <ion-select name="barrio" [(ngModel)]="clienteNuevo.barrio" >
-              <ion-select-option *ngFor="let item6 of barrios">{{item6.Barrio}}</ion-select-option>
-            </ion-select>
+            <ion-label position="floating">Barrio</ion-label>
+            <ion-input name="barrio" type="text" [(ngModel)]="clienteNuevo.barrio" required></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
-    
       <ion-row>
         <ion-col size="12">
           <ion-item>
