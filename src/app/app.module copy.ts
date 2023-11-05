@@ -21,19 +21,18 @@ import { FileOpener } from '@ionic-native/file-opener/ngx';
 
 
 @NgModule({
-  declarations: [AppComponent ],
-  entryComponents: [],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, IonicStorageModule.forRoot()],
-  providers: [
-    StatusBar,
-    SplashScreen,
-    Geolocation,
-    BarcodeScanner,
-    FileOpener,
-    File,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
-  ],
-  bootstrap: [AppComponent]
+    declarations: [AppComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, IonicStorageModule.forRoot()],
+    providers: [
+        StatusBar,
+        SplashScreen,
+        Geolocation,
+        BarcodeScanner,
+        FileOpener,
+        File,
+        { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}
