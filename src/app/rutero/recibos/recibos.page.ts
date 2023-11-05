@@ -56,7 +56,6 @@ export class RecibosPage {
     otrosMov: 0,
     monto_NC: 0
   }
-
   constructor( private isa: IsaService,
                private isaCobros: IsaCobrosService,
                private navController: NavController,
@@ -98,10 +97,12 @@ export class RecibosPage {
       this.reciboTemp.abono = this.recibo.montoLocal;
       this.reciboTemp.efectivo = this.recibo.montoLocal;
     }
+  
     this.cheque = new Cheque('', this.isa.clienteAct.id.toString(), this.isa.varConfig.consecutivoRecibos, '', '', 0 );
     this.bancos = this.isa.cargarBancos();
     this.bancosDep = this.isa.cargarBancos(true);  // Se cargan aquellos bancos de uso propio para depositos
     this.banco = new Bancos('','', '');
+
   }
 
   cambiarMoneda(){
@@ -317,6 +318,9 @@ export class RecibosPage {
       } else {
         this.edicion = true;
         this.cambiaTipo = true;
+      }
+      if(this.recibo.tipoDoc == 'T' && !this.recibo.montoLocal){
+        this.isa.presentAlertW('Transferencia', 'Debes de agregar un monto de transferencia.');
       }
     } else {
       this.isa.presentAlertW('Notas de Credito', 'Debe asignar las NC a una factura antes de editar el recibo');
@@ -537,6 +541,7 @@ export class RecibosPage {
         this.isaCobros.transmitirRecTemp( this.recibo, this.cheque, this.reciboCheque, true );
         this.isa.incrementaConsec('R');
       } else {
+        console.log('cheques post, recibo, cheque, recibocheque', this.recibo, this.cheque, this.reciboCheque)
         this.isaCobros.transmitirRecTemp( this.recibo, this.cheque, this.reciboCheque, true );
       }
       this.cargarSaldos( this.isa.clienteAct.id );

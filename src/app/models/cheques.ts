@@ -2,14 +2,17 @@
 export class Cheque {
     codigoBanco: string;
     codCliente: string;
+   // numFactura:string;
     numeroRecibo: string;
     numeroCheque: string;
     numeroCuenta: string;
     monto: number;
+    //numFactura:string,
 
     constructor ( codBanco: string, codCliente: string, recibo: string, cheque: string, cuenta: string, monto: number ){
         this.codigoBanco = codBanco;
         this.codCliente = codCliente;
+     //   this.numFactura = numFactura;
         this.numeroRecibo = recibo;
         this.numeroCheque = cheque;
         this.numeroCuenta = cuenta;
@@ -43,11 +46,14 @@ export interface ChequeBD2 {
     COD_ZON:        string;
     COD_BCO:        string;
     COD_CLT:        string;
+  //  nuM_FACT:        string;
     NUM_REC:        string;
     NUM_CHE:        string;
     NUM_CTA:        string;
     MON_CHE:        number;
     TIP_DOC:        string;
     FEC_CHE:        Date;
+    createdBy:      string;
+    updatedBy:      string;
 }
 

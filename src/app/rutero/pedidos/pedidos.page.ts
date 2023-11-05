@@ -10,8 +10,6 @@ import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component'
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { environment } from 'src/environments/environment';
-import { Email } from '../../models/email';
-
 
 
 @Component({
@@ -262,6 +260,8 @@ export class PedidosPage implements OnInit {
         if ( this.existeEnDetalle(this.busquedaProd[x].id) < 0 ) {   // si el articulo no existe en el detalle se agrega
           this.esFrio( this.busquedaProd[x].frio );
           this.impuesto = this.isa.calculaImpuesto( this.busquedaProd[x].impuesto, this.busquedaProd[x].id );
+
+          console.log('impuesto Producto', this.impuesto)
           this.exonerado = this.isa.consultarExoneracion( this.isa.clienteAct.id, this.busquedaProd[x].id )/100;
           this.montoSub = 1 * this.busquedaProd[x].precio;
           this.montoExonerado = this.montoSub * this.exonerado;
@@ -293,6 +293,7 @@ export class PedidosPage implements OnInit {
       this.exonerado = 0;
       this.montoExonerado = 0;
       this.defaultCant = true;
+      console.log(this.pedido,'pedido')
     }
     this.busquedaProd = [];
     this.numLineas = this.pedido.detalle.length;
@@ -907,8 +908,8 @@ export class PedidosPage implements OnInit {
         this.pedido.descGeneral = this.pedido.descGeneral - this.pedido.detalle[i].descGeneral + montoDescGen;
         this.pedido.detalle[i].descGeneral = montoDescGen;
         this.pedido.iva = this.pedido.iva - this.pedido.detalle[i].iva + montoIVA;
-        this.pedido.detalle[i].iva = montoIVA;
-        this.pedido.detalle[i].montoExonerado = montoExo;
+       // this.pedido.detalle[i].iva = montoIVA;
+    //    this.pedido.detalle[i].montoExonerado = montoExo;
         this.pedido.total = this.pedido.total - this.pedido.detalle[i].total + montoTotal;
         this.pedido.detalle[i].total = montoTotal;
       }

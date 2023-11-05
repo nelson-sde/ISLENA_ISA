@@ -118,9 +118,7 @@ export class IsaCobrosService {
   }
 
   
-
-  async transmitirDocApl(recibo: Recibo){
-    console.log('tansmitiendo docapl')
+  transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
     let reciboBD: RecEncaBD = {
       coD_CIA : 'ISLENA',
       nuM_REC : recibo.numeroRecibo,
@@ -158,49 +156,44 @@ export class IsaCobrosService {
       APLICACION : recibo.observaciones,
     }
     let rowPointer: string = '';
-    rowPointer = this.isa.generate();
-    reciboBD.rowPointer = rowPointer;
-    this.postRecibo(reciboBD).toPromise().then( resp => {
-console.log(resp,'worked')
-   }, error =>{
-    console.log(error,'error')
-   })
+    let email: Email;
+    const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
+
+    if ( cliente !== undefined && recibo.tipoDoc === 'R' ){
+
+      email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
+
+      rowPointer = this.isa.generate();
+      reciboBD.rowPointer = rowPointer;
+      this.actualizaVisita( recibo.codCliente );
+
+      if (nuevo) {
+        this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
+        if (hayCheque){
+          this.postRecibo( reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
+          resp => {
+            console.log('Success RecEnca...', resp);
+            this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
+            this.agregarDetalle( recibo, cheque, hayCheque, email );
+            this.transmitirISA_Liquid( recibo );       // inserta el recibo en ISA_Liquidaciones
+            this.guardarCheque( cheque );
+         
+          }, error => {
+            console.log('Error RecEnca ', error);
+            this.isa.addBitacora( false, 'TR', `Recibo: ${recibo.numeroRecibo}, falla en Encabezado. ${error.message}`);
+            this.isa.presentaToast( 'Error de Envío...' );
+          }
+        );
+
+          
+        }
+      }
+  
+      console.log('Encabezado JSON',JSON.stringify(reciboBD));
+    } else {
+      this.isa.presentAlertW( 'Transmitir Recibo', 'Imposible transmitir recibo. Datos del recibo inconsistentes...!!!');
+    }
   }
-  // transmitirRecibo( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
-    
-  //   let email: Email;
-  //   const cliente = this.isa.clientes.find( d => d.id === recibo.codCliente );
-
-  //   if ( cliente !== undefined && recibo.tipoDoc === 'R' ){
-
-  //     email = new Email( cliente.email, `RECIBO DE DINERO ${recibo.numeroRecibo}`, this.getBody(recibo, cheque, cliente.nombre) );
-
-    
-  //     this.actualizaVisita( recibo.codCliente );
-
-  //     if (nuevo) {
-  //       this.guardarRecibo( recibo );                              // Se guarda el pedido en el Local Stotage
-  //       if (hayCheque){
-  //         this.guardarCheque( cheque );
-  //       }
-  //     }
-  //     this.postRecibo( reciboBD ).subscribe(                    // Transmite el encabezado del pedido al Api
-  //       resp => {
-  //         console.log('Success RecEnca...', resp);
-  //         this.isa.addBitacora( true, 'TR', `Recibo: ${recibo.numeroRecibo}, transmitido Encabezado con exito`);
-  //         this.agregarDetalle( recibo, cheque, hayCheque, email );
-  //         this.transmitirISA_Liquid( recibo );       // inserta el recibo en ISA_Liquidaciones
-  //       }, error => {
-  //         console.log('Error RecEnca ', error);
-  //         this.isa.addBitacora( false, 'TR', `Recibo: ${recibo.numeroRecibo}, falla en Encabezado. ${error.message}`);
-  //         this.isa.presentaToast( 'Error de Envío...' );
-  //       }
-  //     );
-  //     console.log('Encabezado JSON',JSON.stringify(reciboBD));
-  //   } else {
-  //     this.isa.presentAlertW( 'Transmitir Recibo', 'Imposible transmitir recibo. Datos del recibo inconsistentes...!!!');
-  //   }
-  // }
 
   agregarDetalle( recibo: Recibo, cheque: Cheque, hayCheque: boolean, email: Email ) {
     let detalleRec: RecDetaBD;
@@ -292,7 +285,6 @@ console.log(resp,'worked')
         if (hayCheque){
           console.log('hay chque', cheque)
           this.guardarCheque( cheque );
-          this.transmitirDocApl(recibo)
         }
       }
       console.log('recibooo', recibo)
@@ -358,11 +350,10 @@ console.log(resp,'worked')
     cheque = this.consultarCheque( recibo.numeroRecibo );
     if ( cheque !== undefined ){
       hayCheque = true;
-      
     } else {
       cheque = new Cheque( '', '','', '', '', 0);
     }
-    this.transmitirRecTemp( recibo, cheque, hayCheque, false);
+    this.transmitirRecibo( recibo, cheque, hayCheque, false);
   }
 
   retransRecibosPen(){
@@ -657,6 +648,8 @@ console.log(resp,'worked')
 
   private postRecibo( recEncaBD: RecEncaBD ){
     const URL = this.isa.getURL( environment.RecEncaURL, '' );
+    console.log('POST ENCA URL', URL);
+    console.log(recEncaBD,'recEncaBD')
     const options = {
       headers: {
           'Content-Type': 'application/json',

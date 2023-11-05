@@ -198,15 +198,18 @@ export class RuteroPage implements OnInit {
   }
 
   async clientesPopover(ev: any) {
-    const popover = await this.popoverCtrl.create({
+    const modal = await this.modalCtrl.create({
       component: ClientesPage,
       componentProps: {value: this.buscarClientes},
       cssClass: 'my-custom-class',
-      event: ev,
-      translucent: true
+      mode:'ios',
+      //    breakpoints:[0,0.3,0.5,0.8],
+      //  //  initialBreakpoint:0.5,
+ //     event: ev,
+    //  translucent: true
     });
-    await popover.present();
-    const {data} = await popover.onWillDismiss();
+    await modal.present();
+    const {data} = await modal.onWillDismiss();
     if ( data !== undefined){
       if (data.codCliente == this.isa.clienteAct.id){
         this.cargarCliente();

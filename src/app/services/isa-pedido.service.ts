@@ -236,6 +236,8 @@ export class IsaPedidoService {
     let i = 1;
     
     let tax: number;
+    let impuesto:string = ''
+    let impuestoTarifa = '';
     let email: Email;
     let email2: Email;
     const fechaPedido = new Date(new Date(pedido.fecha).getTime() - (new Date(pedido.fecha).getTimezoneOffset() * 60000));
@@ -266,12 +268,24 @@ export class IsaPedidoService {
 
       pedido.detalle.forEach(x => {
         tax = this.calculaImpuesto( x.impuesto ) * 100;
+        impuesto = tax > x.porcenIVA ? this.calculaImpuestoTarifa(cliente.tipoImpuesto) : x.impuesto;
+     //   impuestoTarifa = this.calculaImpuestoTarifa(this.calculaImpuesto( String(Number(impuesto) * 100 )))
+      //  console.log(impuestoTarifa,'impuestoTarifa')
+      //  let montoImpuesto = x.porcenIVA > 0 ?x.precio *  x.porcenIVA / 100 : 0;
+// , x.impuesto.slice(0,2),x.impuesto.slice(2)
+        // tax == x.porcenIVA > 0 ?x.precio *  x.porcenIVA / 100 : 0
+        console.log(impuesto,'impuesto')
+        console.log('xxx',x)
+        console.log(cliente,'cliente')
         const linea = new Ped_Temp(cliente.compania, pedido.numPedido, i, this.isa.varConfig.numRuta, pedido.codCliente, '1', fechaFin, fechaPedido, fechaEntrega,
                           fechaPedido, 0, 0, 0, 0, 0, pedido.detalle.length, cliente.listaPrecios, null, 'N', null, this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', 0, 0, 0, 0, this.isa.nivelPrecios,
-                          'L', null, null, null, x.codProducto, x.precio, x.descuento * 100 / x.subTotal, x.subTotal, x.descuento, x.precio, x.cantidad, x.impuesto.slice(0,2), x.impuesto.slice(2), x.porcenExonerado, 
-                          x.montoExonerado, tax, x.esCanastaBasica);
+                          'L', null, null, null, x.codProducto, x.precio, x.descuento * 100 / x.subTotal, x.subTotal, x.descuento, x.precio, x.cantidad, 
+                          
+                          impuesto.slice(0,2),impuesto.slice(2), x.porcenExonerado, 
+                          x.montoExonerado, tax > x.porcenIVA ? x.porcenIVA : tax, x.esCanastaBasica);
         i += 1;
         arreglo.push(linea);
+        console.log(linea,'lineaaa')
       });
 
       this.postPedidosTemp( arreglo ).subscribe(                    
@@ -283,17 +297,16 @@ export class IsaPedidoService {
           console.log('Success Encabezado...', resp);
           this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
           this.actualizaEstadoPedido( pedido.numPedido, true );
-          email.toEmail = 'nelson@sde.cr';
           this.isa.enviarEmail( email );
-          //email.toEmail = this.isa.varConfig.emailVendedor;
-         // this.isa.enviarEmail( email );
+          email.toEmail = this.isa.varConfig.emailVendedor;
+         this.isa.enviarEmail( email );
 
           if ( pedido.total + cliente.saldoCredito > cliente.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
             const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;
             email2 = new Email( this.isa.varConfig.emailCxC, `${this.isa.varConfig.numRuta}. Limite de Credito Excedido`, texto);
-          //  this.isa.enviarEmail( email2 );
-           // email2.toEmail = this.isa.varConfig.emailSupervisor;
-           // this.isa.enviarEmail( email2 );
+           this.isa.enviarEmail( email2 );
+          email2.toEmail = this.isa.varConfig.emailSupervisor;
+          this.isa.enviarEmail( email2 );
           }
           if ( cliente.id === this.isa.clienteAct.id ){
             this.isa.clienteAct.saldoCredito += pedido.total;
@@ -314,115 +327,13 @@ export class IsaPedidoService {
     }
   }
 
-  /*
-  transmitirPedido( pedido: Pedido, tipo: string ){    // Tipo = N pedido nuevo; R retransmitir
-    let detalleBD: PedDeta;
-    let arrDetBD: PedDeta[] = [];
-    let rowPointer: string = '';
-    let tax: number;
-    let email: Email;
-    let email2: Email;
-    const fechaPedido = new Date(new Date(pedido.fecha).getTime() - (new Date(pedido.fecha).getTimezoneOffset() * 60000));
-    const fechaEntrega = new Date(new Date(pedido.fechaEntrega).getTime() - (new Date(pedido.fechaEntrega).getTimezoneOffset() * 60000));
-    const fechaFin = new Date(new Date(pedido.horaFin).getTime() - (new Date(pedido.horaFin).getTimezoneOffset() * 60000));
-    //const fechaPedido = this.getFecha( new Date(), 'JSON');
-    //const fechaEntrega = this.getFecha( pedido.fechaEntrega, 'JSON');
-    const numPedido = pedido.numPedido;
-    const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
 
-    if ( cliente !== undefined ){ 
-
-      email = new Email( cliente.email, `Pedido: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
-      rowPointer = this.isa.generate();
-
-      if ( tipo == 'N' ){
-        this.guardarPedido( pedido );                  // Se guarda el pedido en el Local Stotage
-        this.guardarEnCxC( pedido );
-      }
-      const pedidoBD = new PedEnca("ISLENA", pedido.numPedido, this.isa.varConfig.numRuta, pedido.codCliente.toString(), '1', fechaFin, fechaPedido, 
-                                    fechaEntrega, fechaPedido, pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, 
-                                    pedido.detalle.length, cliente.listaPrecios, pedido.observaciones, null, 'N', cliente.diasCredito.toString(), 
-                                    this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, 'N', 'N', 'N', null, null, null, 
-                                    this.isa.nivelPrecios, 'L', 0, fechaPedido, rowPointer, 'ISA', 'ISA', fechaPedido, null, cliente.divGeografica1, 
-                                    cliente.divGeografica2, null, null, null, '512211');
-
-      for (let i = 0; i < pedido.detalle.length; i++) {
-        tax = this.calculaImpuesto( pedido.detalle[i].impuesto ) * 100;
-        rowPointer = this.isa.generate();
-        detalleBD = new PedDeta( i + 1, pedido.numPedido, 'ISLENA', pedido.detalle[i].codProducto.toString(), '0', null, pedido.detalle[i].precio, 
-                          pedido.detalle[i].descuento * 100 / pedido.detalle[i].subTotal, pedido.detalle[i].subTotal, pedido.detalle[i].descuento,
-                          pedido.detalle[i].precio, pedido.detalle[i].cantidad, 0, null, cliente.listaPrecios, null, 0, fechaPedido, rowPointer, 
-                          'ISA', 'ISA', fechaPedido, pedido.detalle[i].impuesto.slice(0,2), pedido.detalle[i].impuesto.slice(2), null, null, 
-                          pedido.detalle[i].porcenExonerado, pedido.detalle[i].montoExonerado, tax, 0, 'N', pedido.detalle[i].esCanastaBasica );
-        arrDetBD.push(detalleBD);
-      } 
-      this.postPedidos( pedidoBD ).subscribe(                    // Transmite el encabezado del pedido al Api
-        resp => {
-
-          console.log('Success Encabezado...', resp);
-          this.isa.addBitacora( true, 'TR', `Pedido: ${pedido.numPedido}, transmitido Encabezado con exito`);
-          this.agregarDetalle( numPedido, arrDetBD, email );                                                       // Si es exitoso envia el detalle
-
-          if ( pedido.total + cliente.saldoCredito > cliente.limiteCredito && cliente.diasCredito > 1){             // Se valida el límite de Crédito
-            const texto = `El Cliente ${pedido.codCliente} - ${cliente.nombre}, ha excedido el límite de crédito (¢${cliente.limiteCredito}), con el pedido No. ${pedido.numPedido} por un monto de ${this.colones(pedido.total)}`;
-            email2 = new Email( this.isa.varConfig.emailCxC, `${this.isa.varConfig.numRuta}. Limite de Credito Excedido`, texto);
-            this.isa.enviarEmail( email2 );
-            email2.toEmail = this.isa.varConfig.emailSupervisor;
-            this.isa.enviarEmail( email2 );
-          }
-          if ( cliente.id === this.isa.clienteAct.id ){
-            this.isa.clienteAct.saldoCredito += pedido.total;
-          }
-        }, error => {
-          console.log('Error Encabezado ', error.message );
-          this.isa.addBitacora( false, 'TR', `Pedido: ${pedido.numPedido}, falla en Encabezado. ${error.message}`);
-          this.isa.transmitiendo.pop();
-          console.log('Transmitió: ', this.isa.transmitiendo);
-          this.isa.presentaToast( 'Error de Envío...' );
-        }
-      );
-      
-      console.log('Encabezado JSON',JSON.stringify(pedidoBD));
-      console.log('Detalle JSON ', JSON.stringify(arrDetBD));
-    } else {
-      this.isa.presentAlertW( 'Transmitir Pedido', 'Imposible transmitir pedido. Datos del cliente inconsistentes');
-    }
-  }
-  */
-
-  private agregarDetalle( numPedido: string, detalle: PedDeta[], email: Email ) {
-
-    console.log('Inicia detalle');
-    this.postPedidoDetalle( detalle ).subscribe(
-      resp2 => {
-        console.log('Success Detalle...', resp2);
-        this.isa.addBitacora( true, 'TR', `Pedido: ${numPedido}, transmitido Detalle con exito`);
-        this.actualizaEstadoPedido( numPedido, true );
-        this.isa.transmitiendo.pop();
-        console.log('Transmitió: ', this.isa.transmitiendo);
-        this.isa.presentaToast( 'Pedido Transmitido con Exito...' );
-        if (email.toEmail !== undefined && email.toEmail !== null && email.toEmail !== '') {
-          if (email.toEmail.length > 0){
-            this.isa.enviarEmail( email );
-          }
-        }
-        email.toEmail = this.isa.varConfig.emailVendedor;
-        this.isa.enviarEmail( email );
-      }, error => {
-        console.log('Error Detalle ', error.message);
-        this.isa.addBitacora( false, 'TR', `Pedido: ${numPedido}, falla en TR Detalle. ${error.message}`);
-        this.isa.transmitiendo.pop();
-          console.log('Transmitió: ', this.isa.transmitiendo);
-        this.isa.presentaToast( 'Error de Envío...' );
-      }
-    );
-  }
 
   proforma( pedido: Pedido ){
     let email: Email;
 
     const cliente = this.isa.clientes.find( d => d.id === pedido.codCliente );
-    email = new Email( cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
+    email = new Email(cliente.email, `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
     //email = new Email( 'mauricio.herra@gmail.com', `PROFORMA: ${pedido.numPedido}`, this.getBody(pedido, cliente.nombre));
     this.isa.enviarEmail( email );
     email.toEmail = this.isa.varConfig.emailVendedor;
@@ -576,18 +487,7 @@ export class IsaPedidoService {
     }
   }
 
-  private postPedidos( pedido: PedEnca ){
-    const URL = this.isa.getURL( environment.PedEncaURL, '' );
-    const options = {
-      headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-      }
-    };
-    let texto = JSON.stringify(pedido);
-    console.log('JSON: ', texto);
-    return this.http.post( URL, JSON.stringify(pedido), options );
-  }
+
 
   private postPedidosTemp( pedido: Ped_Temp[] ){
     const URL = this.isa.getURL( environment.Ped_TempURL, '' );
@@ -602,16 +502,7 @@ export class IsaPedidoService {
     return this.http.post( URL, JSON.stringify(pedido), options );
   }
 
-  private postPedidoDetalle( detalle: PedDeta[] ){
-    const URL = this.isa.getURL( environment.PedDetaURL, '' );
-    const options = {
-      headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-      }
-    };
-    return this.http.post( URL, JSON.stringify(detalle), options );
-  }
+
 
   calculaImpuesto( texto: string ){
     if (texto == '0101'){
@@ -628,7 +519,21 @@ export class IsaPedidoService {
       return 0;
     }
   }
-
+  calculaImpuestoTarifa( impuesto: number ){
+    impuesto = impuesto / 100;
+    console.log(impuesto,'impuesto')
+    if (impuesto == 0 ){
+      return  '0101';
+    } else if (impuesto == 0.01){
+      return   '0102';
+    } else if (impuesto == 0.02){
+      return '0103';
+    } else if (impuesto ==  0.04){
+      return '0104';
+    } else if (impuesto ==  0.13 ){
+      return '0108';
+    } 
+  }
   getExistencias( codProducto: string ){
     const query: string = environment.Existencias + codProducto;
 

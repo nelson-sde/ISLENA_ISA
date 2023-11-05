@@ -4,7 +4,7 @@
 
 export const environment = {
   production:    false,
-  companyCode:  '01',
+  companyCode:  '02',
   preURL:       'http://',
   preIRPURL:    'https://',
   TestURL:      '_test',  
@@ -64,6 +64,8 @@ export const environment = {
   version:    '2.0.0',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
+  testEmail:'nelson@sde.cr',
+  testMode:true
 };
 
 /*

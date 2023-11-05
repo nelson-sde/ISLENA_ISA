@@ -1,6 +1,11 @@
 
   <ion-list>
-    <ion-item *ngFor="let item of busquedaClientes; let i = index" (click)="dismissClientes(i)">
+    <ion-searchbar style="margin-top:0.5rem"
+     placeholder="buscar" inputmode="text" type="text"
+    (ionChange)="onSearchChange($event)" [debounce]="250" mode="ios">
+
+    </ion-searchbar>
+    <ion-item *ngFor="let item of busquedaClientes  | filtro : buscar : 'nombre'; let i = index" (click)="dismissClientes(item)">
       <div class="ion-text-wrap">{{item.id}}-{{item.nombre}}</div>
     </ion-item>
   </ion-list>
