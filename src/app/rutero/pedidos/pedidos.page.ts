@@ -10,6 +10,7 @@ import { PedidoFooterComponent } from '../pedido-footer/pedido-footer.component'
 import { IsaCardexService } from 'src/app/services/isa-cardex.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { environment } from 'src/environments/environment';
+import { IsaCobrosService } from 'src/app/services/isa-cobros.service';
 
 
 @Component({
@@ -59,10 +60,13 @@ export class PedidosPage implements OnInit {
                private alertController: AlertController,
                private navController: NavController,
                private popoverController: PopoverController,
-               private barcodeScanner: BarcodeScanner ) {
+               private barcodeScanner: BarcodeScanner,
+               private isaCobrosService:IsaCobrosService ) {
   }
 
-  ngOnInit(){
+   ngOnInit(){
+ 
+    console.log(this.isa.clienteAct, 'clienteAct')
     let fecha = new Date();
     let fecha2 = new Date();
     this.pedido = new Pedido( this.isa.varConfig.consecutivoPedidos, this.isa.clienteAct.id, fecha, 0, 0, 0, 0, 0, 0, '', null, false, null);

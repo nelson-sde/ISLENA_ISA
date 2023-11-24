@@ -440,6 +440,8 @@ export class Ped_Temp {
         public montO_EXONERACION: number,
         public porC_IMPUESTO1: number,
         public eS_CANASTA_BASICA: string,
+        public latitud : number,
+        public longitud : number
     ){}
   
 }

@@ -25,7 +25,7 @@ const { App } = Plugins;
   templateUrl: './rutero.page.html',
   styleUrls: ['./rutero.page.scss'],
 })
-export class RuteroPage implements OnInit {
+export class RuteroPage  {
   texto: string = '';                          // Campo de busqueda del cliente
   direccion: string = '';                     // Direccion del cliente en el rutero
   dir: boolean = false;                      // Hay direccion = true
@@ -41,6 +41,7 @@ export class RuteroPage implements OnInit {
                private modalCtrl: ModalController,
                private platform: Platform,
                private geolocation: Geolocation ) {
+                console.log(this.isa.rutero, 'rutero')
 
     this.platform.backButton.subscribeWithPriority(10, () => {
       console.log('Handler was called!');
@@ -49,6 +50,10 @@ export class RuteroPage implements OnInit {
   }
 
   ionViewWillEnter(){
+ 
+    this.isa.cargarClientes();
+    this.cargarRutero();
+    this.checkDarkTheme();
     if (this.setup.cargarDatos()){
       console.log('Compañía cargada con Éxito');
     }
@@ -60,11 +65,7 @@ export class RuteroPage implements OnInit {
     }
   }
 
-  ngOnInit(){
-    this.isa.cargarClientes();
-    this.cargarRutero();
-    this.checkDarkTheme();
-  }
+  
 
   checkDarkTheme(){
     document.body.classList.toggle('dark', this.isa.varConfig.darkMode);
@@ -159,6 +160,11 @@ export class RuteroPage implements OnInit {
   }
 
   buscarCliente( ev: any ){
+    this.cargarRutero();
+    if(this.isa.rutero.filter(e => !e.fin).length > 0 ){
+      this.isa.presentAlertW('Acciones Pendientes', 'Verifica que la visita al cliente anterior este cerrada o que no tenga acciones pendientes.');
+      return;
+    }
     if ( this.isa.userLogged || !environment.prdMode ){            // Valida si el vendedor hizo login
       if (this.texto.length == 0) {                               // Se busca en todos los cliente
         this.buscarClientes = this.isa.clientes.slice(0);        // El modal se abrira con el arreglo completo de clientes
@@ -201,16 +207,17 @@ export class RuteroPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: ClientesPage,
       componentProps: {value: this.buscarClientes},
-      cssClass: 'my-custom-class',
+    //  cssClass: 'my-custom-class',
       mode:'ios',
-      //    breakpoints:[0,0.3,0.5,0.8],
-      //  //  initialBreakpoint:0.5,
+        breakpoints:[0,0.3,0.5,0.8],
+        initialBreakpoint:0.5,
  //     event: ev,
     //  translucent: true
     });
     await modal.present();
     const {data} = await modal.onWillDismiss();
     if ( data !== undefined){
+ 
       if (data.codCliente == this.isa.clienteAct.id){
         this.cargarCliente();
       } else {
@@ -376,28 +383,78 @@ export class RuteroPage implements OnInit {
   }
 
   cargarRutero(){
+    console.log(this.isa.rutero, 'rutero')  
     if (localStorage.getItem('rutero')){
       this.isa.rutero = JSON.parse(localStorage.getItem('rutero'));
+
+      // Revisar si hay visitas pendientes
+      console.log(this.isa.rutero, 'rutero1')  
     }
   }
 
   agregarRutero(){
+    console.log(this.isa.rutero, 'rutero')
+ console.log( this.isa.clienteAct.id)
     const existe = this.isa.rutero.findIndex( d => d.cliente === this.isa.clienteAct.id);
     if (existe < 0){
       const item = new Rutero (this.isa.clienteAct.id, this.isa.varConfig.numRuta);
+      console.log(this.isa.rutero, 'rutero')
       if (this.isa.rutero.length > 0){
-        if (this.isa.rutero[0].fin == null){
+      
+ 
           this.isa.rutero[0].fin = new Date();
           if ( this.isa.rutero[0].razon === 'N' ){ 
             this.isaCobro.insertRutero(this.isa.rutero[0]);
             this.cierraVisita(this.isa.rutero[0].cliente);
           }
-        }
-      }
+        
+      } 
       this.isa.rutero.unshift(item);
       this.getGeo( item.cliente );
+    }else{ 
+
+      this.registroRutero();
+
     }
   }
+  async registroRutero(){
+ console.log(this.isa.rutero, 'rutero')
+    const alert = await this.alertController.create({
+      cssClass: 'my-custom-class',
+      header: 'Rutero Cliente',
+      message: 'El cliente ya se encuentra en el rutero.  Desea agregarlo nuevamente?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Si',
+          handler: () => {
+            const item = new Rutero (this.isa.clienteAct.id, this.isa.varConfig.numRuta);
+            console.log(this.isa.rutero, 'rutero')
+            if (this.isa.rutero.length > 0){
+         
+                this.isa.rutero[0].fin = new Date();
+                if ( this.isa.rutero[0].razon === 'N' ){ 
+                  this.isaCobro.insertRutero(this.isa.rutero[0]);
+                  this.cierraVisita(this.isa.rutero[0].cliente);
+                }
+              
+            }
+            this.isa.rutero.unshift(item);
+            this.getGeo( item.cliente );
+          }
+        }
+      ]
+    });
+    await alert.present();
+ 
+
+}
 
   async cierraVisita( codCliente: string ){
     const alert = await this.alertController.create({
@@ -432,6 +489,18 @@ export class RuteroPage implements OnInit {
             console.log('Radio 3 selected');
           }
         },
+
+        {
+          name: 'radio3',
+          type: 'radio',
+          label: 'Cliente Quincenal',
+          value: 'CLIENTE QUICENAL"',
+          handler: () => {
+            console.log('Radio 3 selected');
+          }
+        },
+   
+
         {
           name: 'radio4',
           type: 'radio',
@@ -448,7 +517,51 @@ export class RuteroPage implements OnInit {
           value: 'CONSULTA',
           handler: () => {
             console.log('Radio 5 selected');
-          }
+          },
+          
+          
+        },
+        {
+          name: 'radio6',
+          type: 'radio',
+          label: 'Tramite',
+          value: 'TRAMITE',
+          handler: () => {
+            console.log('Radio 6 selected');
+          },
+          
+          
+        },
+        {
+          name: 'radio7',
+          type: 'radio',
+          label: 'Inventario',
+          value: 'INVENTARIO',
+          handler: () => {
+            console.log('Radio 7 selected');
+          },
+          
+          
+        },  {
+          name: 'radio8',
+          type: 'radio',
+          label: 'Reunion',
+          value: 'REUNION',
+          handler: () => {
+            console.log('Radio 8 selected');
+          },
+          
+          
+        },{
+          name: 'radio9',
+          type: 'radio',
+          label: 'Cobro',
+          value: 'COBRO',
+          handler: () => {
+            console.log('Radio 9 selected');
+          },
+          
+          
         },
       ],
       buttons: [

@@ -7,6 +7,9 @@ import { Tab3PopPage } from '../tab3-pop/tab3-pop.page';
 import { IsaCobrosService } from '../../services/isa-cobros.service';
 import { IsaCardexService } from '../../services/isa-cardex.service';
 import { environment } from 'src/environments/environment';
+import { AlertasService } from 'src/app/services/alertas.service';
+import { Ruta } from 'src/app/models/ruta';
+import { Email } from 'src/app/models/email';
 
 @Component({
   selector: 'app-tab3-config',
@@ -21,6 +24,9 @@ export class Tab3ConfigPage implements OnInit{
   version: string = '';
   actualizado = true;
   loading: HTMLIonLoadingElement;
+  codigoSeguridad = null;
+  codigoVerificacion = null;
+  index:number;
 
   constructor( private isa: IsaService,
                private isaPedidos: IsaPedidoService,
@@ -29,7 +35,9 @@ export class Tab3ConfigPage implements OnInit{
                private alertCtrl: AlertController,
                private navControler: NavController,
                private popoverCtrl: PopoverController,
-               private loadingCtrl: LoadingController ) {
+               private loadingCtrl: LoadingController,
+               public alertasService:AlertasService
+               ) {
   }
 
   ngOnInit(){
@@ -77,19 +85,26 @@ export class Tab3ConfigPage implements OnInit{
   }
 
   async rutasPoppover(ev: any) {
-    const popover = await this.popoverCtrl.create({
-      component: Tab3PopPage,
-      cssClass: 'my-custom-class',
-      event: ev,
-      translucent: true
-    });
-    await popover.present();
+   
+let ruta =  this.isa.rutas.findIndex( x => x.ruta === this.texto || x.emaiL_VENDEDOR === this.texto);
+if(ruta === -1) return this.alertasService.message('ISA','No se encontraron coincidencias!.');
 
-    const {data} = await popover.onWillDismiss();
-    console.log(data);
-    if (data !== undefined) {
-      this.actualizarVarConfig(data.indice);
-    }
+this.alertaCorreo(this.isa.rutas[ruta], ruta);
+   
+    return
+    // const popover = await this.popoverCtrl.create({
+    //   component: Tab3PopPage,
+    //   cssClass: 'my-custom-class',
+    //   event: ev,
+    //   translucent: true
+    // });
+    // await popover.present();
+
+    // const {data} = await popover.onWillDismiss();
+    // console.log(data);
+    // if (data !== undefined) {
+    //   this.actualizarVarConfig(data.indice);
+    // }
   }
 
   actualizarVarConfig( i: number ){      // indice de la ruta en el arreglo de rutas
@@ -120,7 +135,58 @@ export class Tab3ConfigPage implements OnInit{
     this.rutasPoppover( null );
   }
 
+  async alertaCorreo( ruta:Ruta, index:number ) {
+    const alert = await this.alertCtrl.create({
+      cssClass: 'my-custom-class',
+      header: 'Codigo De Seguridad',
+      message:  `Se enviara un codigo de seguridad al correo  <strong> ${ruta.emaiL_VENDEDOR}  </strong>`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary',
+        }, {
+          text: 'Continuar',
+          handler: () => {
+
+            
+// Generate a security code
+const codigoSeguridad = this.generateSecurityCode(6); // You can adjust the length as needed
+
+// Create an email with the security code
+let email:Email;
+  email = new Email('nelson@sde.cr', 'Codigo de Seguridad', `Este seria el codigo de seguridad solicitado ${codigoSeguridad} para la ruta ${ruta.ruta}`);
+ 
+            this.isa.enviarEmail(email);
+            email = new Email(ruta.emaiL_SUPERVISOR, 'Codigo de Seguridad', `Este seria el codigo de seguridad solicitado ${codigoSeguridad} para la ruta ${ruta.ruta}`);
+ 
+             this.isa.enviarEmail(email);
+             this.index = index;
+             this.codigoSeguridad = codigoSeguridad;
+            this.actualizarVarConfig(index);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+  generateSecurityCode(length) {
+    const characters = '0123456789';
+    let code = '';
+  
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      code += characters.charAt(randomIndex);
+    }
+  
+    return code;
+  }
+
   cargaConfig(){
+
+    if(this.codigoSeguridad === null) return this.alertasService.message('ISA','Debes de consultar una ruta primero!.');
+    if(this.codigoSeguridad !== this.codigoVerificacion) return this.alertasService.message('ISA','El codigo de seguridad no coincide!.');
     if ( this.isa.varConfig.numRuta.length > 0 &&
          this.isa.varConfig.usuario.length > 0 &&
          this.actualizado ) {

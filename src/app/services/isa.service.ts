@@ -80,7 +80,7 @@ export class IsaService {
     this.cargarVarConfig();
     this.cargarExistencias();
     this.cargarBitacora();
-    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null, 'N', null);
+    this.clienteAct = new Cliente('','ND','','','','ND','','',0,0,0,0,0,0,0,0,'','','','', null, null, 'N', null, null, null, null);
   }
 
   private cargarVarConfig(){
@@ -498,7 +498,7 @@ export class IsaService {
         resp.forEach(e => {
           cliente = new Cliente(e.cod_Clt, e.nom_Clt, e.dir_Clt, e.tipo_Contribuyente, e.contribuyente, e.razonsocial, e.num_Tel,
             e.nom_Cto, 0, e.lim_Cre, +e.cod_Cnd, e.lst_Pre, e.descuento, +e.tipo_Impuesto, +e.tipo_Tarifa, e.porc_Tarifa, e.division_Geografica1, 
-            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud, e.usa_Letra, e.coD_CIA);
+            e.division_Geografica2, e.moroso, e.e_MAIL, e.latitud, e.longitud, e.usa_Letra, e.coD_CIA, e.dia, e.orden, '');
           this.clientes.push( cliente );
         });
         console.log( 'Arreglo', this.clientes );

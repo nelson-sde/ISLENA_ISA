@@ -9,7 +9,8 @@ import { Pen_Cobro } from '../models/cobro';
 import { PdfMakeWrapper, Table, Txt } from 'pdfmake-wrapper';
 import { Platform } from '@ionic/angular';
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
-import { Plugins, FilesystemDirectory } from "@capacitor/core";
+import { Plugins, } from "@capacitor/core";  //FilesystemDirectory
+import { FilesystemDirectory } from '@capacitor/filesystem';
 const { Filesystem } = Plugins;
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 import { Rutero, RuteroBD } from '../models/ruta';
@@ -227,9 +228,25 @@ export class IsaPedidoService {
     pedido.detalle = detAux.slice(0);
     return pedidoNuevo;
   }
+  obtenerUbicacionActual(): Promise<{ latitud: number, longitud: number }> {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation no está soportado por tu navegador'));
+        } else {
+            navigator.geolocation.getCurrentPosition((position) => {
+                resolve({
+                    latitud: position.coords.latitude,
+                    longitud: position.coords.longitude
+                });
+            }, (error) => {
+                reject(error);
+            });
+        }
+    });
 
-  transmitirPedTemp( pedido: Pedido, tipo: string ){
-
+}
+  async transmitirPedTemp( pedido: Pedido, tipo: string ){
+    let data  =  await this.obtenerUbicacionActual();
     // Tipo = N pedido nuevo; R retransmitir
 
     let arreglo: Ped_Temp[] = [];
@@ -262,7 +279,7 @@ export class IsaPedidoService {
       const linea0 = new Ped_Temp(cliente.compania, pedido.numPedido, 0, this.isa.varConfig.numRuta, pedido.codCliente, '1', fechaFin, fechaPedido, fechaEntrega,
                       fechaPedido, pedido.iva, 0, pedido.subTotal + pedido.iva, pedido.subTotal, pedido.descuento, pedido.detalle.length, cliente.listaPrecios, pedido.observaciones, 
                       'N', cliente.diasCredito.toString(), this.isa.varConfig.bodega.toString(), 'CRI', 'N', 'ND', pedido.porcentajeDescGeneral, 0, pedido.descGeneral, 0, this.isa.nivelPrecios,
-                      'L', cliente.divGeografica1, cliente.divGeografica2, this.actividadComercial, null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null);
+                      'L', cliente.divGeografica1, cliente.divGeografica2, this.actividadComercial, null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, data.latitud, data.longitud);
 
       arreglo.push(linea0);
 
@@ -282,7 +299,7 @@ export class IsaPedidoService {
                           'L', null, null, null, x.codProducto, x.precio, x.descuento * 100 / x.subTotal, x.subTotal, x.descuento, x.precio, x.cantidad, 
                           
                           impuesto.slice(0,2),impuesto.slice(2), x.porcenExonerado, 
-                          x.montoExonerado, tax > x.porcenIVA ? x.porcenIVA : tax, x.esCanastaBasica);
+                          x.montoExonerado, tax > x.porcenIVA ? x.porcenIVA : tax, x.esCanastaBasica, data.latitud, data.longitud);
         i += 1;
         arreglo.push(linea);
         console.log(linea,'lineaaa')

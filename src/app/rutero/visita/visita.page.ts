@@ -15,6 +15,7 @@ export class VisitaPage implements OnInit {
                private isa: IsaService) { }
 
   ngOnInit() {
+    console.log(this.isa.rutero);
   }
 
   async abrirDet( i: number ){

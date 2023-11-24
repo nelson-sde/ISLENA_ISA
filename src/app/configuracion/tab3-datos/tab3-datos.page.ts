@@ -148,6 +148,8 @@ export class Tab3DatosPage implements OnInit {
   }
 
   async sincronizar(){
+
+ 
     if ( this.actualizar ){ 
       const alert = await this.alertCtrl.create({
         cssClass: 'my-custom-class',

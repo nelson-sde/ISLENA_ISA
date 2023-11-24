@@ -1,10 +1,10 @@
 export const environment = {
   production:    true,
   companyCode:  '02',
-  preURL:       'http://',
-  preIRPURL:    'https://',
-  TestURL:      '_test',  
-  postURL:      'sde1.sderp.site/isa_test/api/',
+  preURL:       'http://api_isa',
+  preIRPURL:    'https://apiirp',
+  TestURL:      '_test',
+  postURL:      '.di-apps.co.cr/api/',
   actividadEco: '512211',
   BackOrdersURL: 'BackOrders/',
   BancosURL:    'Bancos/',
@@ -57,7 +57,7 @@ export const environment = {
   VisitaURL:    'Visita/',
   
   adminClave: '15@Admin2*',
-  version:    '2.0.0',        // Versión Carpeta de Pruebas
+  version:    '3.0.0',        // Versión Carpeta de Pruebas
   aplicarNC:  false,
   prdMode:    true,
   testEmail:'nelson@sde.cr',

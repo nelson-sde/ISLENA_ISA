@@ -12,11 +12,16 @@
 
 <ion-content class="ion-padding">
   <ion-item>
-    <ion-label position="floating">Numero de Ruta</ion-label>
-    <ion-input [(ngModel)]="texto" (keyup.enter)="rutaEnter(texto)"></ion-input>
+    <ion-label position="floating">Ruta / Correo Vendedor</ion-label>
+    <ion-input [(ngModel)]="texto"  ></ion-input>
     <ion-button (click)="rutasPoppover( $event )" slot="end" size="medium" color="light">
       <ion-icon name="search-outline"></ion-icon>
     </ion-button>
+  </ion-item>
+  <ion-item *ngIf="codigoSeguridad">
+    <ion-label position="floating">Codigo Verificacion</ion-label>
+    <ion-input [(ngModel)]="codigoVerificacion"  ></ion-input>
+  
   </ion-item>
   <p></p>
   <ion-list>
@@ -61,8 +66,9 @@
     </ion-item>
   </ion-list>
   <p></p>
-  <ion-button (click)="cargaConfig()" expand="block" shape="round" size="large">
-    Sincronizar
+  <ion-button (click)="cargaConfig()"  style="display:block;height: 45px;width: 90%;margin: 0 auto;" shape="round"   >
+ 
+   <ion-label style="font-size: 18px;"> <strong>Sincronizar</strong></ion-label>
   </ion-button>
 </ion-content>
 

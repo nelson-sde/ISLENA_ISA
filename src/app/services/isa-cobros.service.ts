@@ -16,7 +16,8 @@ export class IsaCobrosService {
   tipoCambio = 0;
 
   constructor( private isa: IsaService,
-               private http: HttpClient ) {
+               private http: HttpClient,
+                ) {
     this.tipoCambio = this.isa.varConfig.tipoCambio;
   }
 
@@ -263,8 +264,24 @@ console.log(resp,'worked')
       }
     );
   }
+  obtenerUbicacionActual(): Promise<{ latitud: number, longitud: number }> {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation no está soportado por tu navegador'));
+        } else {
+            navigator.geolocation.getCurrentPosition((position) => {
+                resolve({
+                    latitud: position.coords.latitude,
+                    longitud: position.coords.longitude
+                });
+            }, (error) => {
+                reject(error);
+            });
+        }
+    });
 
-  transmitirRecTemp( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
+}
+ async  transmitirRecTemp( recibo: Recibo, cheque: Cheque, hayCheque: boolean, nuevo: boolean ){
 
     const fechaRecibo = new Date(new Date(recibo.fecha).getTime() - (new Date(recibo.fecha).getTimezoneOffset() * 60000));
     const fechaFin = new Date(new Date(recibo.horaFin).getTime() - (new Date(recibo.horaFin).getTimezoneOffset() * 60000));
@@ -292,24 +309,25 @@ console.log(resp,'worked')
         if (hayCheque){
           console.log('hay chque', cheque)
           this.guardarCheque( cheque );
-          this.transmitirDocApl(recibo)
+          //this.transmitirDocApl(recibo)
         }
       }
-      console.log('recibooo', recibo)
-
+      console.log('creacion Recibo', recibo)
+      let data  =  await this.obtenerUbicacionActual();
+    
       const item1 = new ReciboBD(cliente.compania, recibo.numeroRecibo, recibo.tipoDoc, 0, recibo.numeroRuta, recibo.codCliente, 
                             recibo.numeroRecibo, null, fechaRecibo, fechaRecibo, 'A', recibo.moneda, this.tipoCambio,
                             recibo.montoLocal, recibo.montoEfectivoL, recibo.montoChequeL, fechaRecibo, fechaFin, 
                             recibo.montoTarjetaL, recibo.montoDepositoL, 0, 0, 0, this.isa.varConfig.numRuta, recibo.bancoDep,
-                            recibo.monto_NC, recibo.otrosMov, recibo.observaciones);
+                            recibo.monto_NC, recibo.otrosMov, recibo.observaciones, data.latitud, data.longitud);
 
       reciboBD.push(item1);
 
       recibo.detalle.forEach( x => {
         linea += 1;
         const item2 = new ReciboBD( cliente.compania, recibo.numeroRecibo, recibo.tipoDoc, linea, recibo.numeroRuta, recibo.codCliente, 
-                            x.numeroDocumen, x.numeroDocumenAf, x.fechaDocu, fechaRecibo, 'A', 'L', 645, x.abonoLocal, 0, 0, null, null, 
-                            0, 0, 0, 0, x.saldoLocal, null, null, 0, 0, null );
+          recibo.numeroRecibo, x.numeroDocumenAf, x.fechaDocu, fechaRecibo, 'A', 'L', 645, x.abonoLocal, 0, 0, null, null, 
+                            0, 0, 0, 0, x.saldoLocal, null, null, 0, 0, null , data.latitud, data.longitud);
         reciboBD.push( item2 );
       })
 
@@ -387,6 +405,7 @@ console.log(resp,'worked')
   /*
   reciboSimple( recibo: Recibo, nuevo: boolean ){     // nuevo = true: se inserta el recibo en el Local Storage
     let email: Email;
+        email = new Email( cliente.email, `NOTIFICACION POR COBRO DE DINERO RUTA: ${recibo.numeroRuta}`, this.getBody(recibo, cheque, cliente.nombre, false) );
     let cheque: Cheque = new Cheque('','','','','',0);
     let reciboBD: RecAnulado = {
       coD_CIA:       'ISLENA',

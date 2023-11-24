@@ -3,7 +3,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
-    "emitDecoratorMetadata": true,
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -11,7 +10,7 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "esnext",
+    "target": "ES2022",
     "module": "es2020",
     "lib": [
       "es2018",
@@ -21,10 +20,8 @@
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
-    "enableIvy": true,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
-
+    "strictTemplates": true
   }
 }

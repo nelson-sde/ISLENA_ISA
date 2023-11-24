@@ -349,7 +349,9 @@ export class ReciboBD {
         public bancO_DEP:       string,
         public montO_NC:        number,
         public montO_OTROS:     number,
-        public aplicacion:      string
+        public aplicacion:      string,
+        public latitud :        number,
+        public longitud:        number,
     ){}
 }
 

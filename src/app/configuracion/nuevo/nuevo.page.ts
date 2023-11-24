@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { ModalController } from '@ionic/angular';
-import { stringify } from 'querystring';
 import { Categorias, ClienteNuevo, RutasCanton } from 'src/app/models/cliente';
 import { Email } from 'src/app/models/email';
 import { Cantones, Distritos, RutasDist } from 'src/app/models/ruta';

@@ -1,0 +1,73 @@
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-buttons>
+      <ion-button (click)="regresar()" fill="clear" slot="start">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        Back
+      </ion-button>
+      <ion-title align-text-center>Carga Ruta - {{isa.varConfig.numRuta}} ({{ambiente}})</ion-title>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label position="floating">Numero de Ruta</ion-label>
+    <ion-input [(ngModel)]="texto" (keyup.enter)="rutaEnter(texto)"></ion-input>
+    <ion-button (click)="rutasPoppover( $event )" slot="end" size="medium" color="light">
+      <ion-icon name="search-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+  <p></p>
+  <ion-list>
+    <ion-item color="light">
+      <ion-label>
+        <h2><strong>Numero de Ruta: {{isa.varConfig.numRuta}}</strong></h2>
+        <p>Nombre del Vendedor: {{isa.varConfig.codVendedor}} - {{isa.varConfig.nomVendedor}}</p>
+        <p>Nombre de Usuario: {{isa.varConfig.usuario}}</p>
+        <p>Consecutivo Pedidos: {{isa.varConfig.consecutivoPedidos}}</p>
+        <p>Consecutivo Recibos: {{isa.varConfig.consecutivoRecibos}}</p>
+        <p>Consecutivo Devoluciones: : {{isa.varConfig.consecutivoDevoluciones}}</p>
+      </ion-label>
+    </ion-item>
+    <p></p>
+    <ion-item color="light">
+      <ion-label>Consecutivo Pedidos: </ion-label>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.consecutivoPedidos"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Consecutivo Recibos: </ion-label>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.consecutivoRecibos"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Consecutivo Dev: </ion-label>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.consecutivoDevoluciones"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Email Ejecutiva: </ion-label>
+      <ion-input type="email" [(ngModel)]="isa.varConfig.emailCxC"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Email Vendedor: </ion-label>
+      <ion-input type="email" [(ngModel)]="isa.varConfig.emailVendedor"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Usuario: </ion-label>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.usuario"></ion-input>
+    </ion-item>
+    <ion-item color="light">
+      <ion-label>Clave: </ion-label>
+      <ion-input type="text" [(ngModel)]="isa.varConfig.clave"></ion-input>
+    </ion-item>
+  </ion-list>
+  <p></p>
+  <ion-button (click)="cargaConfig()" expand="block" shape="round" size="large">
+    Sincronizar
+  </ion-button>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar color="dark">
+    <ion-title slot="end">Versión: {{ version }}</ion-title>
+  </ion-toolbar>
+</ion-footer>

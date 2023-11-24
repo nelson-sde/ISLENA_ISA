@@ -1,12 +1,21 @@
-
+<ion-header  mode="ios">
+  <ion-toolbar  mode="md">
+    <ion-searchbar style="margin-top:16px"
+    placeholder="Buscar Cliente" inputmode="text" type="text"
+   (ionChange)="onSearchChange($event)" [debounce]="250" mode="ios">
+  
+   </ion-searchbar>
+   <ion-button    slot="end" fill="clear"  (click)="opcionesDeFiltro()">
+    <ion-icon size="large" color="dark"   name="options"></ion-icon>
+   </ion-button>
+ 
+  </ion-toolbar>
+</ion-header>
+<ion-content>
   <ion-list>
-    <ion-searchbar style="margin-top:0.5rem"
-     placeholder="buscar" inputmode="text" type="text"
-    (ionChange)="onSearchChange($event)" [debounce]="250" mode="ios">
-
-    </ion-searchbar>
-    <ion-item *ngFor="let item of busquedaClientes  | filtro : buscar : 'nombre'; let i = index" (click)="dismissClientes(item)">
-      <div class="ion-text-wrap">{{item.id}}-{{item.nombre}}</div>
+    <ion-item color="{{item.color}}" *ngFor="let item of busquedaClientes  | filtro : buscar : 'nombre'" (click)="dismissClientes(item)">
+      <ion-label >{{item.id}} - {{item.nombre}}</ion-label>
     </ion-item>
   </ion-list>
-
+</ion-content>
+ 

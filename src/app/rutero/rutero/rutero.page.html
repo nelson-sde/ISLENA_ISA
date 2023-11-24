@@ -1,6 +1,10 @@
 <ion-header>
   <ion-toolbar color="dark">
-    <ion-buttons>
+    <ion-avatar slot="start" style="height: 40px;width: 40px;margin-left: 10px;">
+      <img src="assets/isa100.png" />
+    </ion-avatar>
+    <ion-buttons slot="end">
+   
       <ion-title align-text-center>{{isa.varConfig.numRuta}}</ion-title>
       <ion-button *ngIf="isa.hayPedidosWhatsapp" fill="clear" slot="end" size="medium" (click)="pedidosWhatsapp()">
         <ion-icon name="logo-whatsapp" color="success" size="large"></ion-icon>
